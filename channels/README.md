@@ -1,35 +1,63 @@
-# Channels (phase 3: build next)
+# Channels
 
-Goal: turn the Free-TV playlist into a clean `channels.json` that Tony can load.
+Turns two public playlists into one tested `channels.json` that Tony loads, plus a folder of
+cleaned-up logos.
 
-Source: `https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8`
-(repo: https://github.com/Free-TV/IPTV; human-readable lists are in `lists/*.md`)
+| Source | What it is |
+| --- | --- |
+| [Free-TV/IPTV](https://github.com/Free-TV/IPTV) | Curated, officially free channels (~2,200). Listed first; its numbering wins. |
+| [iptv-org/iptv](https://github.com/iptv-org/iptv) | Much larger set of user-submitted public streams (~11,500). |
+| [iptv-org/database](https://github.com/iptv-org/database) | Channel IDs, categories, adult flags, country names, logo URLs. |
 
-The script should:
-1. Download the playlist and parse the `#EXTINF` attributes (`tvg-name`, `tvg-logo`, `tvg-id`, `group-title`) and the stream URLs. Check the real attribute names first.
-2. Group the channels by country, and give each one a category where it can be worked out.
-3. Test every stream from Australia (an HTTP check plus a short play test). Mark channels that are broken, geo-blocked or YouTube-based.
-4. Assign stable channel numbers.
-5. Write `channels.json`: `id, number, name, country, category, logo, url, hd, geoblocked, youtube, lastChecked`.
-6. Report how many working Lebanese and Australian channels there are.
+## Run it
 
-Optionally, host the output on the owner's GitHub so the app can fetch updates without being reinstalled.
-
-Only use officially free sources (see `CLAUDE.md` section 3).
-
-## Usage (built 8 Nov 2026)
+One-time setup (creates `channels/.venv` with Pillow for logo processing):
 
 ```sh
-python3 channels/build_channels.py Lebanon Australia   # chosen countries
-python3 channels/build_channels.py                     # every country (slow: ~2,000 streams)
-python3 channels/build_channels.py --no-test Lebanon   # parse only, no stream tests
+python3 -m venv channels/.venv && channels/.venv/bin/pip install pillow resvg-py
 ```
 
-Plain Python 3, no installs needed. It writes `channels/channels.json` and prints a report.
+Then:
 
-- `status` is one of `ok`, `broken`, `geoblocked` (marked Ⓖ or HTTP 401/403/451 from Australia), `youtube` (not tested; played through YouTube's official embed or the YouTube app), or `untested`.
-- **Channel numbers stay stable**: the playlist's `tvg-chno` is used where present, numbers from the previous `channels.json` are kept, and new channels get the next free number in their country.
-- `category` is a rough guess from the channel name, because Free-TV has no category field.
-- The test fetches the playlist, follows it to a media playlist, then downloads the first bytes of a segment. A pass doesn't guarantee a picture; the app still has to hide channels that fail to play.
+```sh
+channels/.venv/bin/python channels/build_channels.py                     # every country (~13k streams, 20–40 min)
+channels/.venv/bin/python channels/build_channels.py Lebanon Australia   # just these; merged into the existing file
+channels/.venv/bin/python channels/build_channels.py --no-test Lebanon   # no stream tests; keeps earlier results
+channels/.venv/bin/python channels/contact_sheet.py channels/channels.json /tmp/sheet.png Lebanon   # logo QA image
+```
 
-First run (Lebanon + Australia): **Lebanon 13 of 15 OK, Australia 24 of 26 OK.** Results change between runs (Al Manar passed once, then returned 404), so the app should re-check channels itself and not rely on this file alone.
+## What it does
+
+1. Downloads both playlists and the iptv-org database.
+2. Matches each entry to an iptv-org channel ID (by ID, then by name within the country). The same
+   channel from both lists becomes **one** entry with several stream URLs.
+3. **Excludes** adult (NSFW) channels and paid/premium subscription channels (beIN, HBO, OSN, Foxtel,
+   DAZN and so on), matched by name. Free services like Pluto TV are never excluded.
+4. **Tests every stream:** playlist, then media playlist, then the first bytes of a segment. It then
+   runs a slower second pass for failures that look temporary. It sends the playback headers a
+   playlist publishes for a stream, and never invents its own.
+5. Picks the best working URL as `url`, keeps the other working URLs as `backupUrls` for fail-over.
+6. Keeps **channel numbers stable** between runs (previous number, then Free-TV `tvg-chno`, then the
+   next free number).
+7. `enrich.py` downloads each logo (from the iptv-org database first, otherwise the playlist), trims
+   it, scales it to at most 320×160, saves it as `logos/<id>.webp`, and works out how the badge should
+   look (see CLAUDE.md 7.1).
+
+## Fields in `channels.json`
+
+`id, number, name, country, countryCode, groupKind (country|theme|vod), category, sources[],
+url, headers{}, backupUrls[], streams[], status, statusDetail, media (video|audio|web|youtube),
+hd, geoblocked, youtube, notAlwaysOn, lastChecked, iptvOrgId, logo, logoBadge (light|dark|fill),
+logoBadgeColor, tileColor, logoWidth, logoHeight, logoLowRes`
+
+- `status`: `ok`, `broken`, `geoblocked` (HTTP 401/403/451 from Australia, or marked geo-blocked),
+  `web` (a web page, not a stream), `youtube` (played via the official embed or the YouTube app), or
+  `untested` (RTMP/RTSP, which the app tries itself).
+- `media: audio` means a radio station (no picture). The app shows the logo with "Radio".
+- **Nothing is hidden** (owner decision). `status` only drives ordering, badges and fail-over. A
+  passing test doesn't guarantee a picture, so the app re-checks when it plays.
+
+## Safety
+
+Everything downloaded is treated as untrusted. Logo files are capped at 5 MB and 16 MP, SVGs are
+rendered offline (no external fetches), and the script only writes inside `channels/`.

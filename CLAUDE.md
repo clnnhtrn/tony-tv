@@ -45,11 +45,19 @@ help work around them:
    or embedding of piracy sites (e.g. FrameX TV, framextv.*), and no "site like FrameX" either.
 2. **No DRM circumvention** (Widevine/PlayReady/FairPlay) and no bypassing of a site's
    anti-inspection, anti-scraping, token or bot protections.
-3. **Only channels that are officially free** — the Free-TV/IPTV playlist (whose own rule is "no paid
-   channels"; only channels broadcasters provide free) plus, optionally, official free live streams
-   published by broadcasters themselves.
-4. If a legal source is ever added beyond Free-TV, check it has an official API/embed/permission and
-   respect its terms.
+3. **Free, public streams only.** *Changed by the owner on 8 Nov 2026:* the "officially free only" rule
+   is relaxed. Tony combines **Free-TV/IPTV** (curated, official) **and iptv-org/iptv** (larger,
+   user-submitted public links). Free-TV entries are listed first and win on numbering.
+4. **Always excluded:** sexual/adult (NSFW) channels (iptv-org `is_nsfw` / XXX). Films and series with
+   violence or horror are fine. **Paid/premium subscription channels** (beIN, OSN, Foxtel, Kayo,
+   DAZN, HBO, Cinemax, Showtime, Starz, Sky Sports/Cinema, Eurosport, Canal+, TNT Sports, Fox Sports,
+   Setanta, Arena Sport, Sport TV, MBC Max…) are excluded because free links to them are pirated
+   re-streams. Matching is by **channel name only**, and free ad-supported services (Pluto, Samsung TV
+   Plus, Plex, Tubi, Rakuten…) are never excluded. Racing.com and Shahid's free channels are fine.
+5. **Allowed:** using playback headers the playlist itself publishes (`#EXTVLCOPT:http-user-agent`,
+   `http-referrer`), as every IPTV player does; multiple backup URLs per channel; retries.
+   **Not allowed (owner asked; declined 8 Nov 2026):** DRM cracking, token generation, VPN/proxy
+   geo-unblocking, or inventing headers to get past a server that refuses us.
 
 Legal free alternatives already suggested to the owner for movies/shows (outside this app): SBS On
 Demand, ABC iview, 7plus, 9Now, 10, Tubi, Pluto TV, Plex, Kanopy (library card). Some Pluto/Plex
@@ -78,10 +86,20 @@ channels already appear in the Free-TV playlist.
   **wrong**: the Lebanon list includes religious and party-affiliated channels. The owner can hide
   any of them in Settings → Channels.
 - Mock-up channel names are examples only.
-- Plan: `channels/` holds a script that downloads the playlist, keeps chosen countries, tests each
-  stream from Australia, and writes `channels.json` (name, country, category, logo, url, number,
-  hd, geoblocked, youtube). Optionally host the owner's filtered copy on their own GitHub so channel
-  fixes reach the TV without reinstalling.
+- **Second source (added 8 Nov 2026):** `https://iptv-org.github.io/iptv/index.m3u` (≈11,500 entries)
+  plus the iptv-org **database** (`iptv-org/database` `data/*.csv`) for channel matching, categories,
+  NSFW flags, country names and **logos**. iptv-org names carry `(1080p)` and `[Not 24/7]` /
+  `[Geo-blocked]` tags. ≈900 entries publish header hints via `#EXTVLCOPT`.
+- **Combined result (Lebanon + Australia, 8 Nov 2026):** Lebanon **27/32 working** (adds LBC
+  International, Al Jadeed, OTV, Lana, Red TV, Future TV, mfm, One TV and others). Australia
+  **44–45/57 working**. Results vary run to run.
+- **Do not hide any channels for now** (owner, 8 Nov 2026). Everything stays in the list. Status
+  fields only drive ordering, badges and fail-over.
+- **Script:** `channels/build_channels.py` (see `channels/README.md`) merges both sources into one
+  entry per channel, with `url` + `backupUrls` + `headers`, tests every stream, keeps stable
+  numbers, then `channels/enrich.py` adds logos (`channels/logos/<id>.png`) and badge colours.
+  `channels/contact_sheet.py` renders all badges for visual QA. **Always look at the sheet after
+  logo changes.**
 
 ---
 
@@ -110,6 +128,29 @@ channels already appear in the Free-TV playlist.
   Use at most ONE preview player at a time besides the main player.
 - **Design size note:** mock-ups are drawn at **1920×1080 px**. On Android TV at 1080p the logical
   size is typically **960×540 dp**, so **divide mock-up px by 2 for dp/sp**.
+
+---
+
+## 5a. TV safety and security (owner requirement, 8 Nov 2026)
+
+"Make sure any implementation is secure and safe to be used on the TV and that it won't affect anything
+else on that TV. No function from the app can change anything on the TV." The app MUST:
+- Request **only** `INTERNET` (+ `ACCESS_NETWORK_STATE`). **No** other permissions: no storage,
+  no `RECEIVE_BOOT_COMPLETED`, no `SYSTEM_ALERT_WINDOW`, no accessibility service, no device admin,
+  no `REQUEST_INSTALL_PACKAGES`, no `WRITE_SETTINGS`, no foreground services that outlive the app,
+  no microphone (voice search uses the system's own mic button, which needs no permission).
+- **Not** be a launcher/home replacement, not change TV settings, inputs, CEC, volume defaults or
+  other apps. Uninstall removes everything (all data in app-private storage).
+- Stop all playback and background work when the app leaves the foreground. Live-still and channel
+  checks run **only while Tony is open** (no WorkManager jobs when closed).
+- Only intent it sends out: opening a YouTube channel in the YouTube app (explicit, user-triggered).
+- Treat `channels.json`, playlists and logos as **untrusted input**: fetch the list over HTTPS only,
+  validate the schema, cap sizes, ignore unknown fields, keep the last good copy if a download is bad.
+  Stream URLs may be `http://` (cleartext allowed for media only; the list itself must be HTTPS).
+- WebView (YouTube embed only): JavaScript on for the embed, file/content access **off**, no JS
+  bridges, only `youtube.com`/`youtube-nocookie.com`/`ytimg.com`/`googlevideo.com` navigation allowed.
+- No analytics, no ads SDKs, no accounts, no data leaves the TV except stream/list/logo requests.
+- Release build: R8 minify, `debuggable=false`, `allowBackup=false`.
 
 ---
 
@@ -148,6 +189,8 @@ Earlier versions are kept for reference only (section 8).
 | Tile radius | 18–20 px; pills fully rounded |
 | Focus state | **white ring with a dark gap** (`0 0 0 4px bg, 0 0 0 8px #FFF`) + **scale ~1.08** + soft shadow; label under focused tile turns white/bold, others muted grey |
 | Channel tile | live still (placeholder in mock-ups) + **white logo badge** top-left + optional **LIVE** pill / **heart** badge |
+| Logo badge (real logos, decided 8 Nov 2026) | Badge colour from `channels.json`: `logoBadge` = `light` (white `#FFFFFF`), `dark` (`#0B0C10`, for white logos) or `fill` (`logoBadgeColor`, the logo's own background). Non-white badges get a 1 px `rgba(255,255,255,0.14)` hairline. Radius 10 px, padding 10×12 px. **Optical sizing:** every logo gets the same visual area (120×36 px² @1080p), so w = √(A·aspect), h = w/aspect, clamped to max 150×52 px. Don't size by fixed height, or square logos look tiny. |
+| Fallback tile (no live still) | `tileColor` from `channels.json` (dark brand tone, or neutral `#24252D`). Logo badge centred and larger instead of top-left. No logo → channel name in Inter 700 |
 | Spacing | left page margin 104 px, top 48 px, row gap ~44 px, tile gap 28 px |
 | Sizes (px @1080p) | Wide tile 400×225; standard tile 250×140; section titles 24 px/700; nav pills 21 px; body 21–22 px |
 | No | gradients washes, emoji, clutter, big help bars, oversized text |
@@ -216,7 +259,8 @@ Earlier versions are kept for reference only (section 8).
 | v2 | `v2-apple-tv-inspired` | Slate bg, "Keep watching" wide tiles, numbered "Your channels" row, bottom channel strip player | "Don't love it" |
 | v3 | `v3-cinematic` | Full-screen live background, huge channel name, single row of white logo cards | Not chosen |
 | v4 | `v4-large-accessible` | Big text, 4 huge cards, permanent help bar | Rejected: too big ("they're not blind") |
-| v5 | `v5-clean-home-only` → `v5-full-set-rev1` → **`v5-FINAL`** | Clean, normal sizes; then full screen set; then Recent + Favourites row + grid search | **Chosen** |
+| v5 | `v5-clean-home-only` → `v5-full-set-rev1` → **`v5-FINAL`** | Clean, normal sizes; then full screen set; then Recent + Favourites row + grid search | **Chosen** (base for all screens) |
+| v6 | `v6-hero` | v5 + live **hero** at top of Home (featured favourite plays muted, follows focus), real logos + real live stills, LIVE/HD pills, row count chips. Inspired by the hero-plus-rows layout the owner liked on a streaming site: layout ideas only, no branding copied | **Proposed 9 Nov 2026**, awaiting owner review |
 
 `.dc.html` files are Claude "Design canvas" artboards (HTML + a small template runtime loaded from
 `./support.js`, which only exists inside the canvas). Open them in the canvas link to view; in the repo
@@ -249,7 +293,9 @@ prices).
 ## 11. Plan / phases and status
 1. Decide interface — **DONE** (Version 5).
 2. Mock-up review — **DONE** (v5-FINAL), minus v5 country picker and empty-favourites state.
-3. **Channel list — IN PROGRESS** (`channels/build_channels.py` works; Lebanon 13/15 OK, Australia 24/26 OK on 8 Nov 2026). Remaining: full all-countries run, decide hosting. Original task: fetch Free-TV playlist, filter countries, test
+3. **Channel list — IN PROGRESS**: combined Free-TV + iptv-org script, logos and QA sheet done.
+   Remaining: full run committed, push to owner's GitHub (account `clnnhtrn`; repo still to be
+   created), raw URL for the app. Original task: fetch Free-TV playlist, filter countries, test
    streams from Australia, output `channels.json`; report how many Lebanese channels exist.
 4. Build app v1 in `app/` (Kotlin, Compose for TV, Media3): Home rows, details, player + preview strip,
    options panel, search, favourites, settings, first-run picker, auto-hide broken channels, live stills.
@@ -270,6 +316,10 @@ prices).
 > pick a channel. If a channel stops working, I update the list."
 
 ## 14. Working rules for Claude in this repo
+- **Quality bar (owner, 8 Nov 2026):** this will be shown to the family. It must look professional, not
+  "half done or AI slop". Use the design skills and solid UI/UX principles. **Test every route and
+  deliberately try to break things** (no network, dead stream, bad list, slow stream, empty favourites,
+  geo-blocked, radio-only, YouTube, remote button mashing), then fix what breaks.
 - Keep **every design/version**; never overwrite a version — add a new one.
 - Ask before big or irreversible changes; small, clear tasks can go ahead.
 - Keep the UI **clean and normal-sized**; resist adding clutter.
