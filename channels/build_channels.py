@@ -40,6 +40,9 @@ import enrich  # shared iptv-org database helpers (Pillow optional for this part
 
 FREE_TV_URL = "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8"
 IPTV_ORG_URL = "https://iptv-org.github.io/iptv/index.m3u"
+API = "https://iptv-org.github.io/api/"
+LOGO_FIELDS = ("logo", "logoFile", "logoBadge", "logoBadgeColor", "tileColor", "logoLowRes", "logoFrom",
+               "logoWidth", "logoHeight", "logoSource")
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "channels.json"
 UA = "Mozilla/5.0 (Linux; Android 12; Google TV) Tony/1.0"
@@ -54,9 +57,11 @@ EXTINF_RE = re.compile(r'^#EXTINF:\s*-?\d+((?:\s+[\w-]+="[^"]*")*)\s*,(.*)$')
 PREMIUM = re.compile(
     r"\b(bein|osn|sky sports?(?! news)|sky cinema|sky atlantic|foxtel|kayo|dazn|hbo|showtime|starz|cinemax|"
     r"canal\+|eurosport|bt sport|tnt sports|fox sports|fox deportes|supersport|ssc sport|setanta|"
-    r"premier sports|arena sport|sport tv\s?\d|mbc max|movistar\+)\b", re.I)
+    r"premier sports|arena sport|sport tv\s?\d|mbc max|movistar\+|"
+    r"axn|amc|mgm|tcm|syfy|universal tv|paramount network)\b", re.I)  # pay-cable networks (9 Nov 2026)
 # Free ad-supported services whose channels sometimes carry premium brand names ("DAZN x Pluto TV").
-FREE_SERVICE = re.compile(r"pluto|samsung tv plus|plex|tubi|rakuten|roku|xumo|stirr|redbox|freevee", re.I)
+FREE_SERVICE = re.compile(r"pluto|samsung tv plus|plex|tubi|rakuten|roku|xumo|stirr|redbox|freevee|"
+                          r"amc \(afghanistan\)|imagen", re.I)  # last two: free local channels with clashing names
 WEB_HOSTS = ("twitch.tv", "dailymotion.com", "ok.ru", "facebook.com", "vimeo.com")
 TRANSIENT = ("URLError", "TimeoutError", "RemoteDisconnected", "ConnectionResetError", "SSLError",
              "IncompleteRead", "HTTP 500", "HTTP 502", "HTTP 503", "HTTP 504")
@@ -230,6 +235,7 @@ def main():
     ap.add_argument("--free-tv-only", action="store_true")
     ap.add_argument("--workers", type=int, default=32)
     ap.add_argument("--out", help="write here instead of channels/channels.json (testing)")
+    ap.add_argument("--keep-logos", action="store_true", help="reuse logos from the previous run (no logo processing)")
     args = ap.parse_args()
     global OUT
     if args.out:
@@ -244,6 +250,13 @@ def main():
         entries += iptv_org_entries(download(IPTV_ORG_URL))
     db = enrich.db_csv("channels")
     by_id, by_name = enrich.build_index(db)
+    # iptv-org blocklist: channels removed after copyright (DMCA) complaints or for adult content.
+    blocked = {b["channel"].lower(): b["reason"] for b in json.loads(download(API + "blocklist.json"))}
+    # Languages of each channel's main feed (e.g. "ara" for Arabic) -> Arabic row in the app.
+    langs = {}
+    for f in enrich.db_csv("feeds"):
+        if f["is_main"] == "TRUE" or f["channel"] not in langs:
+            langs[f["channel"]] = [l for l in f["languages"].split(";") if l]
     country_names = {c["code"]: c["name"] for c in enrich.db_csv("countries")}
     country_names.update({"GB": "UK", "US": "USA", "AE": "UAE", "KR": "South Korea", "KP": "North Korea"})
 
@@ -270,6 +283,9 @@ def main():
             {"tvgId": tvg, "name": e["name"], "country": country_names.get(cc, "")}, cc, by_id, by_name)
         if db_ch:
             cc = db_ch["country"].upper() or cc
+        if db_ch and db_ch["id"].lower() in blocked:
+            excluded["blocklist-" + blocked[db_ch["id"].lower()]] += 1
+            continue
         if (db_ch and db_ch["is_nsfw"] == "TRUE") or (e.get("category") or "").upper() == "XXX":
             excluded["adult"] += 1
             continue
@@ -300,6 +316,7 @@ def main():
                 "id": slug(db_ch["id"] if db_ch else f"{country}-{e['name']}"),
                 "name": e["name"], "country": country, "countryCode": cc or None, "groupKind": kind,
                 "category": None, "tvgId": e["tvgId"], "iptvOrgId": db_ch["id"] if db_ch else None,
+                "languages": langs.get(db_ch["id"], []) if db_ch else [],
                 "logo": e["logo"], "sources": [], "streams": [], "chno": None,
                 "hd": False, "geoblocked": False, "youtube": False, "notAlwaysOn": False,
             }
@@ -402,6 +419,11 @@ def main():
         if seen[ch["id"]] > 1:
             ch["id"] = f'{ch["id"]}-{seen[ch["id"]]}'
 
+    if args.keep_logos:  # reuse earlier logo results by channel id
+        for ch in channels:
+            p = previous.get(ch["id"])
+            if p and p.get("logoFile") and (HERE / "logos" / p["logoFile"]).exists():
+                ch.update({k: p.get(k) for k in LOGO_FIELDS})
     channels = kept + channels
     channels.sort(key=lambda c: (c["groupKind"] != "country", c["country"], c["number"]))
     enrich.save_channels(OUT, {
@@ -413,7 +435,9 @@ def main():
           f"excluded: {dict(excluded)}", file=sys.stderr)
 
     # ---- logos, badge colours (needs Pillow) ----
-    if enrich.Image is not None:
+    if args.keep_logos:
+        print("Kept logos from the previous run", file=sys.stderr)
+    elif enrich.Image is not None:
         enrich.main(OUT)
         channels = json.loads(OUT.read_text())["channels"]
     else:
@@ -424,7 +448,7 @@ def main():
 
 
 # Fields the TV app needs (everything else stays in channels.json for the build).
-APP_FIELDS = ("id", "number", "name", "category", "url", "headers", "backupUrls", "status", "media",
+APP_FIELDS = ("id", "number", "name", "country", "languages", "category", "url", "headers", "backupUrls", "status", "media",
               "hd", "geoblocked", "notAlwaysOn", "logo", "logoBadge", "logoBadgeColor", "tileColor",
               "logoWidth", "logoHeight")
 
@@ -460,8 +484,19 @@ def write_dist(channels, now):
     for f in (dist / "countries").glob("*.json"):
         if f.name not in written:
             f.unlink()
+    # Cross-country rows: working channels only, Free-TV first.
+    (dist / "rows").mkdir(exist_ok=True)
+    rows_index = []
+    for key, title, test in (("arabic", "Arabic", lambda c: "ara" in (c.get("languages") or [])),
+                             ("movies", "Movies", lambda c: c.get("category") == "Movies")):
+        chs = [c for c in channels if c["status"] == "ok" and c["groupKind"] != "vod" and test(c)]
+        chs.sort(key=lambda c: ("free-tv" not in c.get("sources", []), c["country"], c["number"]))
+        (dist / "rows" / f"{key}.json").write_text(json.dumps(
+            {"row": title, "generated": now, "channels": [{k: c.get(k) for k in APP_FIELDS} for c in chs]},
+            ensure_ascii=False, separators=(",", ":")))
+        rows_index.append({"key": key, "title": title, "file": f"rows/{key}.json", "channels": len(chs)})
     (dist / "index.json").write_text(json.dumps(
-        {"schema": 1, "generated": now, "countries": index}, ensure_ascii=False, indent=1))
+        {"schema": 1, "generated": now, "countries": index, "rows": rows_index}, ensure_ascii=False, indent=1))
 
 
 def report(channels):

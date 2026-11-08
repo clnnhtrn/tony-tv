@@ -51,9 +51,12 @@ help work around them:
 4. **Always excluded:** sexual/adult (NSFW) channels (iptv-org `is_nsfw` / XXX). Films and series with
    violence or horror are fine. **Paid/premium subscription channels** (beIN, OSN, Foxtel, Kayo,
    DAZN, HBO, Cinemax, Showtime, Starz, Sky Sports/Cinema, Eurosport, Canal+, TNT Sports, Fox Sports,
-   Setanta, Arena Sport, Sport TV, MBC Max…) are excluded because free links to them are pirated
+   Setanta, Arena Sport, Sport TV, MBC Max, AXN, AMC, TCM, Syfy, Paramount Network…) are excluded because free links to them are pirated
    re-streams. Matching is by **channel name only**, and free ad-supported services (Pluto, Samsung TV
    Plus, Plex, Tubi, Rakuten…) are never excluded. Racing.com and Shahid's free channels are fine.
+   The **iptv-org blocklist** (`api/blocklist.json`: DMCA takedowns + NSFW) is applied to both sources.
+   Note: no free channel shows films currently in cinemas; that's only on paid services (owner asked,
+   9 Nov 2026). Tony offers a **Movies** row of free movie channels instead.
 5. **Allowed:** using playback headers the playlist itself publishes (`#EXTVLCOPT:http-user-agent`,
    `http-referrer`), as every IPTV player does; multiple backup URLs per channel; retries.
    **Not allowed (owner asked; declined 8 Nov 2026):** DRM cracking, token generation, VPN/proxy
@@ -93,6 +96,9 @@ channels already appear in the Free-TV playlist.
 - **Combined result (Lebanon + Australia, 8 Nov 2026):** Lebanon **27/32 working** (adds LBC
   International, Al Jadeed, OTV, Lana, Red TV, Future TV, mfm, One TV and others). Australia
   **44–45/57 working**. Results vary run to run.
+- **Cross-country rows (9 Nov 2026):** `dist/rows/arabic.json` (channels whose main feed language is
+  Arabic, ≈285 working) and `dist/rows/movies.json` (category Movies, ≈490 working), listed in
+  `dist/index.json` under `rows`. Each channel carries `languages` (ISO 639-3) and `country`.
 - **Do not hide any channels for now** (owner, 8 Nov 2026). Everything stays in the list. Status
   fields only drive ordering, badges and fail-over.
 - **Script:** `channels/build_channels.py` (see `channels/README.md`) merges both sources into one

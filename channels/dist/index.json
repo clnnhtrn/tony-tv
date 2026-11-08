@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated": "2026-11-08T20:50:45+00:00",
+ "generated": "2026-11-08T23:46:11+00:00",
  "countries": [
   {
    "name": "Afghanistan",
@@ -215,8 +215,8 @@
    "kind": "country",
    "flag": "🇧🇷",
    "file": "countries/brazil.json",
-   "channels": 280,
-   "working": 157
+   "channels": 278,
+   "working": 156
   },
   {
    "name": "British Virgin Islands",
@@ -287,8 +287,8 @@
    "kind": "country",
    "flag": "🇨🇦",
    "file": "countries/canada.json",
-   "channels": 143,
-   "working": 96
+   "channels": 142,
+   "working": 95
   },
   {
    "name": "Cape Verde",
@@ -350,7 +350,7 @@
    "kind": "country",
    "flag": "🇭🇷",
    "file": "countries/croatia.json",
-   "channels": 32,
+   "channels": 29,
    "working": 10
   },
   {
@@ -386,8 +386,8 @@
    "kind": "country",
    "flag": "🇨🇿",
    "file": "countries/czech-republic.json",
-   "channels": 96,
-   "working": 89
+   "channels": 86,
+   "working": 82
   },
   {
    "name": "Democratic Republic of the Congo",
@@ -414,7 +414,7 @@
    "flag": "🇩🇴",
    "file": "countries/dominican-republic.json",
    "channels": 248,
-   "working": 193
+   "working": 192
   },
   {
    "name": "Ecuador",
@@ -494,8 +494,8 @@
    "kind": "country",
    "flag": "🇫🇮",
    "file": "countries/finland.json",
-   "channels": 33,
-   "working": 24
+   "channels": 31,
+   "working": 23
   },
   {
    "name": "France",
@@ -503,7 +503,7 @@
    "kind": "country",
    "flag": "🇫🇷",
    "file": "countries/france.json",
-   "channels": 185,
+   "channels": 184,
    "working": 143
   },
   {
@@ -548,8 +548,8 @@
    "kind": "country",
    "flag": "🇩🇪",
    "file": "countries/germany.json",
-   "channels": 401,
-   "working": 322
+   "channels": 399,
+   "working": 320
   },
   {
    "name": "Ghana",
@@ -656,8 +656,8 @@
    "kind": "country",
    "flag": "🇭🇺",
    "file": "countries/hungary.json",
-   "channels": 175,
-   "working": 124
+   "channels": 173,
+   "working": 122
   },
   {
    "name": "Iceland",
@@ -728,7 +728,7 @@
    "kind": "country",
    "flag": "🇮🇹",
    "file": "countries/italy.json",
-   "channels": 531,
+   "channels": 529,
    "working": 364
   },
   {
@@ -1178,8 +1178,8 @@
    "kind": "country",
    "flag": "🇵🇱",
    "file": "countries/poland.json",
-   "channels": 154,
-   "working": 115
+   "channels": 150,
+   "working": 112
   },
   {
    "name": "Portugal",
@@ -1187,8 +1187,8 @@
    "kind": "country",
    "flag": "🇵🇹",
    "file": "countries/portugal.json",
-   "channels": 54,
-   "working": 38
+   "channels": 52,
+   "working": 37
   },
   {
    "name": "Puerto Rico",
@@ -1331,8 +1331,8 @@
    "kind": "country",
    "flag": "🇸🇬",
    "file": "countries/singapore.json",
-   "channels": 23,
-   "working": 20
+   "channels": 22,
+   "working": 19
   },
   {
    "name": "Sint Maarten",
@@ -1349,8 +1349,8 @@
    "kind": "country",
    "flag": "🇸🇰",
    "file": "countries/slovakia.json",
-   "channels": 63,
-   "working": 46
+   "channels": 61,
+   "working": 45
   },
   {
    "name": "Slovenia",
@@ -1394,8 +1394,8 @@
    "kind": "country",
    "flag": "🇪🇸",
    "file": "countries/spain.json",
-   "channels": 273,
-   "working": 155
+   "channels": 270,
+   "working": 153
   },
   {
    "name": "Sri Lanka",
@@ -1547,7 +1547,7 @@
    "kind": "country",
    "flag": "🇦🇪",
    "file": "countries/uae.json",
-   "channels": 58,
+   "channels": 57,
    "working": 35
   },
   {
@@ -1574,8 +1574,8 @@
    "kind": "country",
    "flag": "🇬🇧",
    "file": "countries/united-kingdom.json",
-   "channels": 220,
-   "working": 120
+   "channels": 216,
+   "working": 119
   },
   {
    "name": "Uruguay",
@@ -1592,8 +1592,8 @@
    "kind": "country",
    "flag": "🇺🇸",
    "file": "countries/usa.json",
-   "channels": 1635,
-   "working": 1311
+   "channels": 1621,
+   "working": 1300
   },
   {
    "name": "Uzbekistan",
@@ -1684,6 +1684,20 @@
    "file": "countries/vod-movies-en.json",
    "channels": 26,
    "working": 23
+  }
+ ],
+ "rows": [
+  {
+   "key": "arabic",
+   "title": "Arabic",
+   "file": "rows/arabic.json",
+   "channels": 285
+  },
+  {
+   "key": "movies",
+   "title": "Movies",
+   "file": "rows/movies.json",
+   "channels": 492
   }
  ]
 }
