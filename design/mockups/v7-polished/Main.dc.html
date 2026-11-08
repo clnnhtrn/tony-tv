@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony v7 — Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#15161B}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #15161B; font-family: Inter, system-ui, sans-serif; color: #F5F5F7; font-feature-settings: 'tnum' 1">
+
+  <div style="position: absolute; left: 0; top: 0; width: 1920px; height: 640px">
+    <img src="{{hero.still}}" alt="" style="position: absolute; right: 0; top: 0; width: 1340px; height: 640px; object-fit: cover">
+    <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #15161B 0%, #15161B 27%, rgba(21,22,27,0.84) 43%, rgba(21,22,27,0.28) 65%, rgba(21,22,27,0) 80%)"></div>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 320px; background: linear-gradient(180deg, rgba(21,22,27,0) 0%, rgba(21,22,27,0.86) 55%, #15161B 88%)"></div>
+    <div style="position: absolute; left: 0; right: 0; top: 0; height: 240px; background: linear-gradient(180deg, rgba(21,22,27,0.92) 0%, rgba(21,22,27,0.55) 50%, rgba(21,22,27,0) 100%)"></div>
+  </div>
+
+  <header style="position: absolute; left: 104px; right: 104px; top: 48px; height: 52px; display: flex; align-items: center; gap: 48px">
+    <div style="display: flex; align-items: baseline; gap: 3px">
+      <span style="font-size: 38px; font-weight: 900; letter-spacing: -1.2px; color: #FFFFFF">tony</span>
+      <span style="width: 10px; height: 10px; border-radius: 999px; background: {{accent}}; display: inline-block"></span>
+    </div>
+    <nav style="display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,0.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10)">
+      <a href="#" style="text-decoration: none; padding: 9px 22px; border-radius: 999px; background: rgba(255,255,255,0.13); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); color: #FFFFFF; font-size: 19px; font-weight: 600">Home</a>
+      <a href="#" style="text-decoration: none; padding: 9px 22px; border-radius: 999px; color: #AEAEB2; font-size: 19px; font-weight: 500">Favourites</a>
+      <a href="#" style="text-decoration: none; padding: 9px 22px; border-radius: 999px; color: #AEAEB2; font-size: 19px; font-weight: 500">Search</a>
+    </nav>
+    <div style="flex-grow: 1"></div>
+    <span style="font-size: 20px; font-weight: 500; color: #C7C7CC; letter-spacing: 0.2px">7:42</span>
+    <button aria-label="Settings" style="width: 46px; height: 46px; border-radius: 999px; border: 0; padding: 0; background: rgba(255,255,255,0.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C7C7CC" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+    </button>
+  </header>
+
+  <section style="position: absolute; left: 104px; top: 214px; width: 800px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span style="display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border-radius: 7px; background: rgba(12,12,16,0.62); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); font-size: 13px; font-weight: 700; letter-spacing: 1.4px; color: #FFFFFF">
+        <span style="width: 7px; height: 7px; border-radius: 999px; background: {{accent}}; display: inline-block"></span>LIVE
+      </span>
+      <span style="padding: 6px 10px; border-radius: 7px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); font-size: 13px; font-weight: 700; letter-spacing: 1.4px; color: #C7C7CC">FEATURED</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 22px">
+      <div style="{{hero.badgeStyle}}"><img src="{{hero.logo}}" alt="" style="{{hero.logoStyle}}"></div>
+      <h1 style="margin: 0; font-size: 76px; line-height: 1; font-weight: 800; letter-spacing: -2.2px; color: #FFFFFF">{{hero.name}}</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 500; color: #AEAEB2">
+      <span>{{hero.meta}}</span>
+      <sc-if value="{{hero.hd}}" hint-placeholder-val="{{hero.hd}}"><span style="padding: 2px 7px; border-radius: 5px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.30); font-size: 12px; font-weight: 700; letter-spacing: 0.8px; color: #C7C7CC">HD</span></sc-if>
+    </div>
+    <p style="margin: 0; font-size: 21px; line-height: 1.5; color: #C7C7CC; max-width: 620px">{{hero.desc}}</p>
+    <div style="display: flex; gap: 14px; margin-top: 8px">
+      <button style="{{watchStyle}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="{{watchIcon}}"></path></svg>Watch
+      </button>
+      <button style="display: inline-flex; align-items: center; gap: 11px; height: 58px; padding: 0 26px; border-radius: 12px; border: 0; background: rgba(255,255,255,0.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); color: #F5F5F7; font-family: Inter, system-ui, sans-serif; font-size: 21px; font-weight: 600">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.5 8.1 3.6 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.7 1.2-1.6 2.8-2.7 4.8-2.7 3.6 0 5.7 3.6 4.5 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" fill="{{accent}}"></path></svg>In Favourites
+      </button>
+    </div>
+    <div style="display: flex; gap: 6px; margin-top: 16px" aria-hidden="true">
+      <sc-for list="{{dots}}" as="d" hint-placeholder-count="5"><span style="{{d.style}}"></span></sc-for>
+    </div>
+  </section>
+
+  <div style="position: absolute; left: 104px; right: 0; top: 628px; height: 1px; background: rgba(255,255,255,0.07)"></div>
+
+  <section style="position: absolute; left: 104px; top: 656px; width: 1712px">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h2 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.3px; color: #F5F5F7">Favourites</h2>
+          <span style="padding: 2px 8px; border-radius: 7px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); font-size: 14px; font-weight: 600; color: #AEAEB2">5</span>
+        </div>
+        <span style="font-size: 17px; color: #8E8E93">Your channels, live now</span>
+      </div>
+      <a href="#" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 17px; font-weight: 500; color: #8E8E93">See all<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
+    </div>
+    <div style="display: flex; gap: 28px">
+      <sc-for list="{{favs}}" as="c" hint-placeholder-count="5">
+        <div style="flex: 0 0 400px; display: flex; flex-direction: column; gap: 12px">
+          <div style="{{c.tileStyle}}">
+            <img src="{{c.still}}" alt="" style="{{c.imgStyle}}">
+            <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 96px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%)"></div>
+            <div style="{{c.badgeStyle}}"><img src="{{c.logo}}" alt="" style="{{c.logoStyle}}"></div>
+            <span style="position: absolute; left: 14px; bottom: 14px; display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 7px; background: rgba(12,12,16,0.62); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); font-size: 12px; font-weight: 700; letter-spacing: 1.4px; color: #FFFFFF">
+              <span style="width: 7px; height: 7px; border-radius: 999px; background: {{accent}}; display: inline-block"></span>LIVE
+            </span>
+            <span style="{{c.edgeStyle}}"></span>
+          </div>
+          <div style="{{c.labelWrap}}">
+            <span style="{{c.nameStyle}}">{{c.name}}</span>
+            <span style="font-size: 16px; font-weight: 500; color: #8E8E93">{{c.sub}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"focusTile":{"editor":"int","default":-1,"min":-1,"max":4},"$preview":{"width":1920,"height":1080}}'>
+const CH = {
+  mtv:    { name: "MTV Lebanon", country: "Lebanon", num: 1, cat: "General", hd: true, still: "/_blob/6fbead2f1c968b4fceaae54671f5c5df", logo: "/_blob/806897165a56c7330301894add296d43", w: 200, h: 77, badge: "fill", bc: "#1C2454", desc: "News, talk shows, series and entertainment from Lebanon." },
+  lbci:   { name: "LBC International", country: "Lebanon", num: 20, cat: "General", hd: true, still: "/_blob/29be0d734aec41b4ec6f202cdc87ec1e", logo: "/_blob/9fa51d92ab5165ea8c2cb6779b22ea27", w: 67, h: 160, badge: "fill", bc: "#ECECEC", desc: "News, drama and talk shows from Lebanon." },
+  jadeed: { name: "Al Jadeed", country: "Lebanon", num: 17, cat: "General", hd: true, still: "/_blob/a43cdbe74aac16f075b0680eb579ece7", logo: "/_blob/f892f50f188401e64a0b50be530bcf7c", w: 320, h: 123, badge: "dark", bc: "#0B0C10", desc: "Lebanese news, current affairs and entertainment." },
+  abcn:   { name: "ABC News", country: "Australia", num: 13, cat: "News", hd: true, still: "/_blob/1c2b9c918fe35358c8b6cc1e487df4d2", logo: "/_blob/4d6e4ce1464c5a1efbc98208970f3d24", w: 289, h: 160, badge: "dark", bc: "#0B0C10", desc: "Australian and world news, around the clock." },
+  sbs:    { name: "SBS", country: "Australia", num: 6, cat: "General", hd: true, still: "/_blob/ff6e2812f70a9b4679cb193e6d4e2c57", logo: "/_blob/ccfb973f574ff0672e6df0fa422b5a8e", w: 320, h: 154, badge: "light", bc: "#FFFFFF", desc: "World news, documentaries, film and food." }
+};
+const FAVS = ["mtv", "lbci", "jadeed", "abcn", "sbs"];
+
+function badge(c, area, maxW, maxH, pad, radius, pos) {
+  const a = c.w / c.h;
+  const w0 = Math.sqrt(area * a), h0 = w0 / a;
+  const k = Math.min(1, maxW / w0, maxH / h0);
+  let skin;
+  if (c.badge === "light") skin = "background: #FFFFFF; box-shadow: 0 2px 10px rgba(0,0,0,0.28);";
+  else if (c.badge === "dark") skin = "background: rgba(11,12,16,0.72); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);";
+  else skin = "background: " + c.bc + "; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 2px 10px rgba(0,0,0,0.28);";
+  return {
+    badgeStyle: pos + " display: inline-flex; align-items: center; justify-content: center; padding: " + pad + "; border-radius: " + radius + "px; " + skin,
+    logoStyle: "display: block; width: " + Math.round(w0 * k) + "px; height: " + Math.round(h0 * k) + "px; object-fit: contain"
+  };
+}
+
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? "#FF9F0A";
+    const focus = this.props.focusTile ?? -1;
+    const heroKey = focus === -1 ? "mtv" : FAVS[focus];
+    const h = CH[heroKey];
+    const watchFocused = focus === -1;
+    const favs = FAVS.map((k, i) => {
+      const c = CH[k];
+      const f = i === focus;
+      return Object.assign({}, c, badge(c, 120 * 36 * 0.85, 136, 46, "8px 10px", 9, "position: absolute; left: 14px; top: 14px;"), {
+        sub: c.country + " · Channel " + c.num,
+        tileStyle: "position: relative; width: 400px; height: 225px; border-radius: 16px; overflow: hidden; background: #1C1D24;" + (f ? " transform: scale(1.05); transform-origin: center top; box-shadow: 0 26px 50px rgba(0,0,0,0.6);" : ""),
+        imgStyle: "position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;" + (f ? "" : " filter: brightness(0.8);"),
+        edgeStyle: "position: absolute; inset: 0; border-radius: 16px; pointer-events: none; box-shadow: " + (f ? "inset 0 0 0 3px #FFFFFF" : "inset 0 0 0 1px rgba(255,255,255,0.10)"),
+        labelWrap: "display: flex; flex-direction: column; gap: 3px; padding-left: 2px;" + (f ? " margin-top: 12px" : ""),
+        nameStyle: f ? "font-size: 21px; font-weight: 650; color: #FFFFFF" : "font-size: 21px; font-weight: 500; color: #AEAEB2"
+      });
+    });
+    return {
+      accent,
+      hero: Object.assign({}, h, badge(h, 120 * 36 * 2.2, 210, 78, "11px 14px", 14, ""), { meta: "Channel " + h.num + "  ·  " + h.country + "  ·  " + h.cat }),
+      favs,
+      dots: FAVS.map((k) => ({ style: k === heroKey ? "width: 26px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block" : "width: 8px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.28); display: inline-block" })),
+      watchIcon: watchFocused ? "#15161B" : "#FFFFFF",
+      watchStyle: "display: inline-flex; align-items: center; gap: 11px; height: 58px; padding: 0 30px; border-radius: 12px; border: 0; font-family: Inter, system-ui, sans-serif; font-size: 21px; font-weight: 700;" + (watchFocused ? " background: #FFFFFF; color: #15161B; transform: scale(1.05); box-shadow: 0 14px 34px rgba(0,0,0,0.5);" : " background: rgba(255,255,255,0.14); color: #FFFFFF; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);")
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony v7 — Rows</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#15161B}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #15161B; font-family: Inter, system-ui, sans-serif; color: #F5F5F7; font-feature-settings: 'tnum' 1">
+
+  <header style="position: absolute; left: 104px; right: 104px; top: 48px; height: 52px; display: flex; align-items: center; gap: 48px">
+    <div style="display: flex; align-items: baseline; gap: 3px">
+      <span style="font-size: 38px; font-weight: 900; letter-spacing: -1.2px; color: #FFFFFF">tony</span>
+      <span style="width: 10px; height: 10px; border-radius: 999px; background: {{accent}}; display: inline-block"></span>
+    </div>
+    <nav style="display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,0.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10)">
+      <a href="#" style="text-decoration: none; padding: 9px 22px; border-radius: 999px; background: rgba(255,255,255,0.13); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); color: #FFFFFF; font-size: 19px; font-weight: 600">Home</a>
+      <a href="#" style="text-decoration: none; padding: 9px 22px; border-radius: 999px; color: #AEAEB2; font-size: 19px; font-weight: 500">Favourites</a>
+      <a href="#" style="text-decoration: none; padding: 9px 22px; border-radius: 999px; color: #AEAEB2; font-size: 19px; font-weight: 500">Search</a>
+    </nav>
+    <div style="flex-grow: 1"></div>
+    <span style="font-size: 20px; font-weight: 500; color: #C7C7CC; letter-spacing: 0.2px">7:42</span>
+    <button aria-label="Settings" style="width: 46px; height: 46px; border-radius: 999px; border: 0; padding: 0; background: rgba(255,255,255,0.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C7C7CC" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+    </button>
+  </header>
+
+  <sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+    <section style="{{r.pos}}">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 18px">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <h2 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.3px; color: #F5F5F7">{{r.title}}</h2>
+            <sc-if value="{{r.count}}" hint-placeholder-val="{{r.count}}"><span style="padding: 2px 8px; border-radius: 7px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); font-size: 14px; font-weight: 600; color: #AEAEB2">{{r.count}}</span></sc-if>
+          </div>
+          <sc-if value="{{r.subtitle}}" hint-placeholder-val="{{r.subtitle}}"><span style="font-size: 17px; color: #8E8E93">{{r.subtitle}}</span></sc-if>
+        </div>
+        <sc-if value="{{r.seeAll}}" hint-placeholder-val="{{r.seeAll}}"><a href="#" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 17px; font-weight: 500; color: #8E8E93">See all<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></sc-if>
+      </div>
+      <div style="display: flex; gap: 28px">
+        <sc-for list="{{r.items}}" as="c" hint-placeholder-count="6">
+          <div style="{{c.cellStyle}}">
+            <div style="{{c.tileStyle}}">
+              <img src="{{c.still}}" alt="" style="{{c.imgStyle}}">
+              <div style="{{c.shadeStyle}}"></div>
+              <div style="{{c.badgeStyle}}"><img src="{{c.logo}}" alt="" style="{{c.logoStyle}}"></div>
+              <sc-if value="{{c.live}}" hint-placeholder-val="{{c.live}}">
+                <span style="position: absolute; left: 14px; bottom: 14px; display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 7px; background: rgba(12,12,16,0.62); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); font-size: 12px; font-weight: 700; letter-spacing: 1.4px; color: #FFFFFF">
+                  <span style="width: 7px; height: 7px; border-radius: 999px; background: {{accent}}; display: inline-block"></span>LIVE
+                </span>
+              </sc-if>
+              <sc-if value="{{c.fav}}" hint-placeholder-val="{{c.fav}}">
+                <span aria-label="In Favourites" style="position: absolute; right: 10px; bottom: 10px; width: 28px; height: 28px; border-radius: 8px; background: rgba(12,12,16,0.62); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center">
+                  <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.5 8.1 3.6 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.7 1.2-1.6 2.8-2.7 4.8-2.7 3.6 0 5.7 3.6 4.5 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" fill="{{accent}}"></path></svg>
+                </span>
+              </sc-if>
+              <span style="{{c.edgeStyle}}"></span>
+            </div>
+            <div style="{{c.labelWrap}}">
+              <span style="{{c.nameStyle}}">{{c.name}}</span>
+              <span style="font-size: 16px; font-weight: 500; color: #8E8E93">{{c.sub}}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+const B = "/_blob/";
+const CH = {
+  mtv:    { name: "MTV Lebanon", country: "Lebanon", num: 1, still: "6fbead2f1c968b4fceaae54671f5c5df", logo: "806897165a56c7330301894add296d43", w: 200, h: 77, badge: "fill", bc: "#1C2454" },
+  lbci:   { name: "LBC International", country: "Lebanon", num: 20, still: "29be0d734aec41b4ec6f202cdc87ec1e", logo: "9fa51d92ab5165ea8c2cb6779b22ea27", w: 67, h: 160, badge: "fill", bc: "#ECECEC" },
+  jadeed: { name: "Al Jadeed", country: "Lebanon", num: 17, still: "a43cdbe74aac16f075b0680eb579ece7", logo: "f892f50f188401e64a0b50be530bcf7c", w: 320, h: 123, badge: "dark", bc: "#0B0C10" },
+  abcn:   { name: "ABC News", country: "Australia", num: 13, still: "1c2b9c918fe35358c8b6cc1e487df4d2", logo: "4d6e4ce1464c5a1efbc98208970f3d24", w: 289, h: 160, badge: "dark", bc: "#0B0C10" },
+  sbs:    { name: "SBS", country: "Australia", num: 6, still: "ff6e2812f70a9b4679cb193e6d4e2c57", logo: "ccfb973f574ff0672e6df0fa422b5a8e", w: 320, h: 154, badge: "light", bc: "#FFFFFF" },
+  tl:     { name: "Tele Liban", country: "Lebanon", num: 2, still: "3f7dbbdd97969cbcc6e257e38d943f2b", logo: "e02529e80e393ac397a8007c2c1a8bdc", w: 80, h: 111, badge: "fill", bc: "#EC1C24" },
+  may:    { name: "Al Mayadeen", country: "Lebanon", num: 4, still: "e10010d3ba813d044f42ed031c14062e", logo: "0480171651be9f1de781b64a25aca521", w: 269, h: 77, badge: "light", bc: "#FFFFFF" },
+  seven:  { name: "Seven", country: "Australia", num: 7, still: "f56ea0b20e0b8864f392cbdf06b010da", logo: "5c4ac3bc99861ae3ddf3b9d18278de95", w: 153, h: 160, badge: "light", bc: "#FFFFFF" },
+  otv:    { name: "OTV", country: "Lebanon", num: 24, still: "bba1af7919c3ee4b4a1d8f14a420659b", logo: "91baad3c2694810afe0f424226023a3b", w: 320, h: 125, badge: "light", bc: "#FFFFFF" },
+  nine:   { name: "Nine", country: "Australia", num: 2, still: "a1d6856b3f5776b7041cdca61768ed04", logo: "02776c62cecfb18edc309ca8f5617f45", w: 160, h: 47, badge: "light", bc: "#FFFFFF" },
+  gem:    { name: "9Gem", country: "Australia", num: 22, still: "6ffff22fbc81c2ad650ccc4ce7895d99", logo: "d2f86f79531aee66f96777f52ad8365d", w: 320, h: 89, badge: "light", bc: "#FFFFFF" },
+  sbswm:  { name: "SBS World Movies", country: "Australia", num: 15, still: "99e5ef3cbe79f7656090224c1df6f1ee", logo: "0044fe025b3c31eb6b1dd5b59dcf723d", w: 320, h: 125, badge: "dark", bc: "#0B0C10" },
+  aflam:  { name: "Aflam", country: "Saudi Arabia", num: 16, still: "aacbfcc2b12e65d9321659497ef9cbd8", logo: "1660a0c64fcc1b78166a880a327968a7", w: 192, h: 160, badge: "light", bc: "#FFFFFF" },
+  mbcd:   { name: "MBC+ Drama", country: "Saudi Arabia", num: 39, still: "d7e3346cfd1b5e43129e6c7f60c933dd", logo: "8b0aecaf9fc416bd0dd7bbbec008d433", w: 275, h: 160, badge: "light", bc: "#FFFFFF" },
+  nile:   { name: "Nile Drama", country: "Egypt", num: 20, still: "610f87257b652bb12f570201c9beece9", logo: "f0b8f6ef6f8e84abe11c68823e8a189a", w: 91, h: 117, badge: "light", bc: "#FFFFFF" },
+  mixh:   { name: "Mix Hollywood", country: "Egypt", num: 19, still: "c766fb4bc06f881376bcad32f65f6837", logo: "4cec28b3d609ac3176ed559b3c795c08", w: 114, h: 65, badge: "light", bc: "#FFFFFF" },
+  mact:   { name: "Movies Action", country: "Saudi Arabia", num: 40, still: "45041a34e666d78d8806612790b7c533", logo: "14cf43994e63beaaa7c3de81e742ea90", w: 270, h: 95, badge: "light", bc: "#FFFFFF" },
+  c70:    { name: "70s Cinema", country: "USA", num: 13, still: "f3cdfece3de5f846042225bccb200b9e", logo: "5853ee44495eff2c3b57e1845cf3de89", w: 238, h: 160, badge: "light", bc: "#FFFFFF" }
+};
+const FAVS = ["mtv", "lbci", "jadeed", "abcn", "sbs"];
+
+function badge(c, area, maxW, maxH, pad, radius, pos) {
+  const a = c.w / c.h;
+  const w0 = Math.sqrt(area * a), h0 = w0 / a;
+  const k = Math.min(1, maxW / w0, maxH / h0);
+  let skin;
+  if (c.badge === "light") skin = "background: #FFFFFF; box-shadow: 0 2px 10px rgba(0,0,0,0.28);";
+  else if (c.badge === "dark") skin = "background: rgba(11,12,16,0.72); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);";
+  else skin = "background: " + c.bc + "; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 2px 10px rgba(0,0,0,0.28);";
+  return {
+    badgeStyle: pos + " display: inline-flex; align-items: center; justify-content: center; padding: " + pad + "; border-radius: " + radius + "px; " + skin,
+    logoStyle: "display: block; width: " + Math.round(w0 * k) + "px; height: " + Math.round(h0 * k) + "px; object-fit: contain"
+  };
+}
+
+function tile(key, wide, focused, sub) {
+  const c = CH[key];
+  const W = wide ? 400 : 250, H = wide ? 225 : 140, R = wide ? 16 : 14;
+  const b = wide ? badge(c, 120 * 36 * 0.85, 136, 46, "8px 10px", 9, "position: absolute; left: 14px; top: 14px;")
+                 : badge(c, 120 * 36 * 0.5, 96, 34, "6px 8px", 8, "position: absolute; left: 11px; top: 11px;");
+  return Object.assign({}, c, b, {
+    still: B + c.still, logo: B + c.logo,
+    live: wide, fav: !wide && FAVS.indexOf(key) !== -1,
+    sub: sub,
+    cellStyle: "flex: 0 0 " + W + "px; display: flex; flex-direction: column; gap: " + (wide ? 12 : 10) + "px",
+    tileStyle: "position: relative; width: " + W + "px; height: " + H + "px; border-radius: " + R + "px; overflow: hidden; background: #1C1D24;" + (focused ? " transform: scale(1.06); transform-origin: center top; box-shadow: 0 22px 44px rgba(0,0,0,0.6);" : ""),
+    imgStyle: "position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;" + (focused ? "" : " filter: brightness(0.8);"),
+    shadeStyle: "position: absolute; left: 0; right: 0; bottom: 0; height: " + (wide ? 96 : 60) + "px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 100%)",
+    edgeStyle: "position: absolute; inset: 0; border-radius: " + R + "px; pointer-events: none; box-shadow: " + (focused ? "inset 0 0 0 3px #FFFFFF" : "inset 0 0 0 1px rgba(255,255,255,0.10)"),
+    labelWrap: "display: flex; flex-direction: column; gap: 2px; padding-left: 2px;" + (focused ? " margin-top: " + (wide ? 12 : 9) + "px" : ""),
+    nameStyle: focused ? "font-size: " + (wide ? 21 : 19) + "px; font-weight: 650; color: #FFFFFF" : "font-size: " + (wide ? 21 : 19) + "px; font-weight: 500; color: #AEAEB2"
+  });
+}
+
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? "#FF9F0A";
+    return {
+      accent,
+      rows: [
+        { title: "Favourites", count: "5", subtitle: "Your channels, live now", seeAll: true,
+          pos: "position: absolute; left: 104px; top: 132px; width: 1712px",
+          items: FAVS.map((k) => tile(k, true, false, CH[k].country + " · Channel " + CH[k].num)) },
+        { title: "Recent", count: "", subtitle: "", seeAll: false,
+          pos: "position: absolute; left: 104px; top: 530px; width: 1712px",
+          items: ["tl", "seven", "may", "mtv", "otv", "nine", "gem"].map((k, i) => tile(k, false, i === 0, "")) },
+        { title: "Movies", count: "492", subtitle: "Free movie channels, playing now", seeAll: true,
+          pos: "position: absolute; left: 104px; top: 790px; width: 1712px",
+          items: ["sbswm", "aflam", "mbcd", "nile", "mixh", "mact", "c70"].map((k) => tile(k, false, false, CH[k].country)) }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
