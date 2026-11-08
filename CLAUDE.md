@@ -65,10 +65,19 @@ channels already appear in the Free-TV playlist.
   column starts with `[>]` are included). Non-HD, geo-blocked and YouTube-live channels are marked
   in those `.md` files.
 - Standard M3U entry shape: `#EXTINF:-1 tvg-name="…" tvg-logo="…" tvg-id="…" group-title="<Country>",<Channel name>` then the stream URL on the next line. **Verify the real attributes by downloading the file — the first chat could not (network blocked).**
-- **Not yet verified:** how many Lebanese channels Free-TV actually has (may be only a handful).
-  Channel names used in mock-ups (Tele Liban, Al Jadeed, LBCI, MTV Lebanon, ABC News, SBS, Channel 9,
-  France 24, Al Jazeera English, Al Arabiya) are **examples only**. Note: Free-TV excludes channels
-  tied to political parties or religions.
+- **Verified 8 Nov 2026 (playlist downloaded):** entry shape is
+  `#EXTINF:-1 tvg-name="…" tvg-logo="…" tvg-id="…" [tvg-chno="…"] [tvg-country="AU"] group-title="<Country>",<Name> [markers]`.
+  Markers at the end of the display name: `Ⓢ` = not HD, `Ⓖ` = geo-blocked, `Ⓨ` = YouTube live,
+  `Ⓣ` = undocumented (4 entries). 129 YouTube entries overall, as channel `/live` URLs
+  (`youtube.com/@handle/live`, `/c/…/live`, `/user/…/live`), not video IDs.
+- **Lebanon: 15 channels** (MTV Lebanon, Tele Liban, Al Manar, Al Mayadeen, Voice of Lebanon, NourSAT,
+  Noursat English, Nour Al Koddas, Nour Al Sharq, Aliman TV, Al Ittihad, CharityTV, Falestinona,
+  ALWifak News TV, Arabica TV). All have `tvg-chno`, **none have logos**, none are YouTube.
+  LBCI and Al Jadeed are **not** in the list. **Australia: 26** (ABC, SBS, Seven, Nine, 10 families,
+  plus others; mostly via `i.mjh.nz`). Earlier note that Free-TV excludes religious/party channels is
+  **wrong**: the Lebanon list includes religious and party-affiliated channels. The owner can hide
+  any of them in Settings → Channels.
+- Mock-up channel names are examples only.
 - Plan: `channels/` holds a script that downloads the playlist, keeps chosen countries, tests each
   stream from Australia, and writes `channels.json` (name, country, category, logo, url, number,
   hd, geoblocked, youtube). Optionally host the owner's filtered copy on their own GitHub so channel
@@ -183,12 +192,20 @@ Earlier versions are kept for reference only (section 8).
 - Channel **numbers** still shown on details ("Channel 1") as a stable ordering aid.
 
 ### 7.4 Open design questions
-- **Empty Favourites state:** recommended showing a short message "Hold OK on any channel to add it
-  here" rather than hiding the row. Owner hasn't answered yet — ask.
+- **Empty Favourites state — DECIDED (8 Nov 2026):** keep the row and show the short message
+  "Hold OK on any channel to add it here". Same message on the Favourites page when it's empty.
 - Redesign the **first-run country picker** in v5 style.
 - Programme names on tiles (needs EPG, e.g. iptv-org EPG) — optional later.
-- How to handle **YouTube-based** channels in Free-TV (ExoPlayer can't play them) — skip, or hand off
-  to the YouTube app.
+- **YouTube-based channels — DECIDED (8 Nov 2026):** play them **inside Tony** where possible, using
+  YouTube's **official embedded player** (IFrame Player API in a WebView, e.g. the open-source
+  `android-youtube-player` library). Keep YouTube's branding and ads; no ad-blocking or stream
+  extraction (section 3). **If a channel can't be embedded** (embedding disabled by the owner, not
+  live right now, or the player errors), **open it in the YouTube app** with an intent to the
+  channel's `/live` URL. Caveat: the embed needs a current live **video ID**, and the playlist only
+  has `/live` channel URLs. Get the ID legitimately, either from the YouTube Data API (free key,
+  `search?channelId=…&eventType=live`) or the channel-ID live embed. Don't scrape YouTube pages.
+  Work out the details in phase 4. YouTube tiles get no live stills or muted preview (just the logo).
+  Lebanon and Australia currently have no YouTube channels, so this only affects other countries.
 
 ---
 
@@ -232,7 +249,7 @@ prices).
 ## 11. Plan / phases and status
 1. Decide interface — **DONE** (Version 5).
 2. Mock-up review — **DONE** (v5-FINAL), minus v5 country picker and empty-favourites state.
-3. **Channel list — NEXT**: script in `channels/` to fetch Free-TV playlist, filter countries, test
+3. **Channel list — IN PROGRESS** (`channels/build_channels.py` works; Lebanon 13/15 OK, Australia 24/26 OK on 8 Nov 2026). Remaining: full all-countries run, decide hosting. Original task: fetch Free-TV playlist, filter countries, test
    streams from Australia, output `channels.json`; report how many Lebanese channels exist.
 4. Build app v1 in `app/` (Kotlin, Compose for TV, Media3): Home rows, details, player + preview strip,
    options panel, search, favourites, settings, first-run picker, auto-hide broken channels, live stills.
