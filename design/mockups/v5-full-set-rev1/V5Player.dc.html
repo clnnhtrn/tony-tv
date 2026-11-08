@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony watching, previewing another channel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #2F4E73; color: #F5F5F7; font-family: Inter, system-ui, sans-serif">
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 42%; background: #1F3550"></div>
+<div style="position: absolute; right: 320px; top: 120px; width: 170px; height: 170px; border-radius: 85px; background: #9CC3E6"></div>
+<span style="position: absolute; left: 104px; top: 64px; display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 12px; background: rgba(21,22,27,0.6); font-size: 20px; font-weight: 600">
+<span style="padding: 3px 8px; border-radius: 6px; background: #FFFFFF; font-size: 15px; font-weight: 900; color: #1F4F7A">ABC</span>Now watching: ABC News</span>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 400px; background: rgba(21,22,27,0.9)"></div>
+
+<div style="position: absolute; left: 203px; bottom: 300px; width: 480px; border-radius: 20px; overflow: hidden; background: #15161B; box-shadow: 0 0 0 4px #FFFFFF, 0 30px 60px rgba(0,0,0,0.6)">
+<div style="position: relative; height: 270px; background: #5B3A44">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: #3B2530"></div>
+<div style="position: absolute; right: 60px; top: 46px; width: 80px; height: 80px; border-radius: 40px; background: #E8A87C"></div>
+<span style="position: absolute; left: 16px; top: 16px; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; background: rgba(0,0,0,0.5); font-size: 15px; font-weight: 800; letter-spacing: 1px">
+<span style="width: 8px; height: 8px; border-radius: 4px; background: {{accent}}; display: inline-block"></span>PREVIEW</span>
+</div>
+<div style="padding: 18px 20px; display: flex; align-items: center; justify-content: space-between">
+<span style="font-size: 24px; font-weight: 800">Al Jadeed</span>
+<span style="font-size: 18px; color: #C7C7CC">OK to switch</span>
+</div>
+</div>
+
+<div style="position: absolute; left: 104px; right: 0; bottom: 120px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; gap: 10px">
+<span style="padding: 8px 20px; border-radius: 999px; background: #FFFFFF; color: #15161B; font-size: 19px; font-weight: 600">Favourites</span>
+<span style="padding: 8px 20px; border-radius: 999px; background: rgba(255,255,255,0.1); color: #E5E5EA; font-size: 19px; font-weight: 500">Lebanon</span>
+<span style="padding: 8px 20px; border-radius: 999px; background: rgba(255,255,255,0.1); color: #E5E5EA; font-size: 19px; font-weight: 500">Australia</span>
+</div>
+<div style="display: flex; gap: 24px; align-items: flex-end">
+<sc-for list="{{strip}}" as="ch" hint-placeholder-count="7">
+<div style="{{ch.tileStyle}}">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: {{ch.ground}}"></div>
+<span style="position: absolute; left: 10px; top: 10px; padding: 3px 8px; border-radius: 7px; background: #FFFFFF; font-size: 14px; font-weight: 900; color: {{ch.ink}}">{{ch.mono}}</span>
+<sc-if value="{{ch.current}}" hint-placeholder-val="{{ false }}">
+<span style="position: absolute; left: 10px; bottom: 10px; font-size: 13px; font-weight: 800; letter-spacing: 1px">WATCHING</span>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+
+<span style="position: absolute; left: 104px; bottom: 48px; font-size: 18px; color: #AEAEB2">Rest on a channel to preview it · OK to switch · Back to keep watching</span>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var strip = [
+      { mono: 'ABC', ink: '#1F4F7A', bg: '#2F4E73', ground: '#1F3550', current: true },
+      { mono: 'AJ', ink: '#8C2F45', bg: '#5B3A44', ground: '#3B2530', focused: true },
+      { mono: 'TL', ink: '#7A4B2A', bg: '#6B5240', ground: '#46352A' },
+      { mono: 'SBS', ink: '#2E6B4E', bg: '#3E6250', ground: '#294236' },
+      { mono: 'LB', ink: '#3B3F8C', bg: '#46486E', ground: '#2E2F4A' },
+      { mono: 'MT', ink: '#1F5A96', bg: '#36506E', ground: '#24384F' },
+      { mono: 'F24', ink: '#5A3F8C', bg: '#4B4470', ground: '#312C4D' }
+    ].map(function (c) {
+      var s = 'position: relative; overflow: hidden; width: 210px; height: 118px; border-radius: 16px; background: ' + c.bg + ';';
+      if (c.current) s += ' box-shadow: 0 0 0 3px rgba(255,255,255,0.35);';
+      if (c.focused) s += ' box-shadow: 0 0 0 4px #FFFFFF; opacity: 1;';
+      return Object.assign({}, c, { tileStyle: s, current: !!c.current });
+    });
+    return { accent: this.props.accent ?? '#FF9F0A', strip: strip };
+  }
+}
+</script>
+</body>
+</html>

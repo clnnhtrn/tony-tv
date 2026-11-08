@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony home screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; box-sizing: border-box; background: #0B0B0F; color: #F5F5F7; font-family: Inter, system-ui, sans-serif; overflow: hidden; position: relative; display: flex; flex-direction: column">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 44px 96px 0 96px">
+<div style="display: flex; align-items: baseline; gap: 6px">
+<span style="font-size: 44px; font-weight: 800; letter-spacing: -1.5px">tony</span>
+<span style="width: 12px; height: 12px; border-radius: 6px; background: {{accent}}; display: inline-block"></span>
+</div>
+<nav style="display: flex; gap: 12px; align-items: center">
+<a href="#" style="text-decoration: none; padding: 12px 28px; border-radius: 999px; background: #F5F5F7; color: #0B0B0F; font-size: 24px; font-weight: 600">Home</a>
+<a href="#" style="text-decoration: none; padding: 12px 28px; border-radius: 999px; color: #A1A1A8; font-size: 24px; font-weight: 500">Countries</a>
+<a href="#" style="text-decoration: none; padding: 12px 28px; border-radius: 999px; color: #A1A1A8; font-size: 24px; font-weight: 500">Favourites</a>
+<a href="Search.dc.html" aria-label="Search" style="text-decoration: none; padding: 12px 20px; border-radius: 999px; color: #A1A1A8; display: flex">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="20" y1="20" x2="16" y2="16"></line></svg>
+</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 28px; color: #A1A1A8; font-size: 24px; font-weight: 500">
+<span>8:45 pm</span>
+<a href="#" aria-label="Settings" style="color: #A1A1A8; display: flex">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+</a>
+</div>
+</header>
+
+<section style="margin: 40px 96px 0 96px; height: 440px; border-radius: 28px; background: #16161C; display: flex; overflow: hidden">
+<div style="flex: 1 1 0; padding: 64px 64px; display: flex; flex-direction: column; justify-content: center; gap: 22px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 999px; background: #2A2A31; font-size: 20px; font-weight: 700; letter-spacing: 1.5px">
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>LIVE</span>
+<span style="font-size: 22px; color: #A1A1A8; font-weight: 500">Lebanon · General entertainment</span>
+</div>
+<h1 style="margin: 0; font-size: 84px; font-weight: 800; letter-spacing: -2.5px; line-height: 1">Tele Liban</h1>
+<p style="margin: 0; font-size: 26px; color: #C7C7CC; max-width: 640px; line-height: 1.4">Lebanon's public channel. News, talk shows and local programmes, live now.</p>
+<div style="display: flex; gap: 16px; margin-top: 10px">
+<a href="Player.dc.html" style="text-decoration: none; display: inline-flex; align-items: center; gap: 12px; padding: 18px 36px; border-radius: 14px; background: #F5F5F7; color: #0B0B0F; font-size: 26px; font-weight: 700; box-shadow: 0 0 0 4px #0B0B0F, 0 0 0 8px #F5F5F7">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>Watch live</a>
+<a href="#" style="text-decoration: none; display: inline-flex; align-items: center; gap: 12px; padding: 18px 32px; border-radius: 14px; background: #2A2A31; color: #F5F5F7; font-size: 26px; font-weight: 600">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Favourite</a>
+</div>
+</div>
+<div style="width: 760px; background: #3A2E2A; position: relative; display: flex; align-items: center; justify-content: center">
+<span style="font-size: 64px; font-weight: 800; color: #F5F5F7; letter-spacing: -1px; opacity: 0.9">TL</span>
+<span style="position: absolute; left: 28px; bottom: 24px; font-size: 20px; color: #E5E0DC; font-weight: 500">Live picture plays here, muted</span>
+</div>
+</section>
+
+<section style="margin-top: 52px; padding-left: 96px">
+<h2 style="margin: 0 0 22px 0; font-size: 30px; font-weight: 700; letter-spacing: -0.5px">Recently watched</h2>
+<div style="display: flex; gap: 32px">
+<sc-for list="{{recent}}" as="ch" hint-placeholder-count="5">
+<div style="flex: 0 0 auto; width: 360px; display: flex; flex-direction: column; gap: 14px">
+<div style="{{ch.tileStyle}}">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #E8E8ED">{{ch.code}}</span>
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>
+</div>
+<span style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF">{{ch.name}}</span>
+</div>
+<span style="font-size: 22px; color: #A1A1A8; font-weight: 500">{{ch.meta}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="margin-top: 44px; padding-left: 96px">
+<h2 style="margin: 0 0 22px 0; font-size: 30px; font-weight: 700; letter-spacing: -0.5px">Australia</h2>
+<div style="display: flex; gap: 32px">
+<sc-for list="{{aus}}" as="ch" hint-placeholder-count="5">
+<div style="flex: 0 0 auto; width: 360px; height: 120px; border-radius: 18px; background: {{ch.bg}}"></div>
+</sc-for>
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var base = 'height: 202px; border-radius: 18px; box-sizing: border-box; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; ';
+    var recent = [
+      { name: 'Al Jadeed', code: 'LB', meta: 'Watched 2 hours ago', bg: '#4A2F33', focused: true },
+      { name: 'ABC News', code: 'AU', meta: 'Watched yesterday', bg: '#24364F' },
+      { name: 'SBS', code: 'AU', meta: 'Watched yesterday', bg: '#2F3D35' },
+      { name: 'Tele Liban', code: 'LB', meta: 'Watched Friday', bg: '#3A2E2A' },
+      { name: 'France 24', code: 'FR', meta: 'Watched Thursday', bg: '#3A3350' }
+    ].map(function (c) {
+      var s = base + 'background: ' + c.bg + ';';
+      if (c.focused) s += ' transform: scale(1.08); transform-origin: left center; box-shadow: 0 0 0 5px #F5F5F7, 0 24px 48px rgba(0,0,0,0.6);';
+      return Object.assign({}, c, { tileStyle: s });
+    });
+    var aus = ['#24364F', '#2F3D35', '#43302A', '#2E2E44', '#2A4448'].map(function (b) { return { bg: b }; });
+    return { accent: this.props.accent ?? '#FF9F0A', recent: recent, aus: aus };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; box-sizing: border-box; background: #15161B; color: #F5F5F7; font-family: Inter, system-ui, sans-serif; overflow: hidden; display: flex; flex-direction: column; padding: 48px 104px 0 104px">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: baseline; gap: 6px">
+<span style="font-size: 38px; font-weight: 900; letter-spacing: -1.5px">tony</span>
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>
+</div>
+<a href="V5Home.dc.html" style="text-decoration: none; font-size: 21px; color: #C7C7CC; font-weight: 500">Back to Home</a>
+</header>
+
+<h1 style="margin: 52px 0 0 0; font-size: 44px; font-weight: 800; letter-spacing: -1px">Settings</h1>
+
+<div style="margin-top: 36px; display: flex; gap: 64px">
+
+<nav style="width: 480px; display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{menu}}" as="m" hint-placeholder-count="6">
+<div style="{{m.style}}">
+<span style="font-size: 22px; font-weight: 600">{{m.label}}</span>
+<span style="{{m.subStyle}}">{{m.sub}}</span>
+</div>
+</sc-for>
+</nav>
+
+<section style="flex: 1 1 auto; background: #1C1D24; border-radius: 24px; padding: 40px 44px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 28px; font-weight: 700">Countries</h2>
+<p style="margin: 0 0 18px 0; font-size: 19px; color: #AEAEB2">Choose which countries appear on Home. Their order here is the order of the rows.</p>
+<sc-for list="{{countries}}" as="c" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-radius: 14px; background: #24252D">
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 22px; font-weight: 600">{{c.name}}</span>
+<span style="font-size: 17px; color: #8E8E93">{{c.count}}</span>
+</span>
+<span role="switch" aria-checked="{{c.checked}}" aria-label="{{c.name}}" style="{{c.trackStyle}}"><span style="{{c.knobStyle}}"></span></span>
+</div>
+</sc-for>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var accent = this.props.accent ?? '#FF9F0A';
+    var menu = [
+      { label: 'Countries', sub: 'Lebanon, Australia', focused: true },
+      { label: 'Channels', sub: 'Hide or reorder channels' },
+      { label: 'Subtitles', sub: 'Off by default' },
+      { label: 'When Tony opens', sub: 'Show Home' },
+      { label: 'Check channels', sub: 'Last checked today, 6:00 pm' },
+      { label: 'About Tony', sub: 'Version 1.0 · Up to date' }
+    ].map(function (m) {
+      var s = 'display: flex; flex-direction: column; gap: 4px; padding: 18px 22px; border-radius: 16px;';
+      var sub = 'font-size: 17px; color: #8E8E93;';
+      if (m.focused) { s += ' background: #FFFFFF; color: #15161B;'; sub = 'font-size: 17px; color: #48484A;'; }
+      return Object.assign({}, m, { style: s, subStyle: sub });
+    });
+    var countries = [
+      ['Lebanon', true], ['Australia', true], ['United Kingdom', false], ['France', false], ['United States', false]
+    ].map(function (r) {
+      var on = r[1];
+      return {
+        name: r[0], count: '[#] channels', checked: on ? 'true' : 'false',
+        trackStyle: 'width: 64px; height: 36px; border-radius: 18px; position: relative; display: inline-block; background: ' + (on ? accent : '#3A3B45') + ';',
+        knobStyle: 'position: absolute; top: 4px; ' + (on ? 'left: 32px;' : 'left: 4px;') + ' width: 28px; height: 28px; border-radius: 14px; background: #FFFFFF;'
+      };
+    });
+    return { accent: accent, menu: menu, countries: countries };
+  }
+}
+</script>
+</body>
+</html>

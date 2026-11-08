@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony watching, options panel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #3E6250; color: #F5F5F7; font-family: Inter, system-ui, sans-serif">
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 42%; background: #294236"></div>
+<div style="position: absolute; left: 380px; top: 150px; width: 160px; height: 160px; border-radius: 80px; background: #D9E4A3"></div>
+
+<div style="position: absolute; left: 0; right: 640px; bottom: 96px; display: flex; justify-content: center">
+<span style="padding: 10px 22px; background: rgba(0,0,0,0.75); border-radius: 8px; font-size: 34px; font-weight: 600; line-height: 1.35; text-align: center">Subtitles appear here, like this</span>
+</div>
+
+<aside style="position: absolute; right: 0; top: 0; bottom: 0; width: 600px; box-sizing: border-box; background: rgba(21,22,27,0.95); padding: 64px 48px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px">
+<span style="padding: 4px 9px; border-radius: 8px; background: #FFFFFF; font-size: 16px; font-weight: 900; color: #2E6B4E">SBS</span>
+<span style="font-size: 26px; font-weight: 800">Options</span>
+</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+<div style="{{r.rowStyle}}">
+<span style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 22px; font-weight: 600">{{r.label}}</span>
+<span style="{{r.hintStyle}}">{{r.hint}}</span>
+</span>
+<span style="{{r.valueStyle}}">{{r.value}}</span>
+</div>
+</sc-for>
+<div style="margin-top: auto; font-size: 18px; color: #AEAEB2">Back to close</div>
+</aside>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var accent = this.props.accent ?? '#FF9F0A';
+    var rows = [
+      { label: 'Subtitles', hint: 'Available on this channel', value: 'On', focused: true },
+      { label: 'Subtitle size', hint: '', value: 'Large' },
+      { label: 'Audio', hint: 'Shown when a channel has more than one', value: 'English' },
+      { label: 'Picture size', hint: 'Fit keeps the whole picture', value: 'Fit' },
+      { label: 'Quality', hint: '', value: 'Auto (HD)' },
+      { label: 'Report a problem', hint: 'Not working, or no sound', value: '' }
+    ].map(function (r) {
+      var row = 'display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-radius: 16px;';
+      var val = 'font-size: 21px; font-weight: 600; color: #C7C7CC;';
+      var hint = 'font-size: 17px; color: #8E8E93;';
+      if (r.focused) {
+        row += ' background: #FFFFFF; color: #15161B;';
+        val = 'font-size: 21px; font-weight: 700; color: #15161B; padding: 6px 16px; border-radius: 999px; background: ' + accent + ';';
+        hint = 'font-size: 17px; color: #48484A;';
+      }
+      if (!r.hint) hint += ' display: none;';
+      return Object.assign({}, r, { rowStyle: row, valueStyle: val, hintStyle: hint });
+    });
+    return { accent: accent, rows: rows };
+  }
+}
+</script>
+</body>
+</html>

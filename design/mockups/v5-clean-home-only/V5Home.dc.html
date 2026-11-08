@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony home, version 5</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; box-sizing: border-box; background: #15161B; color: #F5F5F7; font-family: Inter, system-ui, sans-serif; overflow: hidden; display: flex; flex-direction: column; padding: 48px 0 0 104px">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding-right: 104px">
+<div style="display: flex; align-items: center; gap: 64px">
+<div style="display: flex; align-items: baseline; gap: 6px">
+<span style="font-size: 38px; font-weight: 900; letter-spacing: -1.5px">tony</span>
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>
+</div>
+<nav style="display: flex; gap: 10px">
+<a href="#" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; background: #FFFFFF; color: #15161B; font-size: 21px; font-weight: 600">Home</a>
+<a href="#" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; color: #C7C7CC; font-size: 21px; font-weight: 500">Favourites</a>
+<a href="#" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; color: #C7C7CC; font-size: 21px; font-weight: 500">Search</a>
+</nav>
+</div>
+<span style="font-size: 22px; color: #C7C7CC; font-weight: 500">8:45 pm</span>
+</header>
+
+<section style="margin-top: 56px">
+<h2 style="margin: 0 0 18px 0; font-size: 24px; font-weight: 700">Keep watching</h2>
+<div style="display: flex; gap: 28px">
+<sc-for list="{{keep}}" as="ch" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="{{ch.tileStyle}}">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: {{ch.ground}}"></div>
+<div style="position: absolute; left: 18px; bottom: 16px; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; background: rgba(0,0,0,0.45); font-size: 15px; font-weight: 800; letter-spacing: 1px; color: #FFFFFF">
+<span style="width: 8px; height: 8px; border-radius: 4px; background: {{accent}}; display: inline-block"></span>LIVE</div>
+</div>
+<span style="font-size: 21px; font-weight: 600; color: #F2F2F7">{{ch.name}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="margin-top: 48px">
+<h2 style="margin: 0 0 18px 0; font-size: 24px; font-weight: 700">Lebanon</h2>
+<div style="display: flex; gap: 28px">
+<sc-for list="{{leb}}" as="ch" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="{{ch.cardStyle}}">
+<span style="{{ch.monoStyle}}">{{ch.mono}}</span>
+</div>
+<span style="{{ch.nameStyle}}">{{ch.name}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="margin-top: 48px">
+<h2 style="margin: 0 0 18px 0; font-size: 24px; font-weight: 700">Australia</h2>
+<div style="display: flex; gap: 28px">
+<sc-for list="{{aus}}" as="ch" hint-placeholder-count="6">
+<div style="width: 250px; height: 110px; border-radius: 18px 18px 0 0; background: #ECECF0; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 0">
+<span style="font-size: 44px; font-weight: 900; letter-spacing: -1.5px; color: {{ch.ink}}; transform: translateY(14px)">{{ch.mono}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var keep = [
+      { name: 'Al Jadeed', bg: '#5B3A44', ground: '#3B2530' },
+      { name: 'ABC News', bg: '#2F4E73', ground: '#1F3550' },
+      { name: 'Tele Liban', bg: '#6B5240', ground: '#46352A' },
+      { name: 'SBS', bg: '#3E6250', ground: '#294236' }
+    ].map(function (c) {
+      return Object.assign({}, c, { tileStyle: 'position: relative; overflow: hidden; width: 400px; height: 225px; border-radius: 20px; background: ' + c.bg + ';' });
+    });
+    var leb = [
+      { name: 'Tele Liban', mono: 'TL', ink: '#7A4B2A', focused: true },
+      { name: 'Al Jadeed', mono: 'AJ', ink: '#8C2F45' },
+      { name: 'LBCI', mono: 'LB', ink: '#3B3F8C' },
+      { name: 'MTV Lebanon', mono: 'MT', ink: '#1F5A96' },
+      { name: '[Channel]', mono: '··', ink: '#8E8E93' },
+      { name: '[Channel]', mono: '··', ink: '#8E8E93' }
+    ].map(function (c) {
+      var card = 'width: 250px; height: 140px; border-radius: 18px; background: #ECECF0; display: flex; align-items: center; justify-content: center;';
+      var name = 'font-size: 21px; font-weight: 500; color: #AEAEB2;';
+      if (c.focused) {
+        card = 'width: 250px; height: 140px; border-radius: 18px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; transform: scale(1.08); box-shadow: 0 0 0 4px #15161B, 0 0 0 8px #FFFFFF, 0 20px 40px rgba(0,0,0,0.5);';
+        name = 'font-size: 21px; font-weight: 700; color: #FFFFFF; margin-top: 6px;';
+      }
+      return Object.assign({}, c, { cardStyle: card, nameStyle: name, monoStyle: 'font-size: 52px; font-weight: 900; letter-spacing: -2px; color: ' + c.ink + ';' });
+    });
+    var aus = [
+      { mono: 'ABC', ink: '#1F4F7A' }, { mono: 'SBS', ink: '#2E6B4E' }, { mono: '7', ink: '#B23A2E' },
+      { mono: '9', ink: '#1F5A96' }, { mono: '10', ink: '#5A3F8C' }, { mono: 'NITV', ink: '#7A4B2A' }
+    ];
+    return { accent: this.props.accent ?? '#FF9F0A', keep: keep, leb: leb, aus: aus };
+  }
+}
+</script>
+</body>
+</html>

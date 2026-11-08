@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony player, version 2</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #6B5240; color: #F5F5F7; font-family: Inter, system-ui, sans-serif">
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 42%; background: #46352A"></div>
+<div style="position: absolute; right: 260px; top: 160px; width: 180px; height: 180px; border-radius: 90px; background: #F2C879"></div>
+<span style="position: absolute; left: 50%; top: 300px; transform: translateX(-50%); font-size: 26px; color: #F3E7DC; font-weight: 500">Live picture: Tele Liban</span>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 40px 96px 56px 96px; background: rgba(22,23,30,0.88); display: flex; flex-direction: column; gap: 28px">
+
+<div style="display: flex; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 24px">
+<span style="font-size: 64px; font-weight: 900; color: rgba(255,255,255,0.9); letter-spacing: -3px; line-height: 1">1</span>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 44px; font-weight: 900; letter-spacing: -1.2px; line-height: 1.05">Tele Liban</span>
+<span style="display: inline-flex; align-items: center; gap: 10px; font-size: 22px; color: #D1D1D6; font-weight: 500">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #FFFFFF">
+<span style="width: 9px; height: 9px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>LIVE</span>Morning talk show · Lebanon</span>
+</div>
+</div>
+<div style="display: flex; gap: 12px">
+<span style="padding: 10px 20px; border-radius: 999px; background: rgba(255,255,255,0.92); color: #1A1B22; font-size: 20px; font-weight: 600">Lebanon</span>
+<span style="padding: 10px 20px; border-radius: 999px; background: rgba(255,255,255,0.1); color: #E5E5EA; font-size: 20px; font-weight: 500">Australia</span>
+<span style="padding: 10px 20px; border-radius: 999px; background: rgba(255,255,255,0.1); color: #E5E5EA; font-size: 20px; font-weight: 500">Favourites</span>
+</div>
+</div>
+
+<div style="display: flex; gap: 28px; align-items: flex-end">
+<sc-for list="{{strip}}" as="ch" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="{{ch.tileStyle}}">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 42%; background: {{ch.ground}}"></div>
+<span style="position: absolute; left: 14px; top: 8px; font-size: 40px; font-weight: 900; color: rgba(255,255,255,0.9); letter-spacing: -2px">{{ch.num}}</span>
+<sc-if value="{{ch.playing}}" hint-placeholder-val="{{ false }}">
+<span style="position: absolute; right: 12px; top: 12px; padding: 4px 10px; border-radius: 8px; background: rgba(0,0,0,0.45); font-size: 15px; font-weight: 800; letter-spacing: 1px">ON NOW</span>
+</sc-if>
+</div>
+<span style="font-size: 21px; font-weight: 600; color: #F2F2F7">{{ch.name}}</span>
+</div>
+</sc-for>
+</div>
+
+<span style="font-size: 19px; color: #AEAEB2">Left and right to browse · OK to switch · Up or down to flip channels · Back for Home</span>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var strip = [
+      { num: '1', name: 'Tele Liban', bg: '#6B5240', ground: '#46352A', playing: true },
+      { num: '2', name: 'Al Jadeed', bg: '#5B3A44', ground: '#3B2530', focused: true },
+      { num: '3', name: 'LBCI', bg: '#46486E', ground: '#2E2F4A' },
+      { num: '4', name: 'MTV Lebanon', bg: '#2F4E73', ground: '#1F3550' },
+      { num: '5', name: 'ABC News', bg: '#3D5A80', ground: '#283C57' },
+      { num: '6', name: 'SBS', bg: '#3E6250', ground: '#294236' }
+    ].map(function (c) {
+      var s = 'position: relative; overflow: hidden; width: 250px; height: 140px; border-radius: 18px; background: ' + c.bg + ';';
+      if (c.focused) s += ' transform: scale(1.1); transform-origin: bottom center; box-shadow: 0 0 0 4px rgba(255,255,255,0.95), 0 18px 36px rgba(0,0,0,0.5); margin: 0 14px;';
+      return Object.assign({}, c, { tileStyle: s, playing: !!c.playing });
+    });
+    return { accent: this.props.accent ?? '#FF9F0A', strip: strip };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony search</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; box-sizing: border-box; background: #15161B; color: #F5F5F7; font-family: Inter, system-ui, sans-serif; overflow: hidden; display: flex; flex-direction: column; padding: 48px 104px 0 104px">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 64px">
+<div style="display: flex; align-items: baseline; gap: 6px">
+<span style="font-size: 38px; font-weight: 900; letter-spacing: -1.5px">tony</span>
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>
+</div>
+<nav style="display: flex; gap: 10px">
+<a href="V5Home.dc.html" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; color: #C7C7CC; font-size: 21px; font-weight: 500">Home</a>
+<a href="V5Favourites.dc.html" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; color: #C7C7CC; font-size: 21px; font-weight: 500">Favourites</a>
+<a href="V5Search.dc.html" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; background: #FFFFFF; color: #15161B; font-size: 21px; font-weight: 600">Search</a>
+</nav>
+</div>
+<span style="font-size: 22px; color: #C7C7CC; font-weight: 500">8:45 pm</span>
+</header>
+
+<div style="margin-top: 52px; display: flex; gap: 72px">
+
+<div style="width: 540px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 20px">
+<label for="q" style="font-size: 19px; color: #AEAEB2; font-weight: 500">Search channels</label>
+<div style="display: flex; align-items: center; gap: 16px; height: 76px; border-radius: 18px; background: #24252D; padding: 0 24px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#AEAEB2" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="20" y1="20" x2="16" y2="16"></line></svg>
+<input id="q" value="al" readonly style="all: unset; flex: 1 1 auto; font-family: inherit; font-size: 30px; font-weight: 600; color: #F5F5F7">
+</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{keys}}" as="k" hint-placeholder-count="30">
+<button type="button" style="{{k.style}}">{{k.label}}</button>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<button type="button" style="all: unset; height: 64px; border-radius: 12px; background: #24252D; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 20px; font-weight: 600">Space</button>
+<button type="button" style="all: unset; height: 64px; border-radius: 12px; background: #24252D; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 20px; font-weight: 600">Delete</button>
+<button type="button" style="all: unset; height: 64px; border-radius: 12px; background: #24252D; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 20px; font-weight: 600">Clear</button>
+</div>
+<span style="display: inline-flex; align-items: center; gap: 10px; font-size: 18px; color: #AEAEB2">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg>Or hold the mic button and say a channel name</span>
+</div>
+
+<section style="flex: 1 1 auto">
+<h2 style="margin: 0 0 18px 0; font-size: 24px; font-weight: 700">3 channels</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 28px">
+<sc-for list="{{results}}" as="ch" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="position: relative; overflow: hidden; height: 186px; border-radius: 18px; background: {{ch.bg}}">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: {{ch.ground}}"></div>
+<span style="position: absolute; left: 12px; top: 12px; padding: 4px 9px; border-radius: 8px; background: #FFFFFF; font-size: 16px; font-weight: 900; color: {{ch.ink}}">{{ch.mono}}</span>
+</div>
+<span style="font-size: 21px; font-weight: 600">{{ch.name}}</span>
+<span style="font-size: 18px; color: #AEAEB2; margin-top: -6px">{{ch.meta}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var keys = 'abcdefghijklmnopqrstuvwxyz1234'.split('').map(function (l) {
+      var s = 'all: unset; height: 64px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 24px; font-weight: 600; ';
+      s += (l === 'l') ? 'background: #FFFFFF; color: #15161B; box-shadow: 0 10px 22px rgba(0,0,0,0.45);' : 'background: #24252D; color: #F5F5F7;';
+      return { label: l, style: s };
+    });
+    var results = [
+      { name: 'Al Jadeed', mono: 'AJ', ink: '#8C2F45', bg: '#5B3A44', ground: '#3B2530', meta: 'Lebanon · General' },
+      { name: 'Al Jazeera English', mono: 'AJE', ink: '#7A4B2A', bg: '#6B5240', ground: '#46352A', meta: 'Qatar · News' },
+      { name: 'Al Arabiya', mono: 'AA', ink: '#1F5A96', bg: '#2F4E73', ground: '#1F3550', meta: 'UAE · News' }
+    ];
+    return { accent: this.props.accent ?? '#FF9F0A', keys: keys, results: results };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony search</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; box-sizing: border-box; background: #0B0B0F; color: #F5F5F7; font-family: Inter, system-ui, sans-serif; overflow: hidden; padding: 64px 96px; display: flex; flex-direction: column; gap: 48px">
+
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: baseline; gap: 6px">
+<span style="font-size: 44px; font-weight: 800; letter-spacing: -1.5px">tony</span>
+<span style="width: 12px; height: 12px; border-radius: 6px; background: {{accent}}; display: inline-block"></span>
+</div>
+<a href="Main.dc.html" style="text-decoration: none; font-size: 24px; color: #A1A1A8; font-weight: 500">Back to Home</a>
+</div>
+
+<div style="display: flex; gap: 72px; flex: 1 1 auto">
+
+<div style="width: 620px; display: flex; flex-direction: column; gap: 32px">
+<label for="q" style="font-size: 22px; color: #A1A1A8; font-weight: 500">Search channels</label>
+<input id="q" value="Al" readonly style="all: unset; box-sizing: border-box; height: 88px; border-radius: 18px; background: #16161C; padding: 0 32px; font-family: inherit; font-size: 40px; font-weight: 600; color: #F5F5F7">
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{keys}}" as="k" hint-placeholder-count="28">
+<button type="button" style="{{k.style}}">{{k.label}}</button>
+</sc-for>
+</div>
+<div style="display: flex; gap: 10px">
+<button type="button" style="all: unset; flex: 1 1 0; height: 64px; border-radius: 12px; background: #1E1E25; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 22px; font-weight: 600">Space</button>
+<button type="button" style="all: unset; flex: 1 1 0; height: 64px; border-radius: 12px; background: #1E1E25; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 22px; font-weight: 600">Delete</button>
+<button type="button" style="all: unset; flex: 1 1 0; height: 64px; border-radius: 12px; background: #1E1E25; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 22px; font-weight: 600">Clear</button>
+</div>
+<p style="margin: 0; font-size: 20px; color: #A1A1A8">Tip: press the microphone button on the remote and say the channel name.</p>
+</div>
+
+<div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 28px">
+<h2 style="margin: 0; font-size: 30px; font-weight: 700">3 channels</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px">
+<sc-for list="{{results}}" as="ch" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="{{ch.tileStyle}}">
+<span style="font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #E8E8ED">{{ch.code}}</span>
+<span style="font-size: 32px; font-weight: 800; color: #FFFFFF">{{ch.name}}</span>
+</div>
+<span style="font-size: 22px; color: #A1A1A8; font-weight: 500">{{ch.meta}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var letters = 'abcdefghijklmnopqrstuvwxyz12'.split('');
+    var keys = letters.map(function (l, i) {
+      var s = 'all: unset; height: 64px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 26px; font-weight: 600; ';
+      s += (l === 'l') ? 'background: #F5F5F7; color: #0B0B0F; transform: scale(1.1); box-shadow: 0 10px 24px rgba(0,0,0,0.5);' : 'background: #1E1E25; color: #F5F5F7;';
+      return { label: l, style: s };
+    });
+    var base = 'height: 220px; border-radius: 18px; box-sizing: border-box; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; ';
+    var results = [
+      { name: 'Al Jadeed', code: 'LB', meta: 'Lebanon · General', bg: '#4A2F33' },
+      { name: 'Al Jazeera', code: 'QA', meta: 'Qatar · News', bg: '#43302A' },
+      { name: 'Al Arabiya', code: 'AE', meta: 'UAE · News', bg: '#24364F' }
+    ].map(function (c) { return Object.assign({}, c, { tileStyle: base + 'background: ' + c.bg + ';' }); });
+    return { accent: this.props.accent ?? '#FF9F0A', keys: keys, results: results };
+  }
+}
+</script>
+</body>
+</html>

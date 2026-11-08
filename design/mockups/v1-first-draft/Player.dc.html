@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony player with channel list</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #3A2E2A; color: #F5F5F7; font-family: Inter, system-ui, sans-serif">
+
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding-left: 640px">
+<span style="font-size: 28px; color: #D8CFC9; font-weight: 500">Live picture: Tele Liban</span>
+</div>
+
+<aside style="position: absolute; left: 0; top: 0; bottom: 0; width: 640px; box-sizing: border-box; background: rgba(11,11,15,0.92); padding: 64px 40px 48px 56px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; align-items: baseline; gap: 6px">
+<span style="font-size: 36px; font-weight: 800; letter-spacing: -1px">tony</span>
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>
+</div>
+<div style="display: flex; gap: 10px">
+<span style="padding: 10px 22px; border-radius: 999px; background: #F5F5F7; color: #0B0B0F; font-size: 22px; font-weight: 600">Lebanon</span>
+<span style="padding: 10px 22px; border-radius: 999px; background: #24242B; color: #C7C7CC; font-size: 22px; font-weight: 500">Australia</span>
+<span style="padding: 10px 22px; border-radius: 999px; background: #24242B; color: #C7C7CC; font-size: 22px; font-weight: 500">Favourites</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{channels}}" as="ch" hint-placeholder-count="7">
+<div style="{{ch.rowStyle}}">
+<span style="{{ch.thumbStyle}}">{{ch.short}}</span>
+<span style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto">
+<span style="font-size: 26px; font-weight: 600">{{ch.name}}</span>
+<span style="{{ch.metaStyle}}">{{ch.meta}}</span>
+</span>
+<sc-if value="{{ch.playing}}" hint-placeholder-val="{{ false }}">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; letter-spacing: 1px; color: {{accent}}">
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>ON NOW</span>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</aside>
+
+<div style="position: absolute; left: 640px; right: 0; bottom: 0; box-sizing: border-box; padding: 0 80px 56px 80px; display: flex; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="display: inline-flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; letter-spacing: 1.5px">
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>LIVE</span>
+<span style="font-size: 52px; font-weight: 800; letter-spacing: -1.5px">Tele Liban</span>
+</div>
+<span style="padding: 12px 22px; border-radius: 12px; background: rgba(11,11,15,0.75); font-size: 22px; color: #E5E5EA">Up or down to change channel · Back for Home</span>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var list = [
+      { name: 'Tele Liban', short: 'TL', meta: 'General', bg: '#3A2E2A', playing: true },
+      { name: 'Al Jadeed', short: 'AJ', meta: 'General', bg: '#4A2F33', focused: true },
+      { name: 'LBCI', short: 'LB', meta: 'General', bg: '#2E2E44' },
+      { name: 'MTV Lebanon', short: 'MT', meta: 'General', bg: '#24364F' }
+    ];
+    var channels = list.map(function (c) {
+      var r = 'display: flex; align-items: center; gap: 20px; padding: 14px 18px; border-radius: 16px;';
+      if (c.focused) r += ' background: #F5F5F7; color: #0B0B0F;';
+      else if (c.playing) r += ' background: #24242B;';
+      var t = 'width: 96px; height: 54px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #FFFFFF; background: ' + c.bg + ';';
+      var m = 'font-size: 19px; color: ' + (c.focused ? '#3A3A40' : '#A1A1A8') + ';';
+      return Object.assign({}, c, { rowStyle: r, thumbStyle: t, metaStyle: m, playing: !!c.playing });
+    });
+    return { accent: this.props.accent ?? '#FF9F0A', channels: channels };
+  }
+}
+</script>
+</body>
+</html>

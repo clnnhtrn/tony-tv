@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony favourites</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F5F5F7}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; box-sizing: border-box; background: #15161B; color: #F5F5F7; font-family: Inter, system-ui, sans-serif; overflow: hidden; display: flex; flex-direction: column; padding: 48px 104px 0 104px">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 64px">
+<div style="display: flex; align-items: baseline; gap: 6px">
+<span style="font-size: 38px; font-weight: 900; letter-spacing: -1.5px">tony</span>
+<span style="width: 10px; height: 10px; border-radius: 5px; background: {{accent}}; display: inline-block"></span>
+</div>
+<nav style="display: flex; gap: 10px">
+<a href="V5Home.dc.html" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; color: #C7C7CC; font-size: 21px; font-weight: 500">Home</a>
+<a href="V5Favourites.dc.html" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; background: #FFFFFF; color: #15161B; font-size: 21px; font-weight: 600">Favourites</a>
+<a href="V5Search.dc.html" style="text-decoration: none; padding: 10px 24px; border-radius: 999px; color: #C7C7CC; font-size: 21px; font-weight: 500">Search</a>
+</nav>
+</div>
+<span style="font-size: 22px; color: #C7C7CC; font-weight: 500">8:45 pm</span>
+</header>
+
+<div style="margin-top: 52px; display: flex; align-items: baseline; justify-content: space-between">
+<h1 style="margin: 0; font-size: 44px; font-weight: 800; letter-spacing: -1px">Favourites</h1>
+<span style="font-size: 19px; color: #AEAEB2">Hold OK on a channel to remove or move it</span>
+</div>
+
+<div style="margin-top: 36px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 32px">
+<sc-for list="{{favs}}" as="ch" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="{{ch.tileStyle}}">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: {{ch.ground}}"></div>
+<span style="position: absolute; left: 14px; top: 14px; padding: 5px 10px; border-radius: 9px; background: #FFFFFF; font-size: 17px; font-weight: 900; color: {{ch.ink}}">{{ch.mono}}</span>
+<span style="position: absolute; left: 14px; bottom: 14px; display: inline-flex; align-items: center; gap: 8px; padding: 4px 11px; border-radius: 999px; background: rgba(0,0,0,0.5); font-size: 14px; font-weight: 800; letter-spacing: 1px">
+<span style="width: 8px; height: 8px; border-radius: 4px; background: {{accent}}; display: inline-block"></span>LIVE</span>
+</div>
+<span style="{{ch.nameStyle}}">{{ch.name}}</span>
+<span style="font-size: 18px; color: #8E8E93; margin-top: -6px">{{ch.meta}}</span>
+</div>
+</sc-for>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var favs = [
+      { name: 'Tele Liban', mono: 'TL', ink: '#7A4B2A', bg: '#6B5240', ground: '#46352A', meta: 'Lebanon', focused: true },
+      { name: 'Al Jadeed', mono: 'AJ', ink: '#8C2F45', bg: '#5B3A44', ground: '#3B2530', meta: 'Lebanon' },
+      { name: 'ABC News', mono: 'ABC', ink: '#1F4F7A', bg: '#2F4E73', ground: '#1F3550', meta: 'Australia' },
+      { name: 'SBS', mono: 'SBS', ink: '#2E6B4E', bg: '#3E6250', ground: '#294236', meta: 'Australia' },
+      { name: 'LBCI', mono: 'LB', ink: '#3B3F8C', bg: '#46486E', ground: '#2E2F4A', meta: 'Lebanon' },
+      { name: 'France 24', mono: 'F24', ink: '#5A3F8C', bg: '#4B4470', ground: '#312C4D', meta: 'France' }
+    ].map(function (c) {
+      var t = 'position: relative; overflow: hidden; height: 230px; border-radius: 20px; background: ' + c.bg + ';';
+      var n = 'font-size: 22px; font-weight: 600; color: #E5E5EA;';
+      if (c.focused) { t += ' transform: scale(1.05); box-shadow: 0 0 0 4px #15161B, 0 0 0 8px #FFFFFF, 0 20px 40px rgba(0,0,0,0.5);'; n = 'font-size: 22px; font-weight: 700; color: #FFFFFF; margin-top: 6px;'; }
+      return Object.assign({}, c, { tileStyle: t, nameStyle: n });
+    });
+    return { accent: this.props.accent ?? '#FF9F0A', favs: favs };
+  }
+}
+</script>
+</body>
+</html>
