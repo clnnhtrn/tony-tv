@@ -17,15 +17,13 @@ a{color:#F5F5F7}a:hover{color:#FFFFFF}
 </helmet>
 <div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #15161B; font-family: Inter, system-ui, sans-serif; color: #F5F5F7">
 
-  <!-- HERO: the featured channel's live picture (muted), faded into the page on the left and bottom -->
-  <div style="position: absolute; left: 0; top: 0; width: 1920px; height: 760px">
-    <img src="{{hero.still}}" alt="" style="position: absolute; right: 0; top: 0; width: 1350px; height: 760px; object-fit: cover">
+  <div style="position: absolute; left: 0; top: 0; width: 1920px; height: 700px">
+    <img src="{{hero.still}}" alt="" style="position: absolute; right: 0; top: 0; width: 1350px; height: 700px; object-fit: cover">
     <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #15161B 0%, #15161B 28%, rgba(21,22,27,0.82) 44%, rgba(21,22,27,0.25) 66%, rgba(21,22,27,0) 80%)"></div>
-    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 300px; background: linear-gradient(180deg, rgba(21,22,27,0) 0%, rgba(21,22,27,0.75) 55%, #15161B 100%)"></div>
-    <div style="position: absolute; left: 0; right: 0; top: 0; height: 180px; background: linear-gradient(180deg, rgba(21,22,27,0.7) 0%, rgba(21,22,27,0) 100%)"></div>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 340px; background: linear-gradient(180deg, rgba(21,22,27,0) 0%, rgba(21,22,27,0.85) 50%, #15161B 82%)"></div>
+    <div style="position: absolute; left: 0; right: 0; top: 0; height: 240px; background: linear-gradient(180deg, rgba(21,22,27,0.92) 0%, rgba(21,22,27,0.6) 50%, rgba(21,22,27,0) 100%)"></div>
   </div>
 
-  <!-- HEADER -->
   <header style="position: absolute; left: 104px; right: 104px; top: 48px; height: 56px; display: flex; align-items: center; gap: 56px">
     <div style="display: flex; align-items: baseline; gap: 3px">
       <span style="font-size: 40px; font-weight: 900; letter-spacing: -1px; color: #FFFFFF">tony</span>
@@ -43,7 +41,6 @@ a{color:#F5F5F7}a:hover{color:#FFFFFF}
     </button>
   </header>
 
-  <!-- HERO TEXT -->
   <section style="position: absolute; left: 104px; top: 236px; width: 760px; display: flex; flex-direction: column; gap: 22px">
     <div style="display: flex; align-items: center; gap: 14px">
       <span style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border-radius: 999px; background: rgba(0,0,0,0.45); font-size: 15px; font-weight: 800; letter-spacing: 1.2px; color: #FFFFFF">
@@ -69,8 +66,7 @@ a{color:#F5F5F7}a:hover{color:#FFFFFF}
     </div>
   </section>
 
-  <!-- FAVOURITES ROW -->
-  <section style="position: absolute; left: 104px; top: 712px; width: 1816px">
+  <section style="position: absolute; left: 104px; top: 664px; width: 1816px">
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px">
       <h2 style="margin: 0; font-size: 26px; font-weight: 700; color: #F5F5F7">Favourites</h2>
       <span style="padding: 3px 11px; border-radius: 999px; background: #24252D; font-size: 16px; font-weight: 600; color: #AEAEB2">5</span>
@@ -85,7 +81,6 @@ a{color:#F5F5F7}a:hover{color:#FFFFFF}
             <span style="position: absolute; left: 16px; bottom: 14px; display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px; border-radius: 999px; background: rgba(0,0,0,0.55); font-size: 13px; font-weight: 800; letter-spacing: 1px; color: #FFFFFF">
               <span style="width: 8px; height: 8px; border-radius: 999px; background: {{accent}}; display: inline-block"></span>LIVE
             </span>
-            <sc-if value="{{c.hd}}" hint-placeholder-val="{{true}}"><span style="position: absolute; right: 14px; top: 14px; padding: 3px 8px; border-radius: 6px; background: rgba(0,0,0,0.55); font-size: 12px; font-weight: 800; letter-spacing: 0.8px; color: #FFFFFF">HD</span></sc-if>
           </div>
           <div style="display: flex; flex-direction: column; gap: 3px; padding-left: 2px">
             <span style="{{c.nameStyle}}">{{c.name}}</span>
@@ -100,7 +95,7 @@ a{color:#F5F5F7}a:hover{color:#FFFFFF}
 <script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF9F0A","options":["#FF9F0A","#0A84FF","#30D158","#FF375F"]},"focusTile":{"editor":"int","default":-1,"min":-1,"max":4},"$preview":{"width":1920,"height":1080}}'>
 const CH = {
   mtv:   { name: "MTV Lebanon", country: "Lebanon", num: 1, cat: "General", hd: true, still: "/_blob/b2d095bdaca9d4df9a35791efd3b3942", logo: "/_blob/0d318f70c3365038d2c1d3fd075ea771", w: 200, h: 77, badge: "fill", bc: "#1C2454", desc: "News, talk shows, series and entertainment from Lebanon." },
-  lbci:  { name: "LBC International", country: "Lebanon", num: 20, cat: "General", hd: true, still: "/_blob/af1d23b9866183a70d30f0c35bec2994", logo: "/_blob/90cf72046ee430f57f41a1f893baa739", w: 67, h: 160, badge: "fill", bc: "#ECECEC", desc: "Lebanon's long-running general channel: news, drama and talk." },
+  lbci:  { name: "LBC International", country: "Lebanon", num: 20, cat: "General", hd: true, still: "/_blob/af1d23b9866183a70d30f0c35bec2994", logo: "/_blob/90cf72046ee430f57f41a1f893baa739", w: 67, h: 160, badge: "fill", bc: "#ECECEC", desc: "News, drama and talk shows from Lebanon." },
   jadeed:{ name: "Al Jadeed", country: "Lebanon", num: 17, cat: "General", hd: true, still: "/_blob/d4968ed879b3b907ccc1a5bfd49ec84d", logo: "/_blob/be6ea5ac2ede69f358996f44912db428", w: 320, h: 123, badge: "dark", bc: "#0B0C10", desc: "Lebanese news, current affairs and entertainment." },
   abcn:  { name: "ABC News", country: "Australia", num: 13, cat: "News", hd: true, still: "/_blob/eb3dabe92cb8732f49a46bf44132239d", logo: "/_blob/2347b2824e62406604e77cc28e32cc32", w: 289, h: 160, badge: "dark", bc: "#0B0C10", desc: "Australian and world news, around the clock." },
   sbs:   { name: "SBS", country: "Australia", num: 6, cat: "General", hd: true, still: "/_blob/7484ba2ccdaaf46ebd328dab4b7ce02d", logo: "/_blob/13c9b881f4bf90eaab415e2153a12484", w: 320, h: 154, badge: "light", bc: "#FFFFFF", desc: "World news, documentaries, film and food." }
@@ -140,7 +135,7 @@ class Component extends DCLogic {
         nameStyle: focused ? "font-size: 22px; font-weight: 700; color: #FFFFFF; margin-top: " + (focused ? "18px" : "0") : "font-size: 22px; font-weight: 500; color: #AEAEB2"
       });
     });
-    const watchFocused = focus < 0;
+    const watchFocused = focus === -1;
     return {
       accent,
       hero: Object.assign({}, h, hb, { meta: "Channel " + h.num + "  ·  " + h.country + "  ·  " + h.cat + (h.hd ? "  ·  HD" : "") }),

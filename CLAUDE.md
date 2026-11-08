@@ -320,6 +320,9 @@ prices).
   "half done or AI slop". Use the design skills and solid UI/UX principles. **Test every route and
   deliberately try to break things** (no network, dead stream, bad list, slow stream, empty favourites,
   geo-blocked, radio-only, YouTube, remote button mashing), then fix what breaks.
+- **Check your own visual work before showing it:** render mock-ups with `tools/render_dc.py`
+  (Playwright) and look at the screenshots. Later, check the app on the Android TV emulator with
+  `adb exec-out screencap`. No HTML comments in `.dc.html` files (see `tools/README.md`).
 - Keep **every design/version**; never overwrite a version — add a new one.
 - Ask before big or irreversible changes; small, clear tasks can go ahead.
 - Keep the UI **clean and normal-sized**; resist adding clutter.
