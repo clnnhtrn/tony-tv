@@ -62,6 +62,11 @@ help work around them:
    **Not allowed (owner asked; declined 8 Nov 2026):** DRM cracking, token generation, VPN/proxy
    geo-unblocking, or inventing headers to get past a server that refuses us.
 
+Repos the owner asked about on 9 Nov 2026 (cinepro core, cinextma, boxarr, a TMDB pipeline, the Stremio
+addon SDK) are assessed in `docs/RESEARCH-repos.md`. Short version: cinepro and cinextma pull video from
+piracy sites (**no**); boxarr is a Radarr download helper (not relevant); Stremio's film content comes
+mostly from torrent addons (**no**), though its open addon protocol could be used for legal sources.
+
 Legal free alternatives already suggested to the owner for movies/shows (outside this app): SBS On
 Demand, ABC iview, 7plus, 9Now, 10, Tubi, Pluto TV, Plex, Kanopy (library card). Some Pluto/Plex
 channels already appear in the Free-TV playlist.
