@@ -293,10 +293,10 @@ prices).
 ## 11. Plan / phases and status
 1. Decide interface — **DONE** (Version 5).
 2. Mock-up review — **DONE** (v5-FINAL), minus v5 country picker and empty-favourites state.
-3. **Channel list — IN PROGRESS**: combined Free-TV + iptv-org script, logos and QA sheet done.
-   Remaining: full run committed, push to owner's GitHub (account `clnnhtrn`; repo still to be
-   created), raw URL for the app. Original task: fetch Free-TV playlist, filter countries, test
-   streams from Australia, output `channels.json`; report how many Lebanese channels exist.
+3. **Channel list — DONE (9 Nov 2026)**: combined Free-TV + iptv-org, 11,168 channels / 187 groups,
+   logos, per-country files. **Repo: https://github.com/clnnhtrn/tony-tv (public).** The app reads
+   `https://raw.githubusercontent.com/clnnhtrn/tony-tv/main/channels/dist/index.json`, then
+   `…/channels/dist/countries/<slug>.json`, with logos at `…/channels/<logo>` (verified 200 over HTTPS).
 4. Build app v1 in `app/` (Kotlin, Compose for TV, Media3): Home rows, details, player + preview strip,
    options panel, search, favourites, settings, first-run picker, auto-hide broken channels, live stills.
 5. Install & test on owner's Chromecast with Google TV for ~a week; fix issues.
