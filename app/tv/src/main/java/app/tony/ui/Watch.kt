@@ -239,20 +239,23 @@ private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onS
     val tileFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { rowState.scrollToItem(chans.indexOfFirst { it.id == current.id }.coerceAtLeast(0)) }
     FocusOnStart(tileFocus)
-    Column(Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.72f), Color.Black.copy(alpha = 0.92f)))).padding(top = 90.dp, bottom = 26.dp)) {
+    Column(Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xFF08090D).copy(alpha = 0.85f), Color(0xFF08090D)))).padding(top = 40.dp, bottom = 26.dp)) {
         val fc = chans.getOrNull(focusedIndex)
-        Box(Modifier.height(160.dp).fillMaxWidth()) {
+        // v8: a large preview sits right above the selected card (cards snap to the margin, so it's always aligned)
+        Box(Modifier.height(212.dp).fillMaxWidth().padding(start = T.Margin)) {
             if (fc != null && fc.id != current.id) {
-                val x = (T.Margin + (T.StdW + T.Gap) * (focusedIndex - rowState.firstVisibleItemIndex).coerceAtLeast(0)).coerceAtMost(680.dp)
-                Column(Modifier.offset(x = x - 50.dp).width(240.dp).clip(RoundedCornerShape(12.dp)).background(T.Panel).border(0.5.dp, T.HairlineStrong, RoundedCornerShape(12.dp))) {
-                    Box(Modifier.fillMaxWidth().height(122.dp).background(parseColor(fc.tileColor, T.Surface)), contentAlignment = Alignment.Center) {
+                Column(Modifier.width(300.dp).clip(RoundedCornerShape(12.dp)).background(T.Card)) {
+                    Box(Modifier.fillMaxWidth().height(169.dp).background(parseColor(fc.tileColor, T.Card)), contentAlignment = Alignment.Center) {
                         LogoBadge(fc, BadgeWide)
-                        LivePreview(fc, Modifier.fillMaxSize(), delayMs = 700, sound = false)   // current channel keeps its sound
-                        LiveChip(Modifier.align(Alignment.TopStart).padding(7.dp), "PREVIEW", dot = true)
+                        LivePreview(fc, Modifier.fillMaxSize(), delayMs = 600, sound = false)   // the channel you're watching keeps its sound
+                        Row(Modifier.align(Alignment.TopStart).padding(8.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.55f)).padding(horizontal = 8.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Box(Modifier.size(4.dp).clip(CircleShape).background(T.Live)); Text("Preview", style = ts(8.sp, 700, Color.White))
+                        }
                     }
-                    Row(Modifier.padding(horizontal = 10.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(fc.name, style = ts(10.5.sp, 650, Color.White), maxLines = 1, modifier = Modifier.weight(1f))
-                        Text("OK to switch", style = ts(8.sp, 650, T.Accent))
+                    Row(Modifier.padding(horizontal = 11.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(fc.title, style = ts(13.sp, 800, Color.White), maxLines = 1, modifier = Modifier.weight(1f))
+                        Text("Press OK to switch", style = ts(9.sp, 600, Color.White.copy(alpha = 0.7f)))
                     }
                 }
             }
@@ -280,10 +283,9 @@ private fun Pill(text: String, selected: Boolean, icon: ImageVector? = null, onC
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) Color.White.copy(alpha = 0.18f) else Color.White.copy(alpha = 0.06f),
-            contentColor = T.Text, focusedContainerColor = Color.White, focusedContentColor = T.Bg,
+            containerColor = if (selected) Color.White.copy(alpha = 0.18f) else Color.Transparent,
+            contentColor = if (selected) Color.White else Color.White.copy(alpha = 0.65f), focusedContainerColor = Color.White, focusedContentColor = T.Bg,
         ),
-        border = ClickableSurfaceDefaults.border(border = Border(BorderStroke(0.5.dp, T.Hairline))),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
     ) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 5.5.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {

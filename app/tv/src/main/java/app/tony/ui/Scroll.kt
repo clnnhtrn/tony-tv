@@ -54,3 +54,12 @@ fun BackLayer(s: app.tony.AppState, enabled: Boolean, onBack: () -> Unit) {
         onDispose { s.backLayers.remove(layer) }
     }
 }
+
+/** Tells the fixed top bar whether this page is scrolled away from the top. */
+@androidx.compose.runtime.Composable
+fun ReportScroll(s: app.tony.AppState, list: androidx.compose.foundation.lazy.LazyListState) {
+    androidx.compose.runtime.LaunchedEffect(list) {
+        androidx.compose.runtime.snapshotFlow { list.firstVisibleItemIndex > 0 || list.firstVisibleItemScrollOffset > 40 }.collect { s.pageScrolled = it }
+    }
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { s.pageScrolled = false } }
+}

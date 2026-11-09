@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -46,7 +47,7 @@ fun ChannelsScreen(s: AppState, start: String?) {
     val grid = rememberLazyGridState()
     LaunchedEffect(picked) { grid.scrollToItem(0) }
     Column(Modifier.fillMaxSize().pageBg()) {
-        TopBar(Tab.Channels, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
+        androidx.compose.foundation.layout.Spacer(Modifier.height(BarSpace))
         LazyRow(Modifier.padding(top = 18.dp).focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(groups, key = { it.key }) { g ->
                 val src = remember { MutableInteractionSource() }

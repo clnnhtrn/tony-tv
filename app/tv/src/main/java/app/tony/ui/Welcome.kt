@@ -126,8 +126,8 @@ private fun Intro(onNext: () -> Unit) {
         AmbientBackground()
         Column(Modifier.align(Alignment.CenterStart).padding(start = 90.dp).width(520.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Wordmark(30f)
-            Text("Free live TV\nfrom around the world.", style = ts(44.sp, 800, Color.White, (-1.4).sp, lineHeight = 48.sp))
-            Text("Lebanon, Australia and the world. Free, with nothing to sign up for.",
+            Text("Live TV from home,\nright here.", style = ts(44.sp, 800, Color.White, (-1.4).sp, lineHeight = 48.sp))
+            Text("Channels from your country and around the world. Free, with nothing to sign up for.",
                 style = ts(13.sp, 400, T.Text2, lineHeight = 19.sp))
             Row(Modifier.padding(top = 14.dp)) { TonyButton("Get started", onNext, Modifier.focusRequester(go), primary = true) }
         }
@@ -137,30 +137,30 @@ private fun Intro(onNext: () -> Unit) {
 @Composable
 private fun Countries(s: AppState, chosen: MutableList<String>, fromSettings: Boolean, onDone: () -> Unit) {
     val all = s.countryEntries()
-    val suggested = listOf("Lebanon", "Australia")
-    // From Settings, the countries already chosen come first under "Selected"; first run shows "Suggested for you".
-    val topNames = remember { if (fromSettings) all.filter { it.file in chosen }.map { it.name } else suggested }
+    val collections = s.collectionEntries()
+    // Settings: what's already chosen comes first ("Selected"). First run: the TV's own region ("Suggested").
+    val topNames = remember(all.size) { if (fromSettings) all.filter { it.file in chosen }.map { it.name } else s.suggestedCountries() }
     val top = all.filter { it.name in topNames }.sortedBy { topNames.indexOf(it.name) }
     val rest = all.filter { it.name !in topNames }.sortedBy { it.name }
     val grid = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val firstFocus = remember { FocusRequester() }
-    if (top.isNotEmpty()) FocusOnStart(firstFocus)
+    FocusOnStart(firstFocus, all.size)
 
     Box(Modifier.fillMaxSize()) {
         LazyVerticalGrid(
             GridCells.Fixed(5), state = grid,
-            contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 36.dp, bottom = 40.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 44.dp, bottom = 60.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item(span = { GridItemSpan(5) }) {
-                Row(Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().padding(bottom = 18.dp), verticalAlignment = Alignment.Bottom) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(if (fromSettings) "SETTINGS" else "STEP 1 OF 2", style = ts(8.sp, 700, T.Accent, 1.2.sp))
-                        Text("Which countries do you want to watch?", style = ts(26.sp, 800, Color.White, (-0.7).sp))
-                        Text(if (chosen.isEmpty()) "Pick as many as you like. You can change this any time in Settings."
-                             else "${chosen.size} chosen", style = ts(11.sp, 400, T.Text2))
+                        Text(if (fromSettings) "SETTINGS" else "STEP 1 OF 2", style = ts(9.sp, 700, Color.White.copy(alpha = 0.55f), 1.2.sp))
+                        Text("Which countries?", style = ts(32.sp, 850, Color.White, (-1).sp))
+                        Text(if (chosen.isEmpty()) "Each one gets its own row on Home. You can change this any time."
+                             else "${chosen.size} chosen", style = ts(12.sp, 400, Color.White.copy(alpha = 0.65f)))
                     }
                     if (chosen.isNotEmpty()) TonyButton(if (fromSettings) "Save" else "Continue", onDone,
                         Modifier.onFocusChanged { if (it.isFocused) scope.launch { grid.animateScrollToItem(0) } }, primary = true)
@@ -168,10 +168,13 @@ private fun Countries(s: AppState, chosen: MutableList<String>, fromSettings: Bo
             }
             if (s.loading && all.isEmpty()) item(span = { GridItemSpan(5) }) { Text("Loading the channel list…", style = ts(11.sp, 500, T.Muted)) }
             if (s.offline && all.isEmpty()) item(span = { GridItemSpan(5) }) { OfflineNotice(s) }
+            val firstKey = (top.firstOrNull() ?: collections.firstOrNull() ?: rest.firstOrNull())?.file
             if (top.isNotEmpty()) item(span = { GridItemSpan(5) }) { SectionLabel(if (fromSettings) "Selected" else "Suggested for you") }
-            items(top, key = { "t" + it.file }) { e -> CountryCard(e, e.file in chosen, if (e == top.first()) Modifier.focusRequester(firstFocus) else Modifier) { toggle(chosen, e.file) } }
+            items(top, key = { "t" + it.file }) { e -> CountryCard(e, e.file in chosen, if (e.file == firstKey) Modifier.focusRequester(firstFocus) else Modifier) { toggle(chosen, e.file) } }
+            if (collections.isNotEmpty()) item(span = { GridItemSpan(5) }) { SectionLabel("Languages") }
+            items(collections, key = { "c" + it.file }) { e -> CountryCard(e, e.file in chosen, if (e.file == firstKey) Modifier.focusRequester(firstFocus) else Modifier) { toggle(chosen, e.file) } }
             if (rest.isNotEmpty()) item(span = { GridItemSpan(5) }) { SectionLabel("All countries") }
-            items(rest, key = { it.file }) { e -> CountryCard(e, e.file in chosen) { toggle(chosen, e.file) } }
+            items(rest, key = { it.file }) { e -> CountryCard(e, e.file in chosen, if (e.file == firstKey) Modifier.focusRequester(firstFocus) else Modifier) { toggle(chosen, e.file) } }
         }
     }
 }
@@ -231,7 +234,9 @@ private fun CountryCard(e: CountryEntry, selected: Boolean, modifier: Modifier =
         interactionSource = src,
     ) {
         Row(Modifier.fillMaxSize().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(e.flag.ifEmpty { "🏳" }, style = ts(24.sp))
+            if (e.kind == "collection") Box(Modifier.size(30.dp).clip(CircleShape).background(if (selected) T.Bg else Color.White.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
+                Text(if (e.name == "Arabic") "ع" else e.name.take(1), style = ts(15.sp, 800, Color.White))
+            } else Text(e.flag.ifEmpty { "🏳" }, style = ts(24.sp))
             Column(Modifier.weight(1f)) {
                 Text(e.name, style = ts(11.sp, 650, if (selected) T.Bg else Color.White), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(plural(e.channels, "channel"), style = ts(8.5.sp, 500, if (selected) T.Bg.copy(alpha = 0.6f) else T.Muted))

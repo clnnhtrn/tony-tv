@@ -73,12 +73,13 @@ fun HomeScreen(s: AppState) {
     if (featured != null) FocusOnStart(watchFocus)
 
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    ReportScroll(s, listState)
     var heroFocused by remember { mutableStateOf(true) }
+    androidx.compose.runtime.LaunchedEffect(heroFocused) { if (heroFocused && listState.firstVisibleItemScrollOffset > 0) listState.animateScrollToItem(0) }
     LazyColumn(Modifier.fillMaxSize().pageBg(), state = listState, contentPadding = PaddingValues(bottom = 110.dp)) {
         item("hero") {
             Box(Modifier.fillMaxWidth().height(540.dp).onFocusChanged { heroFocused = it.hasFocus }) {
                 HeroBackdrop(featured, height = 540.dp, live = heroFocused)
-                TopBar(Tab.Home, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
                 if (featured != null) HeroInfo(s, featured, Modifier.padding(start = T.Margin, top = 132.dp), watchFocus,
                     onWatch = { s.go(Screen.Watch(featured, favs.ifEmpty { s.allChannels() })) })
                 if (favs.size > 1) PageDots(favs.size.coerceAtMost(8), favs.indexOfFirst { it.id == featured?.id }.coerceAtLeast(0), Modifier.align(Alignment.TopCenter).padding(top = 370.dp))
@@ -94,14 +95,16 @@ fun HomeScreen(s: AppState) {
                 }
             }
         }
-        s.countryRows.firstOrNull()?.let { r ->
+        if (s.saved.recent.isNotEmpty()) item("recent") { ChannelRowView(s, ChannelRow("recent", "Recent", null, s.saved.recent, 0), wide = true) }
+        // One "Top in …" row for every country the family chose (no country is special)
+        s.countryRows.forEach { r ->
             val top = s.topFor(r)
-            if (top.size >= 3) item("top") { PosterRow(s, "Top in ${r.title}", top) }
+            if (top.isNotEmpty()) item("top:" + r.key) { PosterRow(s, "Top in ${r.title}", top, seeAll = { s.go(Screen.Channels(r.title)) }, total = r.channels.size) }
+        }
+        s.extraRows.filter { it.key != "movies" }.forEach { r ->
+            item("x:" + r.key) { ChannelRowView(s, r.copy(channels = r.channels.take(15)), showCountry = true, seeAll = { s.go(Screen.Channels(r.title)) }) }
         }
         item("cats") { CategoryRow(s) }
-        if (s.saved.recent.isNotEmpty()) item("recent") { ChannelRowView(s, ChannelRow("recent", "Recent", null, s.saved.recent, 0), wide = true) }
-        s.countryRows.forEach { r -> item("c:" + r.key) { ChannelRowView(s, r.copy(channels = r.channels.take(15)), seeAll = { s.go(Screen.Channels(r.title)) }) } }
-        s.extraRows.filter { it.key != "movies" }.forEach { r -> item("x:" + r.key) { ChannelRowView(s, r, showCountry = true) } }
         if (s.offline && s.countryRows.isEmpty()) item("offline") { OfflineNotice(s) }
     }
 }
@@ -115,19 +118,29 @@ fun PageDots(n: Int, current: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PosterRow(s: AppState, title: String, list: List<Channel>) {
-    Column(Modifier.padding(top = T.RowGap)) {
-        RowHeader(title)
-        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
+fun PosterRow(s: AppState, title: String, list: List<Channel>, seeAll: (() -> Unit)? = null, total: Int = 0) {
+    Column(Modifier.padding(top = T.RowGap + 6.dp)) {
+        RowHeader(title, modifier = Modifier.padding(bottom = 6.dp))
+        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 6.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
             itemsIndexed(list, key = { _, c -> "top" + c.id }) { i, c ->
                 PosterTile(c, i + 1, onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
+            }
+            if (seeAll != null) item("seeall") {
+                TonyCard(PosterW, PosterH, 11.dp, onClick = seeAll, maxScale = 1.06f, label = "See all") { _ ->
+                    Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.08f)), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("See all", style = ts(16.sp, 800, Color.White))
+                            if (total > 0) Text("$total channels", style = ts(9.sp, 600, Color.White.copy(alpha = 0.6f)))
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-private val CATEGORIES = listOf("News" to Color(0xFF2B3A67), "Movies" to Color(0xFF5A2340), "Arabic" to Color(0xFF2F4D3A),
-    "Kids" to Color(0xFF6A4A1C), "Music" to Color(0xFF3E2A66), "Sport" to Color(0xFF1F4E5A))
+private val CATEGORIES = listOf("News" to Color(0xFF2B3A67), "Movies" to Color(0xFF5A2340), "Kids" to Color(0xFF6A4A1C),
+    "Music" to Color(0xFF3E2A66), "Sport" to Color(0xFF1F4E5A), "Documentary" to Color(0xFF2F4D3A))
 
 /** Netflix-style category tiles. */
 @Composable
@@ -255,7 +268,7 @@ fun CategoryScreen(s: AppState, name: String) {
     val first = remember { FocusRequester() }
     if (list.isNotEmpty()) FocusOnStart(first)
     Column(Modifier.fillMaxSize().pageBg()) {
-    TopBar(null, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
+        androidx.compose.foundation.layout.Spacer(Modifier.height(BarSpace))
     androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
         androidx.compose.foundation.lazy.grid.GridCells.Fixed(4), Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 18.dp, bottom = 110.dp),

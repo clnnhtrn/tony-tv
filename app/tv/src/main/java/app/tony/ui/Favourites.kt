@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -44,7 +45,7 @@ fun FavouritesScreen(s: AppState) {
 
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
-            TopBar(Tab.Favourites, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
+        androidx.compose.foundation.layout.Spacer(Modifier.height(BarSpace))
             Row(Modifier.padding(start = T.Margin, top = 22.dp, bottom = 14.dp), verticalAlignment = Alignment.Bottom) {
                 Text("Favourites", style = ts(22.sp, 800, Color.White, (-0.5).sp))
                 if (favs.isNotEmpty()) Text("   Hold OK on a channel to remove or move it", style = ts(9.5.sp, 400, T.Muted), modifier = Modifier.padding(bottom = 3.dp))

@@ -45,6 +45,8 @@ class AppState(app: Application) : AndroidViewModel(app) {
     private val store = Store(app)
 
     var saved by mutableStateOf(Saved()); private set
+    /** True while Home/Movies is scrolled into the rows: the fixed top bar steps out of the way. */
+    var pageScrolled by mutableStateOf(false)
     var index by mutableStateOf<Index?>(null); private set
     var loading by mutableStateOf(true); private set
     var offline by mutableStateOf(false); private set
@@ -105,10 +107,11 @@ class AppState(app: Application) : AndroidViewModel(app) {
             ChannelRow(e.file, e.name, null, list.filterNot { it.id in saved.hidden }.sortedBy { it.number }, e.channels)
         }
         val inCountryRows = countryRows.flatMap { it.channels }.map { it.id }.toSet()
-        extraRows = idx.rows.map { r -> viewModelScope.async {
+        // Collections (e.g. Arabic) only when the viewer chose them; Movies always (it has its own tab)
+        extraRows = idx.rows.filter { it.key == "movies" || it.file in saved.countries }.map { r -> viewModelScope.async {
             // Skip channels that already have their own country row (e.g. Lebanon in the Arabic row)
             val list = repo.channels(r.file).getOrNull()?.channels.orEmpty().filterNot { it.id in saved.hidden || it.id in inCountryRows }
-            ChannelRow(r.key, r.title, when (r.key) { "movies" -> "Free movie channels, playing now"; "arabic" -> "Arabic channels from every country"; else -> null }, list.take(60), r.channels)
+            ChannelRow(r.key, r.title, null, list, r.channels)
         } }.awaitAll().filter { it.channels.isNotEmpty() }
     }
 
@@ -187,4 +190,18 @@ class AppState(app: Application) : AndroidViewModel(app) {
     fun allChannels(): List<Channel> = (countryRows.flatMap { it.channels } + extraRows.flatMap { it.channels }).distinctBy { it.id }
 
     fun countryEntries(): List<CountryEntry> = index?.countries.orEmpty().filter { it.kind == "country" }
+
+    /** Pickable collections that aren't a country (e.g. "Arabic": Arabic-language channels from every country). */
+    fun collectionEntries(): List<CountryEntry> = index?.rows.orEmpty().filter { it.key != "movies" }.map {
+        CountryEntry(name = it.title, code = null, kind = "collection", flag = "", file = it.file, channels = it.channels, working = it.channels)
+    }
+
+    /** Countries suggested on first run: the TV's own region (works for any family, not just one country). */
+    fun suggestedCountries(): List<String> {
+        val region = java.util.Locale.getDefault().country.uppercase()
+        val lang = java.util.Locale.getDefault().language
+        val byRegion = countryEntries().filter { it.code == region }.map { it.name }
+        val byLanguage = when (lang) { "ar" -> listOf("Lebanon", "Egypt", "Saudi Arabia"); "vi" -> listOf("Vietnam"); else -> emptyList() }
+        return (byRegion + byLanguage).distinct()
+    }
 }

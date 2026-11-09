@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -175,11 +176,12 @@ fun TonyCard(
     onLongClick: (() -> Unit)? = null,
     onFocus: () -> Unit = {},
     label: String? = null,
+    maxScale: Float = 1.12f,
     content: @Composable BoxScope.(focused: Boolean) -> Unit,
 ) {
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
-    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) 1.12f else 1f,
+    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) maxScale else 1f,
         androidx.compose.animation.core.spring(dampingRatio = 0.8f, stiffness = 500f), label = "lift")
     val lift by androidx.compose.animation.core.animateFloatAsState(if (focused) 1f else 0f, androidx.compose.animation.core.tween(220), label = "shadow")
     val shape = RoundedCornerShape(radius)
@@ -248,7 +250,7 @@ fun ChannelTile(
 /** Tall numbered poster (Apple TV "Top 10" style). */
 @Composable
 fun PosterTile(c: Channel, rank: Int, onClick: () -> Unit, modifier: Modifier = Modifier, onLongClick: (() -> Unit)? = null) {
-    TonyCard(PosterW, PosterH, 11.dp, onClick, modifier, onLongClick = onLongClick, label = "$rank, ${c.title}") { focused ->
+    TonyCard(PosterW, PosterH, 11.dp, onClick, modifier, onLongClick = onLongClick, label = "$rank, ${c.title}", maxScale = 1.06f) { focused ->
         KeyArt(c, PosterH, focused, PosterW)
         Text("$rank", style = ts(46.sp, 900, Color.White.copy(alpha = 0.93f), (-1.5).sp), modifier = Modifier.padding(start = 11.dp, top = 2.dp))
         Column(Modifier.align(Alignment.BottomCenter).padding(start = 8.dp, end = 8.dp, bottom = 13.dp), horizontalAlignment = Alignment.CenterHorizontally,
@@ -358,27 +360,29 @@ enum class Tab(val label: String) { Home("Home"), Channels("Channels"), Movies("
 
 /** v8 top bar: wordmark left, search icon + plain text tabs centred, clock + round settings right. */
 @Composable
-fun TopBar(selected: Tab?, onTab: (Tab) -> Unit, onSettings: () -> Unit, modifier: Modifier = Modifier) {
+fun TopBar(selected: Tab?, onTab: (Tab) -> Unit, onSettings: () -> Unit, modifier: Modifier = Modifier, down: androidx.compose.ui.focus.FocusRequester? = null) {
+    val dn = if (down == null) Modifier else Modifier.focusProperties { this.down = down }
     Row(modifier.fillMaxWidth().padding(start = T.Margin, end = T.Margin, top = 34.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.width(150.dp)) { Wordmark(19f) }
         Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
-            NavPill(null, selected == Tab.Search, Icons.Search) { onTab(Tab.Search) }
-            listOf(Tab.Home, Tab.Channels, Tab.Movies, Tab.Favourites).forEach { t -> NavPill(t.label, t == selected) { onTab(t) } }
+            NavPill(null, selected == Tab.Search, Icons.Search, modifier = dn) { onTab(Tab.Search) }
+            listOf(Tab.Home, Tab.Channels, Tab.Movies, Tab.Favourites).forEach { t -> NavPill(t.label, t == selected, modifier = dn) { onTab(t) } }
         }
         Row(Modifier.width(150.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
             Clock()
             Spacer(Modifier.width(11.dp))
-            NavPill(null, false, Icons.Gear, round = true, onClick = onSettings)
+            NavPill(null, false, Icons.Gear, round = true, modifier = dn, onClick = onSettings)
         }
     }
 }
 
 @Composable
-private fun NavPill(text: String?, selected: Boolean, icon: ImageVector? = null, round: Boolean = false, onClick: () -> Unit) {
+private fun NavPill(text: String?, selected: Boolean, icon: ImageVector? = null, round: Boolean = false, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val src = remember { MutableInteractionSource() }
     val f by src.collectIsFocusedAsState()
     Surface(
         onClick = onClick,
+        modifier = modifier,
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (selected) Color.White.copy(alpha = 0.18f) else if (round) Color.White.copy(alpha = 0.12f) else Color.Transparent,
@@ -441,3 +445,32 @@ fun easedFade(color: Color, from: Float, to: Float, start: Float = 0f, end: Floa
         val e = t * t * (3 - 2 * t)   // smoothstep
         (start + (end - start) * t) to color.copy(alpha = from + (to - from) * e)
     }
+
+
+/** Which tab a page belongs to (null = page without the top bar). */
+fun tabFor(sc: app.tony.Screen): Tab? = when (sc) {
+    app.tony.Screen.Home -> Tab.Home
+    is app.tony.Screen.Channels, is app.tony.Screen.Category -> Tab.Channels
+    app.tony.Screen.Movies -> Tab.Movies
+    app.tony.Screen.Favourites -> Tab.Favourites
+    app.tony.Screen.Search -> Tab.Search
+    else -> null
+}
+
+/** Height the content leaves free at the top for the fixed bar. */
+val BarSpace = 84.dp
+
+/** The top bar stays on screen between tabs (no fade); a soft scrim keeps it readable over content. */
+@Composable
+fun FixedTopBar(s: app.tony.AppState, tab: Tab, page: androidx.compose.ui.focus.FocusRequester? = null) {
+    // Steps out of the way while the page is scrolled (like Apple TV); back as soon as it has focus or the page is at the top.
+    var barFocused by remember { mutableStateOf(false) }
+    val shown = !s.pageScrolled || barFocused
+    val a by androidx.compose.animation.core.animateFloatAsState(if (shown) 1f else 0f, androidx.compose.animation.core.tween(if (shown) 220 else 160), label = "bar")
+    Box(Modifier.fillMaxWidth().height(110.dp).onFocusChanged { barFocused = it.hasFocus }.graphicsLayer { alpha = a }
+        .background(Brush.verticalGradient(listOf(T.Ink.copy(alpha = 0.92f), T.Ink.copy(alpha = 0.6f), Color.Transparent)))) {
+        TopBar(tab, onTab = { t -> if (tabFor(s.screen) != t) s.tab(when (t) {
+            Tab.Home -> app.tony.Screen.Home; Tab.Channels -> app.tony.Screen.Channels(); Tab.Movies -> app.tony.Screen.Movies
+            Tab.Favourites -> app.tony.Screen.Favourites; Tab.Search -> app.tony.Screen.Search }) }, onSettings = { s.go(app.tony.Screen.Settings) }, down = page)
+    }
+}
