@@ -88,6 +88,9 @@ fun WatchScreen(s: AppState, start: Channel, startList: List<Channel>) {
     LifecycleStartEffect(current.id) { main.play(current.id, current.url, current.backupUrls, current.headers); onStopOrDispose { } }
     // Leaving the watch screen stops the sound (it kept playing behind Home before)
     DisposableEffect(Unit) { onDispose { main.stop() } }
+    LaunchedEffect(current.id) {   // minutes watched per channel, kept on this TV only ("Top in …" ranking)
+        while (true) { delay(30_000); if (main.state == StreamState.Playing) s.addWatchTime(current.id, 30_000) }
+    }
     LaunchedEffect(current.id, infoVisible) { if (infoVisible) { delay(5000); infoVisible = false } }
     LaunchedEffect(stripOpen, optionsOpen) { if (!stripOpen && !optionsOpen) runCatching { rootFocus.requestFocus() } }
     BackLayer(s, stripOpen || optionsOpen) { if (optionsOpen) optionsOpen = false else stripOpen = false }

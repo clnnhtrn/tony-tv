@@ -24,6 +24,7 @@ sealed interface Screen {
     data object Welcome : Screen
     data object Home : Screen
     data object Movies : Screen
+    data class Category(val name: String) : Screen
     data object Favourites : Screen
     data object Search : Screen
     data object Settings : Screen
@@ -32,6 +33,11 @@ sealed interface Screen {
 }
 
 data class ChannelRow(val key: String, val title: String, val subtitle: String?, val channels: List<Channel>, val total: Int)
+
+private val MAJORS = mapOf(
+    "Lebanon" to listOf("mtv", "lbc", "jadeed", "otv", "tele liban", "mayadeen", "nbn", "manar", "voice of lebanon"),
+    "Australia" to listOf("abc", "seven", "nine", "10", "sbs", "7two", "9gem"),
+)
 
 class AppState(app: Application) : AndroidViewModel(app) {
     val repo = Repository(app)
@@ -134,6 +140,29 @@ class AppState(app: Application) : AndroidViewModel(app) {
         store.setHidden(if (hide) saved.hidden + id else saved.hidden - id); loadRows()
     }
     fun setSubtitles(on: Boolean) = viewModelScope.launch { store.setSubtitles(on) }
+    fun addWatchTime(id: String, ms: Long) = viewModelScope.launch { store.addWatchTime(id, ms) }
+
+    /**
+     * "Top in <country>": what this TV watches most, then the country's main broadcasters, then list order.
+     * Working channels only.
+     */
+    fun topFor(r: ChannelRow, n: Int = 10): List<Channel> {
+        val majors = MAJORS[r.title].orEmpty()
+        fun majorRank(c: Channel) = majors.indexOfFirst { c.name.lowercase().contains(it) }.let { if (it < 0) 999 else it }
+        return r.channels.filter { it.isWorking }
+            .sortedWith(compareByDescending<Channel> { saved.watchTime[it.id] ?: 0L }.thenBy { majorRank(it) }.thenBy { it.number })
+            .take(n)
+    }
+
+    /** Channels for a category tile (News, Movies, Kids, Music, Sport, Arabic). */
+    fun category(name: String): List<Channel> = allChannels().filter {
+        when (name) {
+            "Arabic" -> "ara" in it.languages
+            "Sport" -> it.category == "Sport"
+            else -> it.category == name
+        }
+    }.sortedBy { if (it.isWorking) 0 else 1 }
+
     fun setCaptionLook(size: Int, style: Int) = viewModelScope.launch { store.setCaptionLook(size, style) }
 
     /** The list refreshes by itself: on open, then every 30 minutes while Tony is on screen (never in the background). */

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -85,6 +86,7 @@ object Icons {
     val Grid = stroke("grid", "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z", 1.6f)
     val Refresh = stroke("refresh", "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7", 1.8f)
     val Info = stroke("info", "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v5M12 8v.01", 1.8f)
+    val Search = stroke("search", "M11 4.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM16 16l4 4", 2f)
     val Radio = stroke("radio", "M4 9h16v11H4zM8 9l9-5M8 15h.01M14 13h4M14 16h4", 1.7f)
 }
 
@@ -158,9 +160,8 @@ fun dimFor(focused: Boolean): ColorFilter? {
 }
 
 /**
- * Focusable card. Rest: hairline. Focus: springs up ~8%, soft deep shadow, a light diagonal sheen and
- * a thin crisp edge (no thick borders: owner, 9 Nov 2026). The spring gives the smooth, slightly
- * elastic movement you feel on Apple TV when moving along a row.
+ * v8 focus: the card springs up ~7% with a deep soft shadow and full brightness; nothing else.
+ * (Apple TV style: no borders, no rings.) Unfocused cards sit slightly dimmed.
  */
 @Composable
 fun TonyCard(
@@ -173,10 +174,9 @@ fun TonyCard(
 ) {
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
-    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) 1.08f else 1f,
-        androidx.compose.animation.core.spring(dampingRatio = 0.72f, stiffness = 380f), label = "lift")
-    val lift by androidx.compose.animation.core.animateFloatAsState(if (focused) 1f else 0f,
-        androidx.compose.animation.core.tween(260), label = "shadow")
+    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) 1.07f else 1f,
+        androidx.compose.animation.core.spring(dampingRatio = 0.75f, stiffness = 420f), label = "lift")
+    val lift by androidx.compose.animation.core.animateFloatAsState(if (focused) 1f else 0f, androidx.compose.animation.core.tween(220), label = "shadow")
     val shape = RoundedCornerShape(radius)
     Surface(
         onClick = onClick,
@@ -184,29 +184,28 @@ fun TonyCard(
         modifier = modifier.size(width, height)
             .graphicsLayer {
                 scaleX = scale; scaleY = scale
-                shadowElevation = 22.dp.toPx() * lift
+                shadowElevation = (6.dp.toPx() + 18.dp.toPx() * lift)
                 this.shape = shape; clip = false
                 ambientShadowColor = Color.Black; spotShadowColor = Color.Black
             }
             .onFocusChanged { if (it.isFocused) onFocus() },
         shape = ClickableSurfaceDefaults.shape(shape),
-        colors = ClickableSurfaceDefaults.colors(containerColor = T.Panel, focusedContainerColor = T.Panel, pressedContainerColor = T.Panel),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f, pressedScale = 0.98f),
-        border = ClickableSurfaceDefaults.border(
-            border = Border(BorderStroke(0.5.dp, T.Hairline)),
-            focusedBorder = Border(BorderStroke(1.dp, Color.White.copy(alpha = 0.85f))),
-        ),
+        colors = ClickableSurfaceDefaults.colors(containerColor = T.Card, focusedContainerColor = T.Card, pressedContainerColor = T.Card),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f, pressedScale = 0.97f),
+        border = ClickableSurfaceDefaults.border(),
         glow = ClickableSurfaceDefaults.glow(),
         interactionSource = src,
     ) {
         content(focused)
-        // Specular sheen on focus
-        Box(Modifier.fillMaxSize().graphicsLayer { alpha = lift }.background(
-            Brush.linearGradient(0f to Color.White.copy(alpha = 0.16f), 0.45f to Color.Transparent)))
+        Box(Modifier.fillMaxSize().graphicsLayer { alpha = (1f - lift) * 0.18f }.background(Color.Black))
     }
 }
 
-/** A channel tile: live still (or brand-colour fallback), logo badge, chips. */
+val CardWideW = 210.dp; val CardWideH = 118.dp     // 420×236 px
+val CardStdW = 150.dp; val CardStdH = 84.5.dp      // 300×169 px
+val PosterW = 131.dp; val PosterH = 196.dp         // 262×392 px
+
+/** v8 channel card ("key art"): the channel name is the artwork; no text underneath. */
 @Composable
 fun ChannelTile(
     c: Channel,
@@ -219,139 +218,169 @@ fun ChannelTile(
     onFocus: () -> Unit = {},
     watching: Boolean = false,
 ) {
-    val w = if (wide) T.WideW else T.StdW
-    val h = if (wide) T.WideH else T.StdH
-    var focusedLabel by remember { mutableStateOf(false) }
-    Column(modifier.width(w), verticalArrangement = Arrangement.spacedBy(if (wide) 6.dp else 5.dp)) {
-        TonyCard(w, h, if (wide) T.RadiusWide else T.RadiusStd, onClick, onLongClick = onLongClick, onFocus = onFocus,
-            modifier = Modifier.onFocusChanged { focusedLabel = it.hasFocus }) { focused ->
-            TileArt(c, wide, focused)
-            if (wide && !c.isRadio) LiveChip(Modifier.align(Alignment.BottomStart).padding(7.dp))
-            if (c.isRadio) LiveChip(Modifier.align(Alignment.BottomStart).padding(if (wide) 7.dp else 5.dp), "RADIO", dot = false)
-            if (watching) LiveChip(Modifier.align(Alignment.TopEnd).padding(5.dp), "WATCHING")
-            if (favourite && !wide) Box(
-                Modifier.align(Alignment.BottomEnd).padding(5.dp).size(14.dp).clip(RoundedCornerShape(4.dp))
-                    .background(T.ChipBg).border(0.5.dp, Color.White.copy(0.14f), RoundedCornerShape(4.dp)),
-                contentAlignment = Alignment.Center,
-            ) { Icon(Icons.Heart, null, tint = T.Accent, modifier = Modifier.size(7.5.dp)) }
-        }
-        Column(Modifier.padding(start = 1.dp, top = if (focusedLabel) 4.dp else 0.dp), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Text(c.name, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                style = ts(if (wide) 10.5.sp else 9.5.sp, if (focusedLabel) 650 else 500, if (focusedLabel) Color.White else T.Text3))
-            if (sub != null) Text(sub, maxLines = 1, overflow = TextOverflow.Ellipsis, style = ts(8.sp, 500, T.Muted))
+    val w = if (wide) CardWideW else CardStdW
+    val h = if (wide) CardWideH else CardStdH
+    TonyCard(w, h, if (wide) 11.dp else 10.dp, onClick, modifier, onLongClick = onLongClick, onFocus = onFocus) { focused ->
+        KeyArt(c, h, focused)
+        LogoMark(c, Modifier.align(Alignment.TopEnd).padding(if (wide) 7.dp else 6.dp), if (wide) 19.dp else 16.dp)
+        Column(Modifier.align(Alignment.BottomStart).padding(start = if (wide) 11.dp else 9.dp, end = 8.dp, bottom = if (wide) 9.dp else 7.dp),
+            verticalArrangement = Arrangement.spacedBy(if (wide) 3.dp else 2.dp)) {
+            Text(c.title, style = ts(if (wide) 16.sp else 12.5.sp, 850, Color.White, (-0.4).sp, lineHeight = if (wide) 17.sp else 13.5.sp),
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.5.dp)) {
+                if (favourite) Icon(Icons.Heart, null, tint = T.Accent, modifier = Modifier.size(if (wide) 8.dp else 7.dp))
+                if (watching) Text("Watching", style = ts(if (wide) 8.sp else 7.sp, 700, T.Accent))
+                else {
+                    if (!c.isRadio) Box(Modifier.size(4.dp).clip(CircleShape).background(T.Live))
+                    Text(listOfNotNull(if (c.isRadio) "Radio" else "Live", sub).joinToString(" · "), style = ts(if (wide) 8.sp else 7.sp, 600, Color.White.copy(alpha = 0.8f)), maxLines = 1)
+                }
+            }
         }
     }
 }
 
+/** Tall numbered poster (Apple TV "Top 10" style). */
 @Composable
-fun BoxScope.TileArt(c: Channel, wide: Boolean, focused: Boolean) {
+fun PosterTile(c: Channel, rank: Int, onClick: () -> Unit, modifier: Modifier = Modifier, onLongClick: (() -> Unit)? = null) {
+    TonyCard(PosterW, PosterH, 11.dp, onClick, modifier, onLongClick = onLongClick) { focused ->
+        KeyArt(c, PosterH, focused)
+        Text("$rank", style = ts(46.sp, 900, Color.White.copy(alpha = 0.93f), (-1.5).sp), modifier = Modifier.padding(start = 11.dp, top = 2.dp))
+        Column(Modifier.align(Alignment.BottomCenter).padding(start = 8.dp, end = 8.dp, bottom = 13.dp), horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(c.title, style = ts(16.sp, 850, Color.White, (-0.5).sp, lineHeight = 17.sp), maxLines = 2, overflow = TextOverflow.Ellipsis,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            Text(c.category ?: "Live", style = ts(9.sp, 600, Color.White.copy(alpha = 0.75f)))
+        }
+    }
+}
+
+/** Small round logo mark (top corner of a card). */
+@Composable
+fun LogoMark(c: Channel, modifier: Modifier = Modifier, size: Dp = 19.dp) {
+    val url = Repository.logoUrl(c) ?: return
+    val bg = when (c.logoBadge) { "dark" -> Color(0xFF0B0C10); "fill" -> parseColor(c.logoBadgeColor, Color.White); else -> Color.White }
+    Box(modifier.size(size).graphicsLayer { shadowElevation = 4.dp.toPx(); shape = CircleShape; clip = true }.background(bg), contentAlignment = Alignment.Center) {
+        AsyncImage(ImageRequest.Builder(LocalContext.current).data(url).crossfade(true).build(), c.name, contentScale = ContentScale.Fit,
+            modifier = Modifier.size(size * 0.68f, size * 0.48f))
+    }
+}
+
+/**
+ * The card artwork: the channel's latest frame, anchored to the top and taller than the card so the
+ * news ticker along the bottom of the frame falls outside; a deep fade for the text; brand-colour
+ * fallback with the logo when there's no frame.
+ */
+@Composable
+fun BoxScope.KeyArt(c: Channel, h: Dp, focused: Boolean) {
     var stillOk by remember(c.id) { mutableStateOf(false) }
-    // Fallback underneath: brand colour + centred logo (shown when no live still is available)
-    Box(Modifier.fillMaxSize().background(parseColor(c.tileColor, T.Surface)), contentAlignment = Alignment.Center) {
-        if (!stillOk) LogoBadge(c, if (wide) BadgeCentre else BadgeWide)
+    Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(parseColor(c.tileColor, T.Card), T.Card))), contentAlignment = Alignment.Center) {
+        if (!stillOk) LogoBadge(c, BadgeWide, Modifier.padding(bottom = h * 0.25f))
     }
     if (!c.isYouTube && !c.isRadio) AsyncImage(
         model = ImageRequest.Builder(LocalContext.current).data(Repository.stillUrl(c)).crossfade(true).build(),
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        colorFilter = dimFor(focused),
+        alignment = Alignment.TopCenter,
         onSuccess = { stillOk = true },
         onError = { stillOk = false },
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(Alignment.Top, unbounded = true).height(h * 1.28f).align(Alignment.TopCenter),
     )
-    if (stillOk) {
-        Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(if (wide) 48.dp else 30.dp)
-            .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.55f)))))
-        LogoBadge(c, if (wide) BadgeWide else BadgeStd, Modifier.align(Alignment.TopStart).padding(if (wide) 7.dp else 5.5.dp))
-    }
+    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(
+        0f to Color.Black.copy(alpha = 0.25f), 0.28f to Color.Transparent, 0.56f to T.Ink.copy(alpha = 0.72f), 1f to T.Ink.copy(alpha = 0.97f))))
 }
 
-/** Primary/secondary pill-rect button. Focused = solid white (CLAUDE.md 7.1, v7). */
+@Composable
+fun BoxScope.TileArt(c: Channel, wide: Boolean, focused: Boolean) = KeyArt(c, if (wide) CardWideH else CardStdH, focused)
+
+/** Pill button: translucent at rest, solid white with dark text when focused (scale + shadow). */
 @Composable
 fun TonyButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, icon: ImageVector? = null, iconTint: Color? = null, primary: Boolean = false) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(29.dp),
-        shape = ButtonDefaults.shape(RoundedCornerShape(6.dp)),
+        modifier = modifier.height(32.dp),
+        shape = ButtonDefaults.shape(CircleShape),
         colors = ButtonDefaults.colors(
-            containerColor = if (primary) Color.White.copy(alpha = 0.14f) else Color.White.copy(alpha = 0.07f),
-            contentColor = T.Text,
-            focusedContainerColor = Color.White,
-            focusedContentColor = T.Bg,
-            pressedContainerColor = Color.White.copy(alpha = 0.85f),
-            pressedContentColor = T.Bg,
+            containerColor = Color.White.copy(alpha = if (primary) 0.24f else 0.16f), contentColor = Color.White,
+            focusedContainerColor = Color.White, focusedContentColor = T.Bg,
+            pressedContainerColor = Color.White.copy(alpha = 0.85f), pressedContentColor = T.Bg,
         ),
-        scale = ButtonDefaults.scale(focusedScale = 1.05f),
-        border = ButtonDefaults.border(border = Border(BorderStroke(0.5.dp, T.HairlineStrong)), focusedBorder = Border.None),
-        glow = ButtonDefaults.glow(focusedGlow = Glow(Color.Black.copy(alpha = 0.5f), 10.dp)),
-        contentPadding = PaddingValues(horizontal = 14.dp),
+        scale = ButtonDefaults.scale(focusedScale = 1.06f),
+        border = ButtonDefaults.border(border = Border.None, focusedBorder = Border.None),
+        glow = ButtonDefaults.glow(focusedGlow = Glow(Color.Black.copy(alpha = 0.55f), 12.dp)),
+        contentPadding = PaddingValues(horizontal = if (primary) 20.dp else 15.dp),
     ) {
         if (icon != null) {
-            Icon(icon, null, modifier = Modifier.size(10.dp), tint = iconTint ?: androidx.tv.material3.LocalContentColor.current)
-            Spacer(Modifier.width(5.5.dp))
+            Icon(icon, null, modifier = Modifier.size(11.dp), tint = iconTint ?: androidx.tv.material3.LocalContentColor.current)
+            Spacer(Modifier.width(6.dp))
         }
-        Text(text, style = ts(10.5.sp, 650, Color.Unspecified))
+        Text(text, style = ts(if (primary) 12.sp else 11.sp, 700, Color.Unspecified))
     }
 }
 
+/** Round icon button (♡, ⓘ). */
+@Composable
+fun RoundButton(icon: ImageVector, description: String, onClick: () -> Unit, modifier: Modifier = Modifier, tint: Color? = null) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.size(32.dp),
+        shape = ButtonDefaults.shape(CircleShape),
+        colors = ButtonDefaults.colors(containerColor = Color.White.copy(alpha = 0.18f), contentColor = Color.White, focusedContainerColor = Color.White, focusedContentColor = T.Bg),
+        scale = ButtonDefaults.scale(focusedScale = 1.1f),
+        border = ButtonDefaults.border(border = Border.None, focusedBorder = Border.None),
+        glow = ButtonDefaults.glow(focusedGlow = Glow(Color.Black.copy(alpha = 0.55f), 10.dp)),
+        contentPadding = PaddingValues(0.dp),
+    ) { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Icon(icon, description, modifier = Modifier.size(13.dp), tint = tint ?: androidx.tv.material3.LocalContentColor.current) } }
+}
+
+/** Row title only (v8: no counts, no subtitles). */
 @Composable
 fun RowHeader(title: String, count: Int? = null, subtitle: String? = null, modifier: Modifier = Modifier) {
-    Column(modifier.padding(start = T.Margin, bottom = 9.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(title, style = ts(13.sp, 700, T.Text, (-0.15).sp))
-            if (count != null && count > 0) Box(Modifier.border(0.5.dp, T.HairlineStrong, RoundedCornerShape(3.5.dp)).padding(horizontal = 4.dp, vertical = 1.dp)) {
-                Text("$count", style = ts(7.sp, 600, T.Text3))
-            }
-        }
-        if (subtitle != null) Text(subtitle, style = ts(8.5.sp, 400, T.Muted))
-    }
+    Text(title, style = ts(14.sp, 700, Color.White.copy(alpha = 0.92f)), modifier = modifier.padding(start = T.Margin, bottom = 10.dp))
 }
 
 @Composable
 fun Clock() {
     var now by remember { mutableStateOf(Date()) }
     LaunchedEffect(Unit) { while (true) { now = Date(); delay(15_000) } }
-    Text(SimpleDateFormat("h:mm", Locale.getDefault()).format(now), style = ts(14.sp, 600, T.Text, 0.1.sp))
+    Text(SimpleDateFormat("h:mm", Locale.getDefault()).format(now), style = ts(12.sp, 600, Color.White.copy(alpha = 0.9f)))
 }
 
 enum class Tab(val label: String) { Home("Home"), Movies("Movies"), Favourites("Favourites"), Search("Search") }
 
+/** v8 top bar: wordmark left, search icon + plain text tabs centred, clock + round settings right. */
 @Composable
 fun TopBar(selected: Tab?, onTab: (Tab) -> Unit, onSettings: () -> Unit, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().padding(start = T.Margin, end = T.Margin, top = 34.dp), verticalAlignment = Alignment.CenterVertically) {
-        Wordmark(22f)
-        Spacer(Modifier.width(26.dp))
-        Row(
-            Modifier.clip(CircleShape).background(Color.Black.copy(alpha = 0.28f)).border(0.5.dp, Color.White.copy(alpha = 0.12f), CircleShape).padding(3.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Tab.entries.forEach { t -> NavPill(t.label, t == selected) { onTab(t) } }
+    Row(modifier.fillMaxWidth().padding(start = T.Margin, end = T.Margin, top = 22.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.width(150.dp)) { Wordmark(19f) }
+        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            NavPill(null, selected == Tab.Search, Icons.Search) { onTab(Tab.Search) }
+            listOf(Tab.Home, Tab.Movies, Tab.Favourites).forEach { t -> NavPill(t.label, t == selected) { onTab(t) } }
         }
-        Spacer(Modifier.weight(1f))
-        Clock()
-        Spacer(Modifier.width(16.dp))
-        NavPill("Settings", false, icon = Icons.Gear, outlined = true, onClick = onSettings)
+        Row(Modifier.width(150.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+            Clock()
+            Spacer(Modifier.width(11.dp))
+            NavPill(null, false, Icons.Gear, round = true, onClick = onSettings)
+        }
     }
 }
 
 @Composable
-private fun NavPill(text: String, selected: Boolean, icon: ImageVector? = null, outlined: Boolean = false, onClick: () -> Unit) {
+private fun NavPill(text: String?, selected: Boolean, icon: ImageVector? = null, round: Boolean = false, onClick: () -> Unit) {
     val src = remember { MutableInteractionSource() }
     val f by src.collectIsFocusedAsState()
     Surface(
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) Color.White.copy(alpha = 0.16f) else if (outlined) Color.Black.copy(alpha = 0.28f) else Color.Transparent,
+            containerColor = if (selected) Color.White.copy(alpha = 0.18f) else if (round) Color.White.copy(alpha = 0.12f) else Color.Transparent,
             focusedContainerColor = Color.White,
         ),
-        border = ClickableSurfaceDefaults.border(border = if (outlined) Border(BorderStroke(0.5.dp, Color.White.copy(alpha = 0.12f))) else Border.None),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.08f),
         interactionSource = src,
     ) {
-        Row(Modifier.padding(horizontal = 14.dp, vertical = 6.5.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (icon != null) Icon(icon, null, tint = if (f) T.Bg else T.Text2, modifier = Modifier.size(12.dp))
-            Text(text, style = ts(11.5.sp, if (selected || f) 650 else 500, if (f) T.Bg else if (selected) Color.White else T.Text2))
+        Box(Modifier.padding(horizontal = if (text == null) 6.dp else 12.dp, vertical = if (text == null) 6.dp else 5.dp), contentAlignment = Alignment.Center) {
+            if (text == null && icon != null) Icon(icon, null, tint = if (f) T.Bg else Color.White.copy(alpha = 0.85f), modifier = Modifier.size(12.dp))
+            else Text(text ?: "", style = ts(11.sp, if (selected || f) 650 else 550, if (f) T.Bg else if (selected) Color.White else Color.White.copy(alpha = 0.7f)))
         }
     }
 }

@@ -69,6 +69,7 @@ class MainActivity : ComponentActivity() {
                                 Screen.Welcome -> WelcomeScreen(state)
                                 Screen.Home -> HomeScreen(state)
                                 Screen.Movies -> app.tony.ui.MoviesScreen(state)
+                                is Screen.Category -> app.tony.ui.CategoryScreen(state, sc.name)
                                 Screen.Favourites -> FavouritesScreen(state)
                                 Screen.Search -> SearchScreen(state)
                                 Screen.Settings -> SettingsScreen(state)

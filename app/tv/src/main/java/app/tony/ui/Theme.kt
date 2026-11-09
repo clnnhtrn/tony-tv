@@ -19,7 +19,11 @@ import app.tony.R
  * Android TV at 1080p is 960×540 dp, so every mock-up px value is divided by 2 here.
  */
 object T {
-    val Bg = Color(0xFF15161B)
+    val Bg = Color(0xFF13141C)
+    val BgTop = Color(0xFF1B1E2B)      // v8 navy-slate gradient top
+    val Card = Color(0xFF1E2130)
+    val Ink = Color(0xFF0E0F15)
+    val Live = Color(0xFFFF453A)
     val Panel = Color(0xFF1C1D24)
     val Surface = Color(0xFF24252D)
     val Surface2 = Color(0xFF2A2B33)

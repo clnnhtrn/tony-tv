@@ -23,12 +23,14 @@ data class Saved(
     val subtitles: Boolean = true,       // automatic: on whenever a channel has them
     val captionSize: Int = 1,
     val captionStyle: Int = 0,
+    val watchTime: Map<String, Long> = emptyMap(),   // ms watched per channel id (this TV only; never sent anywhere)
 )
 
 class Store(private val context: Context) {
     private val json = Json { ignoreUnknownKeys = true }
     private val chList = ListSerializer(Channel.serializer())
     private val strList = ListSerializer(String.serializer())
+    private val timeMap = kotlinx.serialization.builtins.MapSerializer(String.serializer(), Long.serializer())
 
     private object K {
         val firstRun = booleanPreferencesKey("firstRunDone")
@@ -39,6 +41,7 @@ class Store(private val context: Context) {
         val subtitles = booleanPreferencesKey("subtitles")
         val captionSize = androidx.datastore.preferences.core.intPreferencesKey("captionSize")
         val captionStyle = androidx.datastore.preferences.core.intPreferencesKey("captionStyle")
+        val watchTime = stringPreferencesKey("watchTime")
     }
 
     private fun <T> decode(s: String?, d: kotlinx.serialization.DeserializationStrategy<List<T>>): List<T> =
@@ -54,6 +57,7 @@ class Store(private val context: Context) {
             subtitles = p[K.subtitles] ?: true,
             captionSize = p[K.captionSize] ?: 1,
             captionStyle = p[K.captionStyle] ?: 0,
+            watchTime = p[K.watchTime]?.let { runCatching { json.decodeFromString(timeMap, it) }.getOrNull() } ?: emptyMap(),
         )
     }
 
@@ -71,5 +75,9 @@ class Store(private val context: Context) {
 
     suspend fun setHidden(ids: Set<String>) = context.ds.edit { it[K.hidden] = json.encodeToString(strList, ids.toList()) }
     suspend fun setSubtitles(on: Boolean) = context.ds.edit { it[K.subtitles] = on }
+    suspend fun addWatchTime(id: String, ms: Long) = context.ds.edit { p ->
+        val cur = p[K.watchTime]?.let { runCatching { json.decodeFromString(timeMap, it) }.getOrNull() } ?: emptyMap()
+        p[K.watchTime] = json.encodeToString(timeMap, cur + (id to ((cur[id] ?: 0L) + ms)))
+    }
     suspend fun setCaptionLook(size: Int, style: Int) = context.ds.edit { it[K.captionSize] = size; it[K.captionStyle] = style }
 }

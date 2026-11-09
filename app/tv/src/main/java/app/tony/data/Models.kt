@@ -52,6 +52,8 @@ data class Channel(
     val logoWidth: Int? = null,
     val logoHeight: Int? = null,
 ) {
+    /** Name without a repeated country, e.g. "OTV (Lebanon)" -> "OTV". */
+    val title get() = if (country != null) name.replace(" ($country)", "").trim() else name
     val isYouTube get() = media == "youtube"
     val isWebOnly get() = media == "web" || status == "web"
     val isRadio get() = media == "audio"

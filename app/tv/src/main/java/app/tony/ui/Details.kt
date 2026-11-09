@@ -39,32 +39,22 @@ fun DetailsScreen(s: AppState, c: Channel) {
         ?: s.allChannels().filter { it.country == c.country }).filter { it.id != c.id }.take(30)
     val list = listOf(c) + more
 
-    Box(Modifier.fillMaxSize().background(T.Bg)) {
+    Box(Modifier.fillMaxSize().pageBg()) {
         HeroBackdrop(c, height = 540.dp)
-        Column(Modifier.padding(start = T.Margin, top = 74.dp).width(470.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                LiveChip(text = if (c.isRadio) "RADIO" else "LIVE", dot = !c.isRadio)
-                if (c.hd) OutlineChip("HD")
-                if (c.geoblocked) OutlineChip("MAY NOT WORK OUTSIDE ${c.country?.uppercase() ?: "ITS COUNTRY"}", color = T.Muted)
-            }
-            LogoBadge(c, BadgeHero)
-            Text(c.name, style = ts(42.sp, 800, Color.White, (-1.2).sp), maxLines = 2)
-            Text(listOfNotNull("Channel ${c.number}".takeIf { c.number > 0 }, c.country, c.category).joinToString("  ·  "), style = ts(11.sp, 500, T.Text2))
-            Text(describe(c) + statusLine(c), style = ts(11.5.sp, 400, T.Text2, lineHeight = 17.sp))
-            Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TonyButton(if (c.isYouTube) "Open in YouTube" else "Watch", {
-                    if (c.isYouTube) runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(c.url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-                        .onFailure { s.showToast("YouTube isn't installed on this TV") }
-                    else s.go(Screen.Watch(c, list))
-                }, Modifier.focusRequester(watchFocus), icon = Icons.Play, primary = true)
-                FavouriteButton(s, c)
-            }
+        Column(Modifier.padding(start = T.Margin, top = 78.dp)) {
+            HeroInfo(s, c, Modifier, watchFocus, showInfo = false, watchLabel = if (c.isYouTube) "Open in YouTube" else "Watch", onWatch = {
+                if (c.isYouTube) runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(c.url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    .onFailure { s.showToast("YouTube isn't installed on this TV") }
+                else s.go(Screen.Watch(c, list))
+            })
+            val note = statusLine(c).trim()
+            if (note.isNotEmpty()) Text(note, style = ts(10.sp, 500, Color.White.copy(alpha = 0.55f)), modifier = Modifier.padding(top = 10.dp).width(470.dp))
         }
         if (more.isNotEmpty()) Column(Modifier.align(Alignment.BottomStart).padding(bottom = 20.dp)) {
             RowHeader("More from ${c.country ?: "here"}")
-            LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.Gap)) {
+            LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(15.dp)) {
                 items(more, key = { it.id }) { m ->
-                    ChannelTile(m, wide = false, favourite = s.isFavourite(m), onClick = { s.replaceTop(Screen.Details(m)) }, onLongClick = { s.toggleFavourite(m) })
+                    ChannelTile(m, wide = true, favourite = s.isFavourite(m), onClick = { s.replaceTop(Screen.Details(m)) }, onLongClick = { s.toggleFavourite(m) })
                 }
             }
         }

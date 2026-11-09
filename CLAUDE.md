@@ -271,7 +271,7 @@ Earlier versions are kept for reference only (section 8).
 | v3 | `v3-cinematic` | Full-screen live background, huge channel name, single row of white logo cards | Not chosen |
 | v4 | `v4-large-accessible` | Big text, 4 huge cards, permanent help bar | Rejected: too big ("they're not blind") |
 | v5 | `v5-clean-home-only` → `v5-full-set-rev1` → **`v5-FINAL`** | Clean, normal sizes; then full screen set; then Recent + Favourites row + grid search | **Chosen** (base for all screens) |
-| v8 | `v8-clean` | Apple-TV clean pass: 5-element hero, channel key art (ticker cropped off, name as title treatment, tiny logo mark), no text under cards, numbered posters, category tiles, navy gradient | **Proposed 9 Nov 2026**, awaiting owner review |
+| v8 | `v8-clean` | Apple-TV clean pass: 5-element hero, channel key art (ticker cropped off, name as title treatment, tiny logo mark), no text under cards, numbered posters, category tiles, navy gradient | **Chosen 9 Nov 2026; built into the app** |
 | v7 | `v7-polished` | v6 + polish: hairline borders, lift + 3 px edge focus (replaces the thick double ring), refined uppercase chips, frosted logo badges, 16/14 px radius, row subtitles + "See all", hero divider, Movies row | **Proposed 9 Nov 2026**, awaiting owner review |
 | v6 | `v6-hero` | v5 + live **hero** at top of Home (featured favourite plays muted, follows focus), real logos + real live stills, LIVE/HD pills, row count chips. Inspired by the hero-plus-rows layout the owner liked on a streaming site: layout ideas only, no branding copied | **Proposed 9 Nov 2026**, awaiting owner review |
 
