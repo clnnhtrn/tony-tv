@@ -41,6 +41,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -152,11 +154,11 @@ fun WatchScreen(s: AppState, start: Channel, startList: List<Channel>) {
                     }
                     LiveChip()
                 }
-                Row(Modifier.align(Alignment.BottomStart).padding(start = T.Margin, bottom = 30.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Hint("BACK", "Go back", Icons.Back)
-                    Hint("OK", "Channels")
-                    Hint("▲ ▼", "Change channel")
-                    Hint("▶", "Options")
+                Row(Modifier.align(Alignment.BottomStart).padding(start = T.Margin, bottom = 30.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    KeyHint("BACK", "Go back", Icons.Back)
+                    KeyHint("OK", "Channels")
+                    KeyHint("▲ ▼", "Change channel")
+                    KeyHint("▶", "Options")
                 }
             }
         }
@@ -188,22 +190,6 @@ fun WatchScreen(s: AppState, start: Channel, startList: List<Channel>) {
     }
 }
 
-@Composable
-private fun Hint(key: String, label: String, icon: ImageVector? = null) {
-    Row(
-        Modifier.clip(RoundedCornerShape(8.dp)).background(Color.Black.copy(alpha = 0.45f)).border(0.5.dp, Color.White.copy(alpha = 0.16f), RoundedCornerShape(8.dp))
-            .padding(start = 6.dp, end = 10.dp, top = 5.dp, bottom = 5.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Row(Modifier.clip(RoundedCornerShape(5.dp)).background(Color.White.copy(alpha = 0.92f)).padding(horizontal = 5.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (icon != null) Icon(icon, null, tint = T.Bg, modifier = Modifier.size(8.dp))
-            Text(key, style = ts(7.sp, 800, T.Bg, 0.5.sp))
-        }
-        Text(label, style = ts(9.5.sp, 600, Color.White))
-    }
-}
-
-/** Compact remote-key legend for the strip: key cap + one word, no box (it's a reminder, not a button). */
 @Composable
 private fun KeyHint(key: String, label: String, icon: ImageVector? = null) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -307,7 +293,7 @@ private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onS
             // tabs scroll sideways if a family has many countries; the key legend stays put on the right
             LazyRow(Modifier.weight(1f).focusRestorer(), contentPadding = PaddingValues(start = T.Margin, end = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
-                item("home") { Row { Pill("Back to Home", false, null, onClick = onBack); Spacer(Modifier.width(6.dp)) } }
+                item("home") { Row { BackDot(onBack); Spacer(Modifier.width(8.dp)) } }
                 itemsIndexed(lists, key = { _, l -> "tab" + l.first }) { i, (name, _) -> Pill(name, i == pick) { pick = i; focusedIndex = -1 } }
             }
             controls()
@@ -320,6 +306,19 @@ private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onS
             }
         }
     }
+}
+
+/** Small round "back to Home" button at the start of the strip's tabs. */
+@Composable
+private fun BackDot(onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.size(26.dp).semantics { contentDescription = "Back to Home" },
+        shape = ClickableSurfaceDefaults.shape(CircleShape),
+        colors = ClickableSurfaceDefaults.colors(containerColor = Color.White.copy(alpha = 0.14f), contentColor = Color.White,
+            focusedContainerColor = Color.White, focusedContentColor = T.Bg),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.1f),
+    ) { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Icon(Icons.Back, null, modifier = Modifier.size(11.dp)) } }
 }
 
 @Composable
