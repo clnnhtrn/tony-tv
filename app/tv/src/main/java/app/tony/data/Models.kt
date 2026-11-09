@@ -58,4 +58,6 @@ data class Channel(
     val isWebOnly get() = media == "web" || status == "web"
     val isRadio get() = media == "audio"
     val isWorking get() = status == "ok"
+    /** Known not to play (on the checker, or on this TV): labelled, moved to the end, skipped by Up/Down. */
+    val isDown get() = status == "broken" || status == "geoblocked"
 }

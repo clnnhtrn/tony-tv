@@ -47,7 +47,7 @@ fun SearchScreen(s: AppState) {
     val needle = q.trim().lowercase()
     val channels = remember(needle, s.countryRows, s.extraRows) {
         if (needle.isEmpty()) emptyList() else s.allChannels().filter { it.title.lowercase().contains(needle) }
-            .sortedBy { if (it.name.lowercase().startsWith(needle)) 0 else 1 }.take(60)
+            .sortedWith(compareBy<app.tony.data.Channel> { if (it.isDown) 1 else 0 }.thenBy { if (it.name.lowercase().startsWith(needle)) 0 else 1 }).take(60)
     }
 
     Column(Modifier.fillMaxSize()) {

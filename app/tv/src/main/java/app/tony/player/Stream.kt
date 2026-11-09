@@ -57,6 +57,8 @@ class Stream(context: Context, val preview: Boolean) {
     private var headers: Map<String, String> = emptyMap()
     private var attempt = 0
     var key: String? = null; private set
+    /** The station refused us (401/403/451) on at least one link this time: usually "only in its own country". */
+    var refused = false; private set
     private val stallMs = if (preview) 12_000L else 15_000L
     private val stall = Runnable { if (state == StreamState.Loading) next() }
 
@@ -67,7 +69,11 @@ class Stream(context: Context, val preview: Boolean) {
                 if (s == Player.STATE_ENDED && state == StreamState.Playing && !preview) next()
             }
             override fun onIsPlayingChanged(isPlaying: Boolean) { if (isPlaying) state = StreamState.Playing }
-            override fun onPlayerError(error: PlaybackException) { next() }
+            override fun onPlayerError(error: PlaybackException) {
+                val code = (error.cause as? androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException)?.responseCode
+                if (code in setOf(401, 403, 451)) refused = true
+                next()
+            }
             override fun onTracksChanged(tracks: Tracks) {
                 hasCaptions = tracks.groups.any { it.type == C.TRACK_TYPE_TEXT && it.isSupported }
                 audioTracks = tracks.groups.count { it.type == C.TRACK_TYPE_AUDIO && it.isSupported }
@@ -83,6 +89,7 @@ class Stream(context: Context, val preview: Boolean) {
         this.urls = (listOf(url) + backups).distinct().filter { it.startsWith("http://") || it.startsWith("https://") || it.startsWith("rtmp://") || it.startsWith("rtsp://") }
         this.headers = headers.orEmpty().filterKeys { it.equals("User-Agent", true) || it.equals("Referer", true) }
         attempt = -1
+        refused = false
         next()
     }
 

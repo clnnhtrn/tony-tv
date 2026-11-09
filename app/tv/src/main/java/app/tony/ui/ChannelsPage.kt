@@ -23,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
@@ -73,7 +75,19 @@ fun ChannelsScreen(s: AppState, start: String?) {
             horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             // In channel-number order, like a TV guide; the number shows after "Live ·"
-            items(row.channels.sortedBy { if (it.number > 0) it.number else Int.MAX_VALUE }, key = { row.key + it.id }) { c ->
+            val byNumber = row.channels.sortedBy { if (it.number > 0) it.number else Int.MAX_VALUE }
+            val (up, down) = byNumber.partition { !it.isDown }
+            items(up, key = { row.key + it.id }) { c ->
+                ChannelTile(c, wide = false, favourite = s.isFavourite(c), sub = if (c.number > 0) "Channel ${c.number}" else null, onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
+            }
+            // Channels that don't play right now: kept (nothing is hidden), at the end, under their own heading
+            if (down.isNotEmpty()) item("down-h", span = { androidx.compose.foundation.lazy.grid.GridItemSpan(5) }) {
+                Row(Modifier.padding(top = 18.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Not working right now", style = ts(14.sp, 750, Color.White.copy(alpha = 0.9f)))
+                    Text("Tony checks these again every 20 minutes", style = ts(9.sp, 500, Color.White.copy(alpha = 0.5f)), modifier = Modifier.padding(bottom = 2.dp))
+                }
+            }
+            items(down, key = { row.key + it.id }) { c ->
                 ChannelTile(c, wide = false, favourite = s.isFavourite(c), sub = if (c.number > 0) "Channel ${c.number}" else null, onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
             }
         } }

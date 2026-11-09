@@ -78,7 +78,17 @@ fun WatchScreen(s: AppState, start: Channel, startList: List<Channel>) {
     val rootFocus = remember { FocusRequester() }
 
     fun tune(c: Channel) { current = c; infoVisible = true }
-    fun zap(by: Int) { val i = list.indexOfFirst { it.id == current.id }.coerceAtLeast(0); tune(list[(i + by + list.size) % list.size]) }
+    fun zap(by: Int) {
+        val l = s.zapList(current, list)
+        val i = l.indexOfFirst { it.id == current.id }.coerceAtLeast(0)
+        // skip channels known not to play right now (unless nothing else does)
+        var j = i
+        repeat(l.size) {
+            j = (j + by + l.size) % l.size
+            if (!l[j].isDown || j == i) { tune(l[j]); return }
+        }
+        tune(l[(i + by + l.size) % l.size])
+    }
 
     LaunchedEffect(Unit) { players.preview.stop() }
     LaunchedEffect(current.id) {
@@ -91,8 +101,20 @@ fun WatchScreen(s: AppState, start: Channel, startList: List<Channel>) {
     LaunchedEffect(current.id) {   // minutes watched per channel, kept on this TV only ("Top in …" ranking)
         while (true) { delay(30_000); if (main.state == StreamState.Playing) s.addWatchTime(current.id, 30_000) }
     }
+    // Remember whether this channel plays on this TV (labels, order and Up/Down use it)
+    LaunchedEffect(current.id, main.state) {
+        when (main.state) {
+            StreamState.Playing -> s.markHere(current, "ok")
+            StreamState.Failed -> s.markHere(current, if (main.refused) "geoblocked" else "broken")
+            else -> {}
+        }
+    }
     LaunchedEffect(current.id, infoVisible) { if (infoVisible) { delay(5000); infoVisible = false } }
-    LaunchedEffect(stripOpen, optionsOpen) { if (!stripOpen && !optionsOpen) runCatching { rootFocus.requestFocus() } }
+    // Focus back on the picture (so OK, Up/Down and Right work) after opening and whenever a panel closes;
+    // retried because the first request can land during the page fade and be lost
+    LaunchedEffect(stripOpen, optionsOpen, main.state == StreamState.Failed) {
+        if (!stripOpen && !optionsOpen && main.state != StreamState.Failed) for (w in longArrayOf(16, 120, 300, 600)) { delay(w); runCatching { rootFocus.requestFocus() } }
+    }
     BackLayer(s, stripOpen || optionsOpen) { if (optionsOpen) optionsOpen = false else stripOpen = false }
 
     Box(
@@ -140,8 +162,17 @@ fun WatchScreen(s: AppState, start: Channel, startList: List<Channel>) {
         }
 
         AnimatedVisibility(stripOpen, enter = slideInVertically { it / 3 } + fadeIn(), exit = slideOutVertically { it / 3 } + fadeOut(), modifier = Modifier.align(Alignment.BottomStart)) {
-            Strip(s, current, list, onSwitch = { c, l -> list = l; tune(c); stripOpen = false },
-                onOptions = { stripOpen = false; optionsOpen = true }, onBack = { s.back() })
+            Strip(s, current, list, onSwitch = { c, l -> list = l; tune(c); stripOpen = false }, onBack = { s.back() },
+                controls = {
+                    // Quick controls on the right of the strip (the full Options panel is still on the Right button)
+                    val subsOk = main.hasCaptions
+                    Pill(if (!subsOk) "No subtitles" else if (s.saved.subtitles) "Subtitles on" else "Subtitles off", false, Icons.Captions, enabled = subsOk) {
+                        val on = !s.saved.subtitles; main.setSubtitles(on); s.setSubtitles(on)
+                    }
+                    Pill(if (fill) "Fill" else "Fit", false, Icons.Picture) { fill = !fill }
+                    Pill(if (main.audioTracks > 1) "Audio (${main.audioTracks})" else "Audio", false, Icons.Audio, enabled = main.audioTracks > 1) { main.nextAudioTrack() }
+                    Pill("Report", false, Icons.Flag) { s.showToast("Thanks. Tony will check ${current.name}"); s.markHere(current, "broken") }
+                })
         }
 
         AnimatedVisibility(optionsOpen, enter = fadeIn() + scaleIn(initialScale = 0.96f), exit = fadeOut() + scaleOut(targetScale = 0.96f), modifier = Modifier.align(Alignment.CenterEnd)) {
@@ -226,7 +257,8 @@ private fun FailedCard(c: Channel, onRetry: () -> Unit, onNext: () -> Unit, onBa
 }
 
 @Composable
-private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onSwitch: (Channel, List<Channel>) -> Unit, onOptions: () -> Unit, onBack: () -> Unit) {
+private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onSwitch: (Channel, List<Channel>) -> Unit, onBack: () -> Unit,
+                  controls: @Composable () -> Unit) {
     val lists = buildList {
         add("Channels" to currentList)
         if (s.saved.favourites.isNotEmpty()) add("Favourites" to s.saved.favourites)
@@ -261,11 +293,11 @@ private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onS
             }
         }
         Row(Modifier.padding(start = T.Margin, end = T.Margin, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
-            Pill("Back to Home", false, null, onBack)
+            Pill("Back to Home", false, null, onClick = onBack)
             Spacer(Modifier.width(6.dp))
             lists.forEachIndexed { i, (name, _) -> Pill(name, i == pick) { pick = i; focusedIndex = -1 } }
             Spacer(Modifier.weight(1f))
-            Pill("Options", false, Icons.Gear, onOptions)
+            controls()
         }
         LazyRow(Modifier.focusRestorer(), state = rowState, contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
             itemsIndexed(chans, key = { _, c -> "strip" + c.id }) { i, c ->
@@ -278,13 +310,15 @@ private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onS
 }
 
 @Composable
-private fun Pill(text: String, selected: Boolean, icon: ImageVector? = null, onClick: () -> Unit) {
+private fun Pill(text: String, selected: Boolean, icon: ImageVector? = null, enabled: Boolean = true, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
+        enabled = enabled,
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (selected) Color.White.copy(alpha = 0.18f) else Color.Transparent,
             contentColor = if (selected) Color.White else Color.White.copy(alpha = 0.65f), focusedContainerColor = Color.White, focusedContentColor = T.Bg,
+            disabledContainerColor = Color.Transparent, disabledContentColor = Color.White.copy(alpha = 0.3f),
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
     ) {

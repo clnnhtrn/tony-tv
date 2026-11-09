@@ -19,6 +19,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.coroutineScope
 
 sealed interface Screen {
     data object Welcome : Screen
@@ -79,11 +80,11 @@ class AppState(app: Application) : AndroidViewModel(app) {
         return back()
     }
 
-    fun go(s: Screen) { if (stack.lastOrNull() != s) stack.add(s) }
-    fun replaceTop(s: Screen) { if (stack.isNotEmpty()) stack[stack.lastIndex] = s else stack.add(s) }
-    fun tab(s: Screen) { stack.clear(); stack.add(Screen.Home); if (s != Screen.Home) stack.add(s) }
+    fun go(s: Screen) { flushHere(); if (stack.lastOrNull() != s) stack.add(s) }
+    fun replaceTop(s: Screen) { flushHere(); if (stack.isNotEmpty()) stack[stack.lastIndex] = s else stack.add(s) }
+    fun tab(s: Screen) { flushHere(); stack.clear(); stack.add(Screen.Home); if (s != Screen.Home) stack.add(s) }
     /** @return false when there is nothing to go back to (the system then leaves the app). */
-    fun back(): Boolean { if (stack.size <= 1) return false; stack.removeAt(stack.lastIndex); return true }
+    fun back(): Boolean { flushHere(); if (stack.size <= 1) return false; stack.removeAt(stack.lastIndex); return true }
 
     fun reload() = viewModelScope.launch {
         lastLoad = System.currentTimeMillis()
@@ -102,17 +103,80 @@ class AppState(app: Application) : AndroidViewModel(app) {
         val rows = viewModelScope.async {
             entries.map { e -> viewModelScope.async { e to repo.channels(e.file).getOrNull()?.channels.orEmpty() } }.awaitAll()
         }.await()
-        countryRowsAll = rows.map { (e, list) -> ChannelRow(e.file, e.name, null, list.sortedBy { it.number }, e.channels) }
-        countryRows = rows.map { (e, list) ->
-            ChannelRow(e.file, e.name, null, list.filterNot { it.id in saved.hidden }.sortedBy { it.number }, e.channels)
-        }
-        val inCountryRows = countryRows.flatMap { it.channels }.map { it.id }.toSet()
+        rawCountry = rows.map { (e, list) -> ChannelRow(e.file, e.name, null, list.sortedBy { it.number }, e.channels) }
+        val inCountryRows = rows.flatMap { (_, list) -> list.filterNot { it.id in saved.hidden } }.map { it.id }.toSet()
         // Collections (e.g. Arabic) only when the viewer chose them; Movies always (it has its own tab)
-        extraRows = idx.rows.filter { it.key == "movies" || it.file in saved.countries }.map { r -> viewModelScope.async {
+        rawExtra = idx.rows.filter { it.key == "movies" || it.file in saved.countries }.map { r -> viewModelScope.async {
             // Skip channels that already have their own country row (e.g. Lebanon in the Arabic row)
             val list = repo.channels(r.file).getOrNull()?.channels.orEmpty().filterNot { it.id in saved.hidden || it.id in inCountryRows }
             ChannelRow(r.key, r.title, null, list, r.channels)
         } }.awaitAll().filter { it.channels.isNotEmpty() }
+        rebuild()
+    }
+
+    // ---- does it play on THIS TV? ----
+    // The server checks from the USA; what counts for the family is their own TV. Tony remembers each channel's
+    // result here (app-private), re-checks while it's open, and that beats the server's view for a day.
+    private var rawCountry: List<ChannelRow> = emptyList()
+    private var rawExtra: List<ChannelRow> = emptyList()
+    private val herePrefs = app.getSharedPreferences("here", android.content.Context.MODE_PRIVATE)
+    private val here = HashMap<String, Pair<String, Long>>().apply {
+        herePrefs.all.forEach { (k, v) -> (v as? String)?.split("|")?.takeIf { it.size == 2 }?.let { put(k, it[0] to (it[1].toLongOrNull() ?: 0L)) } }
+    }
+    private var herePending = false
+
+    private fun eff(c: Channel): Channel {
+        val (st, at) = here[c.id] ?: return c
+        if (System.currentTimeMillis() - at > 24 * 3600_000L || st == c.status) return c
+        // a fresh "ok" here beats the server; a fresh failure here beats a server "ok"
+        return c.copy(status = st)
+    }
+
+    /** A saved copy (favourite, recent) with today's status for this TV. */
+    fun current(c: Channel): Channel =
+        (countryRowsAll.asSequence().flatMap { it.channels } + extraRows.asSequence().flatMap { it.channels }).firstOrNull { it.id == c.id } ?: eff(c)
+
+    private fun downLast(l: List<Channel>) = l.sortedBy { if (it.isDown) 1 else 0 }   // stable: keeps the order otherwise
+
+    /** Apply this TV's results to every row. Runs on screen changes only, so cards never jump under the cursor. */
+    private fun rebuild() {
+        herePending = false
+        countryRowsAll = rawCountry.map { r -> r.copy(channels = r.channels.map(::eff)) }
+        countryRows = countryRowsAll.map { r -> r.copy(channels = r.channels.filterNot { it.id in saved.hidden }) }
+        extraRows = rawExtra.map { r -> r.copy(channels = downLast(r.channels.map(::eff))) }
+    }
+
+    private fun flushHere() { if (herePending) rebuild() }
+
+    fun markHere(c: Channel, status: String) {
+        val now = System.currentTimeMillis()
+        val prev = here[c.id]
+        if (prev != null && prev.first == status && now - prev.second < 10 * 60_000L) return
+        here[c.id] = status to now
+        herePrefs.edit().putString(c.id, "$status|$now").apply()
+        if (eff(c).status != (countryRowsAll.flatMap { it.channels } + extraRows.flatMap { it.channels }).firstOrNull { it.id == c.id }?.status) herePending = true
+    }
+
+    /** Re-check channels from this TV: favourites, recent and the chosen countries. Only while Tony is open. */
+    private suspend fun checkHere() {
+        val list = (saved.favourites + saved.recent + rawCountry.flatMap { it.channels })
+            .distinctBy { it.id }.filter { !it.isYouTube && !it.isWebOnly && it.id !in saved.hidden }.take(250)
+        val gate = kotlinx.coroutines.sync.Semaphore(5)
+        coroutineScope {
+            list.map { c -> async {
+                gate.acquire()
+                try {
+                    if (!foreground) return@async
+                    var result = "broken"
+                    for (u in listOf(c.url) + c.backupUrls) {
+                        val r = repo.probe(u, c.headers)
+                        if (r == "ok") { result = "ok"; break }
+                        if (r == "geoblocked") result = "geoblocked"
+                    }
+                    markHere(c, result)
+                } finally { gate.release() }
+            } }.awaitAll()
+        }
     }
 
     // ---- choices ----
@@ -165,7 +229,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
             "Sport" -> it.category == "Sport"
             else -> it.category == name
         }
-    }.sortedBy { if (it.isWorking) 0 else 1 }
+    }.sortedBy { if (it.isDown) 1 else 0 }
 
     fun setCaptionLook(size: Int, style: Int) = viewModelScope.launch { store.setCaptionLook(size, style) }
 
@@ -178,6 +242,8 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
     init {
         viewModelScope.launch { while (true) { delay(30 * 60_000L); if (foreground) reload() } }
+        // This TV's own channel check: a minute after opening, then every 20 minutes (only while Tony is open)
+        viewModelScope.launch { delay(60_000L); while (true) { if (foreground && rawCountry.isNotEmpty()) runCatching { checkHere() }; delay(20 * 60_000L) } }
     }
 
     fun showToast(text: String) {
@@ -187,6 +253,30 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
 
     /** Every channel we have loaded, for search and for "More from…". */
+    /** Up/Down while watching: the channel's own country in channel-number order (like a TV), wherever it was opened from. */
+    fun zapList(c: Channel, fallback: List<Channel>): List<Channel> =
+        countryRows.firstOrNull { r -> r.channels.any { it.id == c.id } }?.channels
+            ?: fallback.takeIf { l -> l.any { it.id == c.id } }?.sortedBy { if (it.number > 0) it.number else Int.MAX_VALUE }
+            ?: listOf(c)
+
+    /** "More like this": same kind of channel first (category), then same language, then same country; working ones first. */
+    fun similar(c: Channel, n: Int = 30): List<Channel> {
+        val cat = c.category?.lowercase()?.takeIf { it.isNotBlank() }
+        val broad = cat == null || cat == "general"
+        return allChannels().asSequence().filter { it.id != c.id && !it.isRadio == !c.isRadio }
+            .map { o ->
+                var score = 0
+                if (cat != null && o.category?.lowercase() == cat) score += if (broad) 2 else 6
+                if (o.languages.any { it in c.languages }) score += 3
+                if (o.country == c.country) score += 2
+                if (o.isWorking) score += 1
+                o to score
+            }
+            .filter { it.second >= 3 }
+            .sortedWith(compareBy<Pair<Channel, Int>> { if (it.first.isDown) 1 else 0 }.thenByDescending { it.second }.thenBy { if (it.first.number > 0) it.first.number else Int.MAX_VALUE })
+            .map { it.first }.take(n).toList()
+    }
+
     fun allChannels(): List<Channel> = (countryRows.flatMap { it.channels } + extraRows.flatMap { it.channels }).distinctBy { it.id }
 
     fun countryEntries(): List<CountryEntry> = index?.countries.orEmpty().filter { it.kind == "country" }

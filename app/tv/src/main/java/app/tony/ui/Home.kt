@@ -65,7 +65,7 @@ fun Modifier.pageBg() = this
 
 @Composable
 fun HomeScreen(s: AppState) {
-    val favs = s.saved.favourites
+    val favs = s.saved.favourites.map(s::current)
     val firstChannel = s.countryRows.firstOrNull()?.let { s.topFor(it, 1).firstOrNull() ?: it.channels.firstOrNull() }
     var featuredId by rememberSaveable { mutableStateOf<String?>(null) }
     val featured: Channel? = favs.firstOrNull { it.id == featuredId } ?: favs.firstOrNull() ?: firstChannel
@@ -95,7 +95,7 @@ fun HomeScreen(s: AppState) {
                 }
             }
         }
-        if (s.saved.recent.isNotEmpty()) item("recent") { ChannelRowView(s, ChannelRow("recent", "Recent", null, s.saved.recent, 0), wide = true) }
+        if (s.saved.recent.isNotEmpty()) item("recent") { ChannelRowView(s, ChannelRow("recent", "Recent", null, s.saved.recent.map(s::current), 0), wide = true) }
         // One "Top in …" row for every country the family chose (no country is special)
         s.countryRows.forEach { r ->
             val top = s.topFor(r)

@@ -59,8 +59,7 @@ help work around them:
    9 Nov 2026). Tony offers a **Movies** row of free movie channels instead.
 5. **Allowed:** using playback headers the playlist itself publishes (`#EXTVLCOPT:http-user-agent`,
    `http-referrer`), as every IPTV player does; multiple backup URLs per channel; retries.
-   **Not allowed (owner asked; declined 8 Nov 2026):** DRM cracking, token generation, VPN/proxy
-   geo-unblocking, or inventing headers to get past a server that refuses us.
+DRM cracking, token generation, VPN/proxy geo-unblocking, or inventing headers to get past a server that refuses us.
 
 Repos the owner asked about on 9 Nov 2026 (cinepro core, cinextma, boxarr, a TMDB pipeline, the Stremio
 addon SDK) are assessed in `docs/RESEARCH-repos.md`. Short version: cinepro and cinextma pull video from
@@ -335,7 +334,14 @@ prices).
    ~8,500 get a picture; pushes with the job's GITHUB_TOKEN). Stations that block viewers outside their country (most of Vietnam)
    or use HLS fMP4 that ffmpeg can't read get no server still, so the TV keeps its own: `player/LocalStills.kt` saves one frame
    from a preview (TextureView) after 3 s of pictures (app cache, max 300, refreshed after 30 min); cards and hero fall back to it.
-   **Browse pages** belong to Home (Home tab stays selected, back button by the title). **Channels tab** sorted by channel number.
+   **Does it play here (9 Nov 2026):** the TV keeps its own result per channel (AppState `markHere`/`checkHere`, app-private prefs):
+   main player result + a light playlist check of favourites/recent/chosen countries a minute after opening and every 20 min
+   while Tony is open. It beats the server's status for 24 h. Channels that don't play (`isDown`) are labelled "Not working" or
+   "Only in <country>", dimmed, put last (Channels tab: own heading), skipped by Up/Down. Rows reorder only on screen changes.
+   Server: `--keep-ok-on-refusal` now expires 14 days after a stream last really answered (`lastOk`).
+   **Watching:** Up/Down = next/previous channel number in the channel's own country. OK = strip, with quick controls on the
+   right (Subtitles, Fill/Fit, Audio, Report); Right = full Options. Details row = "More like this" (category, language, country).
+      **Browse pages** belong to Home (Home tab stays selected, back button by the title). **Channels tab** sorted by channel number.
    Cards grow by a fixed ~16 dp (never into the next card); in grids they fill the column and grow from the centre.
       **Classic films (Internet Archive) were built then removed at the owner's request** (didn't want old
    black-and-white films). For films: the Movies row (live movie channels) + Tubi/Pluto TV apps on the stick.

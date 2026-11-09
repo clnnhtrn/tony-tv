@@ -25,6 +25,33 @@ class Repository(private val context: Context) {
         .readTimeout(20, TimeUnit.SECONDS)
         .build()
 
+    private val probeClient: OkHttpClient by lazy {
+        http.newBuilder().cache(null).connectTimeout(6, TimeUnit.SECONDS).readTimeout(6, TimeUnit.SECONDS).callTimeout(10, TimeUnit.SECONDS).build()
+    }
+
+    /**
+     * Quick check that a stream answers from this TV: fetch the start of its playlist (only while Tony is open).
+     * @return "ok", "geoblocked" (refused: 401/403/451) or "broken".
+     */
+    suspend fun probe(url: String, headers: Map<String, String>?): String = withContext(Dispatchers.IO) {
+        if (!url.startsWith("http://") && !url.startsWith("https://")) return@withContext "ok"
+        runCatching {
+            val rb = okhttp3.Request.Builder().url(url)
+            headers.orEmpty().forEach { (k, v) -> if (k.equals("User-Agent", true) || k.equals("Referer", true)) rb.header(k, v) }
+            if (headers.orEmpty().keys.none { it.equals("User-Agent", true) }) rb.header("User-Agent", "Tony/1.0 (Android TV)")
+            probeClient.newCall(rb.build()).execute().use { r ->
+                when {
+                    r.code in setOf(401, 403, 451) -> "geoblocked"
+                    !r.isSuccessful -> "broken"
+                    else -> {
+                        val head = r.body.source().let { src -> src.request(4096); src.buffer.snapshot().utf8() }
+                        if (url.contains(".m3u8") && !head.contains("#EXTM3U")) "broken" else "ok"
+                    }
+                }
+            }
+        }.getOrDefault("broken")
+    }
+
     private val json = Json { ignoreUnknownKeys = true; isLenient = false; coerceInputValues = true }
     private val lastGood = File(context.filesDir, "lists").apply { mkdirs() }
 

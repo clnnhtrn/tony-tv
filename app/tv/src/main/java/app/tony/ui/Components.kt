@@ -93,6 +93,9 @@ object Icons {
     val Refresh = stroke("refresh", "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7", 1.8f)
     val Info = stroke("info", "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v5M12 8v.01", 1.8f)
     val Search = stroke("search", "M11 4.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM16 16l4 4", 2f)
+    val Picture = stroke("picture", "M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5", 1.8f)
+    val Audio = stroke("audio", "M4 9.5h3.5L12 6v12l-4.5-3.5H4zM15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10", 1.7f)
+    val Flag = stroke("flag", "M6 21V4M6 4.5h11l-2.2 4 2.2 4H6", 1.7f)
     val Radio = stroke("radio", "M4 9h16v11H4zM8 9l9-5M8 15h.01M14 13h4M14 16h4", 1.7f)
 }
 
@@ -237,7 +240,7 @@ fun ChannelTile(
     val w = if (wide) CardWideW else CardStdW
     val h = if (wide) CardWideH else CardStdH
     TonyCard(w, h, if (wide) 11.dp else 10.dp, onClick, modifier, onLongClick = onLongClick, onFocus = onFocus, label = c.title) { focused ->
-        KeyArt(c, h, focused)
+        if (c.isDown) Box(Modifier.fillMaxSize().graphicsLayer { alpha = 0.45f }) { KeyArt(c, h, focused) } else KeyArt(c, h, focused)
         LogoMark(c, Modifier.align(Alignment.TopEnd).padding(if (wide) 7.dp else 6.dp), if (wide) 19.dp else 16.dp)
         Column(Modifier.align(Alignment.BottomStart).padding(start = if (wide) 11.dp else 9.dp, end = 8.dp, bottom = if (wide) 9.dp else 7.dp),
             verticalArrangement = Arrangement.spacedBy(if (wide) 3.dp else 2.dp)) {
@@ -246,6 +249,12 @@ fun ChannelTile(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.5.dp)) {
                 if (favourite) Icon(Icons.Heart, null, tint = T.Accent, modifier = Modifier.size(if (wide) 8.dp else 7.dp))
                 if (watching) Text("Watching", style = ts(if (wide) 8.sp else 7.sp, 700, T.Accent))
+                else if (c.isDown) {
+                    // Doesn't play right now (Tony keeps checking and brings it back when it does)
+                    Box(Modifier.size(4.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.45f)))
+                    Text(listOfNotNull(if (c.status == "geoblocked" && c.country != null) "Only in ${c.country}" else "Not working", sub).joinToString(" · "),
+                        style = ts(if (wide) 8.sp else 7.sp, 600, Color.White.copy(alpha = 0.7f)), maxLines = 1)
+                }
                 else {
                     if (!c.isRadio) Box(Modifier.size(4.dp).clip(CircleShape).background(T.Live))
                     Text(listOfNotNull(if (c.isRadio) "Radio" else "Live", sub).joinToString(" · "), style = ts(if (wide) 8.sp else 7.sp, 600, Color.White.copy(alpha = 0.8f)), maxLines = 1)

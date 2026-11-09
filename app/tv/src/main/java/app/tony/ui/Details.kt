@@ -35,8 +35,7 @@ fun DetailsScreen(s: AppState, c: Channel) {
     val ctx = LocalContext.current
     val watchFocus = remember { FocusRequester() }
     FocusOnStart(watchFocus, c.id)
-    val more = (s.countryRows.firstOrNull { r -> r.channels.any { it.id == c.id } }?.channels
-        ?: s.allChannels().filter { it.country == c.country }).filter { it.id != c.id }.take(30)
+    val more = androidx.compose.runtime.remember(c.id, s.countryRows, s.extraRows) { s.similar(c) }
     val list = listOf(c) + more
 
     Box(Modifier.fillMaxSize().pageBg()) {
@@ -51,7 +50,7 @@ fun DetailsScreen(s: AppState, c: Channel) {
             if (note.isNotEmpty()) Text(note, style = ts(10.sp, 500, Color.White.copy(alpha = 0.55f)), modifier = Modifier.padding(top = 10.dp).width(470.dp))
         }
         if (more.isNotEmpty()) Column(Modifier.align(Alignment.BottomStart).padding(bottom = 20.dp)) {
-            RowHeader("More from ${c.country ?: "here"}")
+            RowHeader("More like this")
             LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
                 items(more, key = { it.id }) { m ->
                     ChannelTile(m, wide = true, favourite = s.isFavourite(m), onClick = { s.replaceTop(Screen.Details(m)) }, onLongClick = { s.toggleFavourite(m) })

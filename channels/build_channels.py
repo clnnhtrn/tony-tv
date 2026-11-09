@@ -33,7 +33,7 @@ import urllib.parse
 import urllib.request
 import zlib
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import enrich  # shared iptv-org database helpers (Pillow optional for this part)
@@ -349,7 +349,7 @@ def main():
         for s in streams:
             r = old_results.get(s["url"], {})
             s.update(status=r.get("status", "untested"), detail=r.get("detail"),
-                     media=r.get("media", "video"), lastChecked=r.get("lastChecked"))
+                     media=r.get("media", "video"), lastChecked=r.get("lastChecked"), lastOk=r.get("lastOk"))
     else:
         to_test = [s for s in streams if not s["youtube"]]
         print(f"Testing {len(to_test)} streams…", file=sys.stderr)
@@ -364,16 +364,25 @@ def main():
                         print(f"  {done}/{len(batch)}", file=sys.stderr)
 
         run(to_test, args.workers)
+        # lastOk = when a stream last really answered. Streams already marked ok before this field existed get 14 days' grace.
+        for st in to_test:
+            prev = old_results.get(st["url"], {})
+            st["lastOk"] = now if st["status"] == "ok" else (prev.get("lastOk") or (now if prev.get("status") == "ok" else None))
         if args.keep_ok_on_refusal:   # checks run from GitHub's US servers
-            prev_ok = {st["url"] for c in old for st in c.get("streams", []) if st.get("status") == "ok"}
+            # A stream refused by the far-away checker stays "ok" only if it really worked in the last 14 days;
+            # after that it's honestly marked geo-blocked (the TV then checks for itself, see AppState.checkHere).
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=14)).isoformat(timespec="seconds")
             for st in to_test:
-                if st["url"] in prev_ok and st["status"] == "geoblocked":
-                    st.update(status="ok", detail="ok from Australia; refused from checker")
+                if st["status"] == "geoblocked" and st.get("lastOk") and st["lastOk"] >= cutoff:
+                    st.update(status="ok", detail="ok recently; refused from checker")
         retry = [s for s in to_test if s["status"] != "ok" and s["detail"] in TRANSIENT]
         if retry:
             print(f"Retrying {len(retry)} temporary failures…", file=sys.stderr)
             run(retry, 8)
             print(f"  {sum(s['status'] == 'ok' for s in retry)} recovered", file=sys.stderr)
+            for st in retry:
+                if st["status"] == "ok":
+                    st["lastOk"] = now
     for s in streams:
         if s["youtube"]:
             s.update(status="youtube", detail=None, media="youtube", lastChecked=s.get("lastChecked"))
