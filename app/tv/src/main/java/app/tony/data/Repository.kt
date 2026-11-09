@@ -54,8 +54,6 @@ class Repository(private val context: Context) {
 
     suspend fun index() = load("dist/index.json", Index.serializer(), 2_000_000)
     suspend fun channels(file: String) = load("dist/$file", ChannelFile.serializer(), 8_000_000)
-    suspend fun filmsIndex() = load("dist/films/index.json", FilmsIndex.serializer(), 500_000)
-    suspend fun films(file: String) = load("dist/films/$file", FilmsFile.serializer(), 12_000_000)
 
     companion object {
         fun logoUrl(c: Channel): String? = c.logo?.takeIf { !it.contains("..") }?.let { BuildConfig.DATA_BASE + it }

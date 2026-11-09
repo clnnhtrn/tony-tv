@@ -43,10 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import app.tony.AppState
 import app.tony.ChannelRow
-import app.tony.FilmRow
 import app.tony.Screen
 import app.tony.data.Channel
-import app.tony.data.Film
 import app.tony.data.Repository
 import app.tony.player.LivePreview
 import coil3.compose.AsyncImage
@@ -83,7 +81,6 @@ fun HomeScreen(s: AppState) {
         }
         s.countryRows.forEach { r -> item("c:" + r.key) { ChannelRowView(s, r) } }
         s.extraRows.forEach { r -> item("x:" + r.key) { ChannelRowView(s, r, showCountry = true) } }
-        s.filmRows.forEach { r -> item("f:" + r.key) { FilmRowView(s, r) } }
         if (s.loading && s.countryRows.isEmpty()) item("loading") { LoadingRow() }
         if (s.offline && s.countryRows.isEmpty()) item("offline") { OfflineNotice(s) }
     }
@@ -169,43 +166,6 @@ fun ChannelRowView(s: AppState, r: ChannelRow, showCount: Boolean = true, showCo
         }
     }
 }
-
-@Composable
-fun FilmRowView(s: AppState, r: FilmRow) {
-    Column(Modifier.padding(top = T.RowGap)) {
-        RowHeader(r.title, r.total, if (r.key == "popular") "Classic films, free to watch any time" else null)
-        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.Gap)) {
-            items(r.films, key = { r.key + it.id }) { f -> FilmTile(f) { s.go(Screen.FilmDetails(f, r.films)) } }
-        }
-    }
-}
-
-@Composable
-fun FilmTile(f: Film, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    var focusedLabel by remember { mutableStateOf(false) }
-    Column(modifier.width(T.StdW), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        TonyCard(T.StdW, T.StdH, T.RadiusStd, onClick, modifier = Modifier.onFocusChanged { focusedLabel = it.hasFocus }) { focused ->
-            PosterArt(f, focused)
-        }
-        Column(Modifier.padding(start = 1.dp, top = if (focusedLabel) 4.dp else 0.dp), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Text(f.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = ts(9.5.sp, if (focusedLabel) 650 else 500, if (focusedLabel) Color.White else T.Text3))
-            Text(listOfNotNull(f.year?.toString(), f.minutes?.let { "$it min" }).joinToString(" · "), style = ts(8.sp, 500, T.Muted))
-        }
-    }
-}
-
-/** Archive posters are small: show them sharp in the middle over a soft, dark blur of themselves. */
-@Composable
-fun androidx.compose.foundation.layout.BoxScope.PosterArt(f: Film, focused: Boolean) {
-    val ctx = LocalContext.current
-    val req = ImageRequest.Builder(ctx).data(f.poster).crossfade(true).build()
-    // Cheap "blur": the same poster decoded at 24 px and stretched (a real blur stalls the Chromecast's GPU)
-    AsyncImage(ImageRequest.Builder(ctx).data(f.poster).size(24).build(), null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),
-        filterQuality = androidx.compose.ui.graphics.FilterQuality.Low, alpha = 0.55f)
-    AsyncImage(req, f.title, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(vertical = 4.dp),
-        colorFilter = if (focused) null else androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix().apply { setToScale(T.Dim, T.Dim, T.Dim, 1f) }))
-}
-
 
 @Composable
 fun LoadingRow() {

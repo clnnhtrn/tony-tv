@@ -22,15 +22,15 @@ object MinimalScroll : BringIntoViewSpec {
     }
 }
 
-/** Ask for focus once the target is actually on screen (retries briefly; a first request can land
- *  before layout and be ignored, leaving nothing focused, so the remote seems to do nothing). */
+/** Give a screen its starting focus. Requested a few times over the first half-second: the first
+ *  request can land before layout, or be undone when the previous screen is torn down, which
+ *  would leave nothing focused (the remote then seems to do nothing). */
 @androidx.compose.runtime.Composable
 fun FocusOnStart(requester: androidx.compose.ui.focus.FocusRequester, key: Any? = Unit) {
     androidx.compose.runtime.LaunchedEffect(key) {
-        repeat(12) {
-            kotlinx.coroutines.delay(if (it == 0) 16 else 60)
-            // requestFocus() throws until the target is attached; once it doesn't, focus has moved.
-            if (runCatching { requester.requestFocus() }.isSuccess) return@LaunchedEffect
+        for (wait in longArrayOf(16, 120, 300, 600)) {
+            kotlinx.coroutines.delay(wait)
+            runCatching { requester.requestFocus() }
         }
     }
 }

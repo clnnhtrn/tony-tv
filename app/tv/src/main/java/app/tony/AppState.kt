@@ -9,8 +9,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.tony.data.Channel
 import app.tony.data.CountryEntry
-import app.tony.data.Film
-import app.tony.data.FilmRowEntry
 import app.tony.data.Index
 import app.tony.data.Repository
 import app.tony.data.Saved
@@ -30,12 +28,9 @@ sealed interface Screen {
     data object Settings : Screen
     data class Details(val channel: Channel) : Screen
     data class Watch(val channel: Channel, val list: List<Channel>) : Screen
-    data class FilmDetails(val film: Film, val row: List<Film>) : Screen
-    data class FilmWatch(val film: Film) : Screen
 }
 
 data class ChannelRow(val key: String, val title: String, val subtitle: String?, val channels: List<Channel>, val total: Int)
-data class FilmRow(val key: String, val title: String, val films: List<Film>, val total: Int)
 
 class AppState(app: Application) : AndroidViewModel(app) {
     val repo = Repository(app)
@@ -48,8 +43,6 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var countryRows by mutableStateOf<List<ChannelRow>>(emptyList()); private set
     var countryRowsAll by mutableStateOf<List<ChannelRow>>(emptyList()); private set   // incl. hidden (Settings)
     var extraRows by mutableStateOf<List<ChannelRow>>(emptyList()); private set   // Arabic, Movies
-    var filmRows by mutableStateOf<List<FilmRow>>(emptyList()); private set
-    var allFilms by mutableStateOf<List<Film>>(emptyList()); private set
     var toast by mutableStateOf<String?>(null); private set
     val stack = mutableStateListOf<Screen>()
     private var toastJob: Job? = null
@@ -99,13 +92,6 @@ class AppState(app: Application) : AndroidViewModel(app) {
             val list = repo.channels(r.file).getOrNull()?.channels.orEmpty().filterNot { it.id in saved.hidden || it.id in inCountryRows }
             ChannelRow(r.key, r.title, when (r.key) { "movies" -> "Free movie channels, playing now"; "arabic" -> "Arabic channels from every country"; else -> null }, list.take(60), r.channels)
         } }.awaitAll().filter { it.channels.isNotEmpty() }
-        val fi = repo.filmsIndex().getOrNull()
-        if (fi != null) {
-            filmRows = fi.rows.map { r: FilmRowEntry -> viewModelScope.async {
-                FilmRow(r.key, r.title, repo.films(r.file).getOrNull()?.films.orEmpty().take(40), r.films)
-            } }.awaitAll().filter { it.films.isNotEmpty() }
-            allFilms = fi.all?.let { repo.films(it).getOrNull()?.films }.orEmpty()
-        }
     }
 
     // ---- choices ----

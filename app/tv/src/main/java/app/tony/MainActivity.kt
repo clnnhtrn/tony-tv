@@ -17,8 +17,6 @@ import app.tony.player.Players
 import app.tony.player.Stream
 import app.tony.ui.DetailsScreen
 import app.tony.ui.FavouritesScreen
-import app.tony.ui.FilmDetailsScreen
-import app.tony.ui.FilmWatchScreen
 import app.tony.ui.HomeScreen
 import app.tony.ui.SearchScreen
 import app.tony.ui.SettingsScreen
@@ -68,8 +66,6 @@ class MainActivity : ComponentActivity() {
                                 Screen.Settings -> SettingsScreen(state)
                                 is Screen.Details -> DetailsScreen(state, sc.channel)
                                 is Screen.Watch -> WatchScreen(state, sc.channel, sc.list)
-                                is Screen.FilmDetails -> FilmDetailsScreen(state, sc.film, sc.row)
-                                is Screen.FilmWatch -> FilmWatchScreen(state, sc.film)
                             }
                         }
                         ToastHost(state.toast)

@@ -57,25 +57,3 @@ data class Channel(
     val isRadio get() = media == "audio"
     val isWorking get() = status == "ok"
 }
-
-@Serializable
-data class FilmsIndex(val total: Int = 0, val all: String? = null, val rows: List<FilmRowEntry> = emptyList(), val generated: String? = null)
-
-@Serializable
-data class FilmRowEntry(val key: String, val title: String, val file: String, val films: Int = 0)
-
-@Serializable
-data class FilmsFile(val row: String? = null, val films: List<Film> = emptyList())
-
-@Serializable
-data class Film(
-    val id: String,
-    val title: String,
-    val year: Int? = null,
-    val minutes: Int? = null,
-    val description: String = "",
-    val poster: String? = null,
-    val url: String,
-    val source: String = "Internet Archive",
-    val page: String? = null,
-)

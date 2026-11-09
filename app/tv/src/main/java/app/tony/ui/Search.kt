@@ -48,9 +48,6 @@ fun SearchScreen(s: AppState) {
         if (needle.isEmpty()) emptyList() else s.allChannels().filter { it.name.lowercase().contains(needle) }
             .sortedBy { if (it.name.lowercase().startsWith(needle)) 0 else 1 }.take(60)
     }
-    val films = remember(needle, s.allFilms) {
-        if (needle.length < 2) emptyList() else s.allFilms.filter { it.title.lowercase().contains(needle) }.take(30)
-    }
 
     Column(Modifier.fillMaxSize().background(T.Bg)) {
         TopBar(Tab.Search, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
@@ -59,7 +56,7 @@ fun SearchScreen(s: AppState) {
             Column(Modifier.padding(start = T.Margin).width(276.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Box(Modifier.fillMaxWidth().height(34.dp).clip(RoundedCornerShape(7.dp)).background(Color.White.copy(alpha = 0.05f))
                     .border(0.5.dp, T.HairlineStrong, RoundedCornerShape(7.dp)).padding(horizontal = 11.dp), contentAlignment = Alignment.CenterStart) {
-                    Text(if (q.isEmpty()) "Type a channel or film name" else q + "▏", style = ts(12.sp, if (q.isEmpty()) 400 else 600, if (q.isEmpty()) T.Muted else Color.White))
+                    Text(if (q.isEmpty()) "Type a channel name" else q + "▏", style = ts(12.sp, if (q.isEmpty()) 400 else 600, if (q.isEmpty()) T.Muted else Color.White))
                 }
                 val keys = ("abcdefghijklmnopqrstuvwxyz1234").map { it.toString() }
                 keys.chunked(6).forEachIndexed { r, rowKeys ->
@@ -82,15 +79,13 @@ fun SearchScreen(s: AppState) {
             ) {
                 if (needle.isEmpty()) item(span = { GridItemSpan(3) }) {
                     Text("Start typing. Results appear here.", style = ts(10.5.sp, 400, T.Muted))
-                } else if (channels.isEmpty() && films.isEmpty()) item(span = { GridItemSpan(3) }) {
+                } else if (channels.isEmpty()) item(span = { GridItemSpan(3) }) {
                     Text("Nothing found for \"$q\". Try fewer letters.", style = ts(10.5.sp, 400, T.Muted))
                 }
                 if (channels.isNotEmpty()) item(span = { GridItemSpan(3) }) { Text("Channels", style = ts(11.sp, 700)) }
                 items(channels, key = { "c" + it.id }) { c ->
                     ChannelTile(c, wide = false, favourite = s.isFavourite(c), sub = c.country, onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
                 }
-                if (films.isNotEmpty()) item(span = { GridItemSpan(3) }) { Text("Classic films", style = ts(11.sp, 700), modifier = Modifier.padding(top = 8.dp)) }
-                items(films, key = { "f" + it.id }) { f -> FilmTile(f) { s.go(Screen.FilmDetails(f, films)) } }
             }
         }
     }

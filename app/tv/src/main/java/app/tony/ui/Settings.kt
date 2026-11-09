@@ -104,7 +104,7 @@ fun SettingsScreen(s: AppState) {
                 Section.About -> {
                     Text("Tony ${BuildConfig.VERSION_NAME}", style = ts(12.sp, 700))
                     Text("Free TV from Lebanon, Australia and around the world.", style = ts(10.sp, 400, T.Text3), modifier = Modifier.padding(top = 4.dp, bottom = 14.dp))
-                    Text("Channels: Free-TV/IPTV and iptv-org (public, free streams).\nClassic films: Internet Archive (public domain).\nTony has no ads, no accounts, and doesn't change anything else on this TV.",
+                    Text("Channels: Free-TV/IPTV and iptv-org (public, free streams).\nTony has no ads, no accounts, and doesn't change anything else on this TV.",
                         style = ts(9.5.sp, 400, T.Muted, lineHeight = 15.sp))
                 }
             }

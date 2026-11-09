@@ -309,8 +309,20 @@ prices).
    logos, per-country files. **Repo: https://github.com/clnnhtrn/tony-tv (public).** The app reads
    `https://raw.githubusercontent.com/clnnhtrn/tony-tv/main/channels/dist/index.json`, then
    `…/channels/dist/countries/<slug>.json`, with logos at `…/channels/<logo>` (verified 200 over HTTPS).
-4. Build app v1 in `app/` (Kotlin, Compose for TV, Media3): Home rows, details, player + preview strip,
-   options panel, search, favourites, settings, first-run picker, auto-hide broken channels, live stills.
+4. **App v1 — BUILT and running on the owner's Chromecast (9 Nov 2026).** `app/` (Kotlin, Compose for TV,
+   Media3; AGP 9.4.1, Gradle 9.8.2, compileSdk 37, minSdk 26). Every screen of v7: first-run picker,
+   Home (live hero + muted preview + brand-colour glow, Favourites, Recent, country rows, Arabic,
+   Movies), details, watching (zap, strip + live preview card, options, tuning/failed/radio states),
+   Search, Favourites (hold OK menu), Settings. Screens from the real TV: `docs/screens/2026-11-09-chromecast/`.
+   Build: `cd app && JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew :tv:assembleDebug`.
+   Test on the TV: `tools/tv.sh install|start|keys|shot|log` (owner's Chromecast is paired for Wi-Fi debugging).
+   **Lessons from testing on the Chromecast (keep):** previews must use TextureView (SurfaceView ignores
+   fades/clipping), clip video views; no `Modifier.blur` (stalls the GPU, screen stops redrawing); route
+   Back through `dispatchKeyEvent` (Compose on TV eats the first Back); give every screen a start focus via
+   `FocusOnStart`; scroll with `MinimalScroll` (default TV pivot hid the header); stills URL carries a
+   3-hour time slot (fresh frames, avoids CDN-cached 404s).
+   **Classic films (Internet Archive) were built then removed at the owner's request** (didn't want old
+   black-and-white films). For films: the Movies row (live movie channels) + Tubi/Pluto TV apps on the stick.
 5. Install & test on owner's Chromecast with Google TV for ~a week; fix issues.
 6. Deploy to family: Google TV stick on the Samsung, move Tony to front of "Your apps", enable CEC,
    turn off Developer options, show them: Home → Tony.
