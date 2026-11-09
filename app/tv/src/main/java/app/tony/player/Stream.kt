@@ -99,7 +99,13 @@ class Stream(context: Context, val preview: Boolean) {
             .setAllowCrossProtocolRedirects(true)
             .setConnectTimeoutMs(8_000).setReadTimeoutMs(10_000)
             .setDefaultRequestProperties(headers.filterKeys { it.equals("Referer", true) })
-        val item = MediaItem.Builder().setUri(u).apply {
+        val item = MediaItem.Builder().setUri(u)
+            // Stay at the live edge: aim ~6 s behind the newest picture the station has published,
+            // never more than ~20 s, and catch up by playing up to 4% faster (not noticeable).
+            .setLiveConfiguration(MediaItem.LiveConfiguration.Builder()
+                .setTargetOffsetMs(6_000).setMinOffsetMs(3_000).setMaxOffsetMs(20_000)
+                .setMinPlaybackSpeed(0.97f).setMaxPlaybackSpeed(1.04f).build())
+            .apply {
             val l = u.lowercase()
             when {
                 ".m3u8" in l || "m3u8" in l -> setMimeType(MimeTypes.APPLICATION_M3U8)

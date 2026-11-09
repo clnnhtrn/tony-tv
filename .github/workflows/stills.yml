@@ -1,7 +1,7 @@
 name: Live stills
-# Grabs a fresh frame from each channel every 3 hours for Tony's tiles (channels/build_stills.py).
+# Grabs a fresh frame from each channel every hour for Tony's tiles (channels/build_stills.py).
 on:
-  schedule: [{ cron: "17 */3 * * *" }]
+  schedule: [{ cron: "17 * * * *" }]
   workflow_dispatch: {}
 permissions:
   contents: write

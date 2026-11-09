@@ -57,10 +57,10 @@ class Repository(private val context: Context) {
 
     companion object {
         fun logoUrl(c: Channel): String? = c.logo?.takeIf { !it.contains("..") }?.let { BuildConfig.DATA_BASE + it }
-        /** Stills are refreshed every few hours: the time-slot query makes the TV fetch the new frame
+        /** Stills are refreshed every hour: the time-slot query makes the TV fetch the new frame
          *  (and steps around CDN-cached 404s from before a still existed). */
         fun stillUrl(c: Channel): String =
-            BuildConfig.STILLS_BASE + "stills/" + c.id + ".jpg?t=" + (System.currentTimeMillis() / (3L * 3600 * 1000))
+            BuildConfig.STILLS_BASE + "stills/" + c.id + ".jpg?t=" + (System.currentTimeMillis() / (3600L * 1000))
     }
 }
 
