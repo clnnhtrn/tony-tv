@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -176,24 +177,28 @@ fun TonyCard(
     onLongClick: (() -> Unit)? = null,
     onFocus: () -> Unit = {},
     label: String? = null,
-    maxScale: Float = 1.12f,
+    maxScale: Float? = null,
     content: @Composable BoxScope.(focused: Boolean) -> Unit,
 ) {
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
-    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) maxScale else 1f,
+    val inGrid = LocalInGrid.current
+    // Every card grows by about the same amount (~16 dp wider), so a big card never reaches across the gap into its neighbour
+    val grow = maxScale ?: (1f + (if (inGrid) 14f else 16f) / width.value)
+    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) grow else 1f,
         androidx.compose.animation.core.spring(dampingRatio = 0.8f, stiffness = 500f), label = "lift")
     val lift by androidx.compose.animation.core.animateFloatAsState(if (focused) 1f else 0f, androidx.compose.animation.core.tween(220), label = "shadow")
     val shape = RoundedCornerShape(radius)
     Surface(
         onClick = onClick,
         onLongClick = onLongClick,
-        modifier = modifier.size(width, height)
+        modifier = modifier.then(if (inGrid) Modifier.fillMaxWidth().aspectRatio(width / height) else Modifier.size(width, height))
             .then(if (label != null) Modifier.clearAndSetSemantics { contentDescription = label } else Modifier)
             .graphicsLayer {
                 scaleX = scale; scaleY = scale
-                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0.5f)   // grow rightwards: never past the margin line
-                shadowElevation = 20.dp.toPx() * lift
+                // rows: grow rightwards (never past the margin line); grids: grow evenly from the centre
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(if (inGrid) 0.5f else 0f, 0.5f)
+                shadowElevation = 12.dp.toPx() * lift
                 this.shape = shape; clip = false
                 ambientShadowColor = Color.Black; spotShadowColor = Color.Black
             }
@@ -208,6 +213,9 @@ fun TonyCard(
         content(focused)
     }
 }
+
+/** Inside a grid, cards fill their column (keeping their shape) and grow from the centre. */
+val LocalInGrid = androidx.compose.runtime.staticCompositionLocalOf { false }
 
 val CardWideW = 210.dp; val CardWideH = 118.dp     // 420×236 px
 val CardStdW = 150.dp; val CardStdH = 84.5.dp      // 300×169 px

@@ -52,15 +52,15 @@ fun FavouritesScreen(s: AppState) {
             }
             if (favs.isEmpty()) {
                 EmptyCard("Hold OK on any channel to add it here")
-            } else LazyVerticalGrid(
+            } else androidx.compose.runtime.CompositionLocalProvider(LocalInGrid provides true) { LazyVerticalGrid(
                 GridCells.Fixed(4),
                 contentPadding = PaddingValues(start = T.Margin, end = T.Margin, bottom = 40.dp, top = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(T.Gap), verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 items(favs, key = { it.id }) { c ->
                     ChannelTile(c, wide = true, sub = c.country, modifier = if (c == favs.first()) Modifier.focusRequester(firstTile) else Modifier, onClick = { s.go(Screen.Details(c)) }, onLongClick = { menuFor = c })
                 }
-            }
+            } }
         }
         menuFor?.let { c -> FavMenu(c, onRemove = { s.toggleFavourite(c); menuFor = null }, onMove = { by -> s.moveFavourite(c, by); menuFor = null }, onClose = { menuFor = null }) }
     }

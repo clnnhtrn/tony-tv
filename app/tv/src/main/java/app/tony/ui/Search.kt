@@ -76,7 +76,7 @@ fun SearchScreen(s: AppState) {
                 Text("Or hold the mic button on the remote and say a channel.", style = ts(9.5.sp, 400, Color.White.copy(alpha = 0.5f)), modifier = Modifier.padding(top = 10.dp))
             }
             // Right: results
-            LazyVerticalGrid(
+            androidx.compose.runtime.CompositionLocalProvider(LocalInGrid provides true) { LazyVerticalGrid(
                 GridCells.Fixed(3), Modifier.padding(start = 36.dp, end = T.Margin),
                 contentPadding = PaddingValues(bottom = 60.dp, top = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(22.dp), verticalArrangement = Arrangement.spacedBy(18.dp),
@@ -90,7 +90,7 @@ fun SearchScreen(s: AppState) {
                 items(channels, key = { "c" + it.id }) { c ->
                     ChannelTile(c, wide = false, favourite = s.isFavourite(c), sub = c.country, onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
                 }
-            }
+            } }
         }
     }
 }

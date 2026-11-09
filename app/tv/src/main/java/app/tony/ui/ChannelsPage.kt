@@ -67,7 +67,7 @@ fun ChannelsScreen(s: AppState, start: String?) {
                 }
             }
         }
-        if (row != null) LazyVerticalGrid(
+        if (row != null) androidx.compose.runtime.CompositionLocalProvider(LocalInGrid provides true) { LazyVerticalGrid(
             GridCells.Fixed(5), Modifier.fillMaxSize(), state = grid,
             contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 22.dp, bottom = 110.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -75,6 +75,6 @@ fun ChannelsScreen(s: AppState, start: String?) {
             items(row.channels, key = { row.key + it.id }) { c ->
                 ChannelTile(c, wide = false, favourite = s.isFavourite(c), onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
             }
-        }
+        } }
     }
 }

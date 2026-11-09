@@ -269,10 +269,10 @@ fun CategoryScreen(s: AppState, name: String) {
     if (list.isNotEmpty()) FocusOnStart(first)
     Column(Modifier.fillMaxSize().pageBg()) {
         androidx.compose.foundation.layout.Spacer(Modifier.height(BarSpace))
-    androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+    androidx.compose.runtime.CompositionLocalProvider(LocalInGrid provides true) { androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
         androidx.compose.foundation.lazy.grid.GridCells.Fixed(4), Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 18.dp, bottom = 110.dp),
-        horizontalArrangement = Arrangement.spacedBy(15.dp), verticalArrangement = Arrangement.spacedBy(18.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(4) }) {
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 8.dp)) {
@@ -285,7 +285,7 @@ fun CategoryScreen(s: AppState, name: String) {
             ChannelTile(c, wide = true, sub = c.country, favourite = s.isFavourite(c), modifier = if (i == 0) Modifier.focusRequester(first) else Modifier,
                 onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
         }
-    }
+    } }
     }
 }
 

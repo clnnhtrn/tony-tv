@@ -104,7 +104,7 @@ private fun CountriesSection(s: AppState, onChange: () -> Unit) {
 @Composable
 private fun HideSection(s: AppState) {
     Text("Press OK on a channel to hide it from Home. Press OK again to bring it back.", style = ts(12.sp, 400, Color.White.copy(alpha = 0.65f)))
-    LazyVerticalGrid(GridCells.Fixed(4), contentPadding = PaddingValues(top = 8.dp, bottom = 60.dp, end = 8.dp),
+    androidx.compose.runtime.CompositionLocalProvider(LocalInGrid provides true) { LazyVerticalGrid(GridCells.Fixed(4), contentPadding = PaddingValues(top = 8.dp, bottom = 60.dp, end = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
         s.countryRowsAll.forEach { r ->
             item("h" + r.key, span = { GridItemSpan(4) }) { Text(r.title, style = ts(13.sp, 700, Color.White.copy(alpha = 0.85f)), modifier = Modifier.padding(top = 6.dp)) }
@@ -120,7 +120,7 @@ private fun HideSection(s: AppState) {
                 }
             }
         }
-    }
+    } }
 }
 
 @Composable
