@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony v8 — Watching</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+.k{position:relative;overflow:hidden;border-radius:20px;background:#1E2130;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.k .a{position:absolute;left:0;top:0;width:100%;height:128%;object-fit:cover;object-position:center top}
+.k .f{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(0,0,0,0) 28%,rgba(10,11,16,.7) 55%,rgba(14,15,21,.97) 100%)}
+.k .m{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center}
+.k .m img{width:22px;height:16px;object-fit:contain}
+.k .c{position:absolute;left:18px;right:18px;bottom:14px;display:flex;flex-direction:column;gap:4px}
+.k .n{font-size:24px;font-weight:850;letter-spacing:-.6px;line-height:1}
+.k .s{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:rgba(255,255,255,.8)}
+.dot{width:8px;height:8px;border-radius:999px;background:#FF453A;display:inline-block}
+.on{transform:scale(1.08);box-shadow:0 24px 50px rgba(0,0,0,.7)}
+.tab{font-size:22px;font-weight:600;color:rgba(255,255,255,.6);padding:8px 20px;border-radius:999px}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #000; font-family: Inter, system-ui, sans-serif; color: #FFFFFF">
+  <img src="/_blob/6fbead2f1c968b4fceaae54671f5c5df" alt="" style="position: absolute; inset: 0; width: 1920px; height: 1080px; object-fit: cover">
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 700px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(8,9,13,0.85) 35%, #08090D 62%)"></div>
+
+  <div style="position: absolute; left: 104px; top: 260px; width: 600px; border-radius: 24px; overflow: hidden; background: #1C1D24; box-shadow: 0 30px 70px rgba(0,0,0,0.7)">
+    <div style="position: relative; height: 338px">
+      <img src="/_blob/a43cdbe74aac16f075b0680eb579ece7" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+      <span style="position: absolute; left: 16px; top: 16px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,0.55); font-size: 15px; font-weight: 700"><i class="dot"></i>Preview</span>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 22px">
+      <span style="font-size: 26px; font-weight: 800">Al Jadeed</span>
+      <span style="font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.7)">Press OK to switch</span>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 104px; right: 104px; top: 690px; display: flex; align-items: center; gap: 6px">
+    <span class="tab" style="color: #FFFFFF; background: rgba(255,255,255,0.18)">Favourites</span>
+    <span class="tab">Lebanon</span>
+    <span class="tab">Australia</span>
+    <span style="flex: 1"></span>
+    <span style="font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.55)">Back to close</span>
+  </div>
+
+  <div style="position: absolute; left: 104px; top: 770px; display: flex; gap: 26px">
+    <sc-for list="{{row}}" as="c" hint-placeholder-count="6">
+      <div class="{{c.cls}}" style="{{c.size}}"><img class="a" src="{{c.still}}" alt=""><div class="f"></div><span class="m" style="{{c.mb}}"><img src="{{c.logo}}" alt=""></span><div class="c"><span class="n">{{c.name}}</span><span class="s"><i class="dot"></i>{{c.sub}}</span></div></div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+const B = "/_blob/";
+const C = {
+  mtv: ["MTV Lebanon", "6fbead2f1c968b4fceaae54671f5c5df", "806897165a56c7330301894add296d43", "#1C2454"],
+  jadeed: ["Al Jadeed", "a43cdbe74aac16f075b0680eb579ece7", "f892f50f188401e64a0b50be530bcf7c", "#0B0C10"],
+  lbci: ["LBCI", "29be0d734aec41b4ec6f202cdc87ec1e", "9fa51d92ab5165ea8c2cb6779b22ea27", "#ECECEC"],
+  abcn: ["ABC News", "1c2b9c918fe35358c8b6cc1e487df4d2", "4d6e4ce1464c5a1efbc98208970f3d24", "#0B0C10"],
+  sbs: ["SBS", "ff6e2812f70a9b4679cb193e6d4e2c57", "ccfb973f574ff0672e6df0fa422b5a8e", "#FFFFFF"],
+  otv: ["OTV", "bba1af7919c3ee4b4a1d8f14a420659b", "91baad3c2694810afe0f424226023a3b", "#FFFFFF"]
+};
+function card(k, sub, on) { const c = C[k]; return { name: c[0], still: B + c[1], logo: B + c[2], mb: "background:" + c[3], sub: sub, cls: on ? "k on" : "k", size: "flex:0 0 300px;width:300px;height:169px" }; }
+class Component extends DCLogic {
+  renderVals() {
+    return { row: [card("mtv", "Watching", false), card("jadeed", "Live", true), card("lbci", "Live", false), card("abcn", "Live", false), card("sbs", "Live", false), card("otv", "Live", false)] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony v8 — Options while watching</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+.row{display:flex;align-items:center;height:68px;padding:0 24px;border-radius:16px;font-size:22px;font-weight:600}
+.row .v{margin-left:auto;font-weight:500;color:rgba(255,255,255,.6)}
+.off{color:rgba(255,255,255,.3)}
+.off .v{color:rgba(255,255,255,.25)}
+.lbl{font-size:15px;font-weight:700;letter-spacing:1.4px;color:rgba(255,255,255,.45);margin:18px 0 6px 6px}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #000; font-family: Inter, system-ui, sans-serif; color: #FFFFFF">
+  <img src="/_blob/c766fb4bc06f881376bcad32f65f6837" alt="" style="position: absolute; inset: 0; width: 1920px; height: 1080px; object-fit: cover">
+  <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.65) 100%)"></div>
+  <div style="position: absolute; left: 0; right: 0; top: 0; height: 220px; background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%)"></div>
+  <div style="position: absolute; left: 104px; top: 60px; display: flex; align-items: center; gap: 14px">
+    <span style="font-size: 30px; font-weight: 800">Mix Hollywood</span>
+    <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 600; color: rgba(255,255,255,0.8)"><span style="width: 8px; height: 8px; border-radius: 999px; background: #FF453A; display: inline-block"></span>Live</span>
+  </div>
+
+  <div style="position: absolute; right: 104px; top: 90px; width: 560px; padding: 30px; border-radius: 30px; background: rgba(28,29,36,0.82); backdrop-filter: blur(30px); box-shadow: 0 30px 80px rgba(0,0,0,0.6)">
+    <div style="font-size: 34px; font-weight: 800; margin: 0 0 4px 6px">Options</div>
+    <div class="lbl">SUBTITLES</div>
+    <div class="row off">Subtitles<span class="v">Not on this channel</span></div>
+    <div class="row off">Text size<span class="v">Medium</span></div>
+    <div class="row off">Style<span class="v">Classic</span></div>
+    <div class="lbl">PICTURE AND SOUND</div>
+    <div class="row" style="background: #FFFFFF; color: #12131A; transform: scale(1.03); box-shadow: 0 12px 30px rgba(0,0,0,0.4)">Picture<span class="v" style="color: rgba(18,19,26,0.6)">Fill screen</span></div>
+    <div class="row off">Audio<span class="v">Only one</span></div>
+    <div class="row" style="margin-top: 14px; color: rgba(255,255,255,0.85)">Report a problem</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

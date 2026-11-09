@@ -13,3 +13,12 @@ What changed from v7, and why:
 5. Navy-slate gradient background; plain centred text tabs; round settings icon; no row counts or subtitles.
 
 Canvas: https://claude.ai/artifact/LSq5YwuxkFVzbMK6pg8wBp (boards "v8 · …"). Checked renders in `screens/`.
+
+## Full screen set (9 Nov 2026)
+`V8Details` channel page · `V8Watch` watching with channel strip + big preview · `V8Options` frosted options panel
+(subtitle rows greyed when unavailable) · `V8Search` · `V8Welcome` first-run countries (selected = white card) ·
+`V8Settings` · plus `V8Home`, `V8Rows`.
+
+**"Top in …" ranking (decided approach):** what this TV watches most (minutes per channel, counted on the TV only),
+falling back to a fixed list of each country's main broadcasters (Lebanon: MTV, LBCI, Al Jadeed, OTV, Tele Liban,
+Al Mayadeen; Australia: ABC, Seven, Nine, 10, SBS), working channels only.

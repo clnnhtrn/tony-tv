@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony v8 — Choose countries</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#12131A}
+.cc{height:150px;border-radius:24px;padding:22px 24px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;background:rgba(255,255,255,.07)}
+.fl{font-size:44px;line-height:1}
+.nm{font-size:24px;font-weight:750}
+.ct{font-size:16px;font-weight:600;opacity:.6}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: radial-gradient(1100px 700px at 15% 90%, rgba(255,159,10,0.16), transparent), radial-gradient(1000px 700px at 90% 10%, rgba(42,91,215,0.18), transparent), linear-gradient(180deg, #1B1E2B 0%, #13141C 100%); font-family: Inter, system-ui, sans-serif; color: #FFFFFF">
+  <section style="position: absolute; left: 104px; top: 90px; right: 104px; display: flex; align-items: flex-end">
+    <div style="flex: 1">
+      <div style="font-size: 18px; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.55)">STEP 1 OF 2</div>
+      <h1 style="margin: 12px 0 10px; font-size: 64px; font-weight: 850; letter-spacing: -2px">Which countries?</h1>
+      <p style="margin: 0; font-size: 24px; color: rgba(255,255,255,0.65)">Each one gets its own row on Home. You can change this any time.</p>
+    </div>
+    <button style="height: 64px; padding: 0 40px; border-radius: 999px; border: 0; background: rgba(255,255,255,0.18); color: #FFFFFF; font-family: Inter, sans-serif; font-size: 24px; font-weight: 700">Continue</button>
+  </section>
+  <section style="position: absolute; left: 104px; right: 104px; top: 340px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px">
+    <sc-for list="{{cs}}" as="c" hint-placeholder-count="15">
+      <div class="cc" style="{{c.style}}"><span class="fl">{{c.flag}}</span><div><div class="nm">{{c.name}}</div><div class="ct">{{c.count}}</div></div></div>
+    </sc-for>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+const L = [["🇱🇧","Lebanon",32,1],["🇦🇺","Australia",58,1],["🇪🇬","Egypt",64,0],["🇸🇦","Saudi Arabia",71,0],["🇦🇪","UAE",97,0],["🇯🇴","Jordan",29,0],["🇸🇾","Syria",33,0],["🇮🇶","Iraq",88,0],["🇶🇦","Qatar",23,0],["🇬🇧","UK",120,0],["🇺🇸","USA",1635,0],["🇨🇦","Canada",71,0],["🇫🇷","France",185,0],["🇮🇹","Italy",443,0],["🇬🇷","Greece",92,0]];
+class Component extends DCLogic {
+  renderVals() {
+    return { cs: L.map((c, i) => ({ flag: c[0], name: c[1], count: c[2] + " channels",
+      style: (c[3] ? "background:#FFFFFF;color:#12131A;" : "") + (i === 2 ? "transform:scale(1.06);box-shadow:0 20px 44px rgba(0,0,0,.55);background:rgba(255,255,255,.16)" : "") })) };
+  }
+}
+</script>
+</body>
+</html>

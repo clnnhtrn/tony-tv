@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony v8 — Search</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#12131A}
+.key{width:76px;height:64px;border-radius:14px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;color:rgba(255,255,255,.85)}
+.k{position:relative;overflow:hidden;border-radius:20px;background:#1E2130;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.k .a{position:absolute;left:0;top:0;width:100%;height:128%;object-fit:cover;object-position:center top}
+.k .f{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(0,0,0,0) 28%,rgba(10,11,16,.7) 55%,rgba(14,15,21,.97) 100%)}
+.k .m{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center}
+.k .m img{width:22px;height:16px;object-fit:contain}
+.k .c{position:absolute;left:18px;right:18px;bottom:14px;display:flex;flex-direction:column;gap:4px}
+.k .n{font-size:26px;font-weight:850;letter-spacing:-.6px;line-height:1}
+.k .s{font-size:15px;font-weight:600;color:rgba(255,255,255,.75)}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: linear-gradient(180deg, #1B1E2B 0%, #13141C 100%); font-family: Inter, system-ui, sans-serif; color: #FFFFFF">
+  <header style="position: absolute; left: 104px; right: 104px; top: 44px; display: flex; justify-content: center; gap: 6px">
+    <span style="padding: 10px 24px; border-radius: 999px; background: rgba(255,255,255,0.18); font-size: 22px; font-weight: 650">Search</span>
+    <span style="padding: 10px 24px; font-size: 22px; font-weight: 550; color: rgba(255,255,255,0.7)">Home</span>
+    <span style="padding: 10px 24px; font-size: 22px; font-weight: 550; color: rgba(255,255,255,0.7)">Movies</span>
+    <span style="padding: 10px 24px; font-size: 22px; font-weight: 550; color: rgba(255,255,255,0.7)">Favourites</span>
+  </header>
+  <section style="position: absolute; left: 104px; top: 150px; width: 560px">
+    <div style="font-size: 54px; font-weight: 800; letter-spacing: -1.5px; height: 80px; border-bottom: 2px solid rgba(255,255,255,0.25)">al<span style="color: #FF9F0A">|</span></div>
+    <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-top: 30px">
+      <sc-for list="{{keys}}" as="k" hint-placeholder-count="30"><div class="key" style="{{k.style}}">{{k.label}}</div></sc-for>
+    </div>
+    <div style="display: flex; gap: 12px; margin-top: 12px">
+      <div class="key" style="width: 170px">Space</div><div class="key" style="width: 170px">Delete</div><div class="key" style="width: 170px">Clear</div>
+    </div>
+    <p style="margin: 26px 0 0; font-size: 19px; color: rgba(255,255,255,0.5)">Or hold the mic button on the remote and say a channel.</p>
+  </section>
+  <section style="position: absolute; left: 740px; top: 150px; width: 1080px">
+    <div style="font-size: 26px; font-weight: 700; color: rgba(255,255,255,0.9); margin-bottom: 20px">Channels</div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px">
+      <sc-for list="{{res}}" as="c" hint-placeholder-count="6">
+        <div class="k" style="height: 190px"><img class="a" src="{{c.still}}" alt=""><div class="f"></div><span class="m" style="{{c.mb}}"><img src="{{c.logo}}" alt=""></span><div class="c"><span class="n">{{c.name}}</span><span class="s">{{c.sub}}</span></div></div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+const B = "/_blob/";
+const R = [
+  ["Al Jadeed", "a43cdbe74aac16f075b0680eb579ece7", "f892f50f188401e64a0b50be530bcf7c", "#0B0C10", "Lebanon"],
+  ["Al Mayadeen", "e10010d3ba813d044f42ed031c14062e", "0480171651be9f1de781b64a25aca521", "#FFFFFF", "Lebanon"],
+  ["Aflam", "aacbfcc2b12e65d9321659497ef9cbd8", "1660a0c64fcc1b78166a880a327968a7", "#FFFFFF", "Saudi Arabia · Films"]
+];
+class Component extends DCLogic {
+  renderVals() {
+    const letters = "abcdefghijklmnopqrstuvwxyz1234".split("");
+    return {
+      keys: letters.map((l) => ({ label: l, style: l === "l" ? "background:#FFFFFF;color:#12131A;transform:scale(1.1);box-shadow:0 10px 24px rgba(0,0,0,.5)" : "" })),
+      res: R.map((c) => ({ name: c[0], still: B + c[1], logo: B + c[2], mb: "background:" + c[3], sub: c[4] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

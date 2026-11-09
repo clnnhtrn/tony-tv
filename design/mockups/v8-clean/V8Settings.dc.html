@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony v8 — Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#12131A}
+.mi{height:64px;border-radius:16px;padding:0 22px;display:flex;align-items:center;font-size:23px;font-weight:600;color:rgba(255,255,255,.7)}
+.card{border-radius:24px;background:rgba(255,255,255,.06);padding:26px 28px}
+.big{font-size:30px;font-weight:800}
+.sm{font-size:16px;font-weight:700;letter-spacing:1.3px;color:rgba(255,255,255,.45)}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: linear-gradient(180deg, #1B1E2B 0%, #13141C 100%); font-family: Inter, system-ui, sans-serif; color: #FFFFFF">
+  <section style="position: absolute; left: 104px; top: 90px; width: 440px; display: flex; flex-direction: column; gap: 8px">
+    <h1 style="margin: 0 0 30px; font-size: 56px; font-weight: 850; letter-spacing: -1.5px">Settings</h1>
+    <div class="mi" style="background: #FFFFFF; color: #12131A; transform: scale(1.03)">Countries</div>
+    <div class="mi">Hide channels</div>
+    <div class="mi">Channel updates</div>
+    <div class="mi">About Tony</div>
+  </section>
+  <section style="position: absolute; left: 640px; right: 104px; top: 190px; display: flex; flex-direction: column; gap: 24px">
+    <p style="margin: 0; font-size: 24px; color: rgba(255,255,255,0.65)">Each country has its own row on Home, in this order.</p>
+    <div style="display: flex; gap: 24px">
+      <div class="card" style="width: 300px"><div style="font-size: 52px">🇱🇧</div><div class="big" style="margin-top: 14px">Lebanon</div><div style="font-size: 18px; color: rgba(255,255,255,0.55); margin-top: 4px">32 channels · 27 working</div></div>
+      <div class="card" style="width: 300px"><div style="font-size: 52px">🇦🇺</div><div class="big" style="margin-top: 14px">Australia</div><div style="font-size: 18px; color: rgba(255,255,255,0.55); margin-top: 4px">58 channels · 45 working</div></div>
+    </div>
+    <div style="display: flex; gap: 16px">
+      <button style="height: 60px; padding: 0 34px; border-radius: 999px; border: 0; background: rgba(255,255,255,0.18); color: #FFFFFF; font-family: Inter, sans-serif; font-size: 22px; font-weight: 700">Change countries</button>
+    </div>
+    <div class="card" style="margin-top: 26px; display: flex; gap: 60px">
+      <div><div class="sm">CHANNEL LIST</div><div class="big" style="margin-top: 8px; display: flex; align-items: center; gap: 12px"><span style="width: 12px; height: 12px; border-radius: 999px; background: #30D158; display: inline-block"></span>Updates itself</div></div>
+      <div><div class="sm">LAST CHECKED</div><div class="big" style="margin-top: 8px">Today, 11:38 am</div></div>
+      <div><div class="sm">VERSION</div><div class="big" style="margin-top: 8px">1.0</div></div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>
