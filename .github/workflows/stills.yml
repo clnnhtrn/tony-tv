@@ -1,5 +1,6 @@
 name: Live stills
-# Grabs a fresh frame from each channel every hour for Tony's tiles (channels/build_stills.py).
+# Grabs a fresh frame from every working channel (all countries) every hour for Tony's tiles
+# (channels/build_stills.py). 8 parallel slices, then one job publishes them to the `stills` branch.
 on:
   schedule: [{ cron: "17 * * * *" }]
   workflow_dispatch: {}
@@ -7,16 +8,34 @@ permissions:
   contents: write
 concurrency: { group: stills, cancel-in-progress: true }
 jobs:
-  stills:
+  grab:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix: { shard: [1, 2, 3, 4, 5, 6, 7, 8] }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - run: pip install -q pillow
+      - run: python channels/build_stills.py --all --shard ${{ matrix.shard }}/8 --workers 16
+      - uses: actions/upload-artifact@v4
+        with: { name: "stills-${{ matrix.shard }}", path: channels/.stills, retention-days: 1, if-no-files-found: ignore }
+  publish:
+    needs: grab
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q pillow
+      - uses: actions/download-artifact@v4
+        with: { pattern: "stills-*", path: channels/.stills, merge-multiple: true }
       - run: |
           git config --global user.name "Tony stills"
           git config --global user.email "stills@users.noreply.github.com"
-          python channels/build_stills.py --workers 12 --publish
+          python channels/build_stills.py --publish-only
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }

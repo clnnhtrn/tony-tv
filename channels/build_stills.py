@@ -4,6 +4,8 @@
     channels/.venv/bin/python channels/build_stills.py                      # Lebanon + Australia + Arabic + Movies rows
     channels/.venv/bin/python channels/build_stills.py --files countries/usa.json rows/arabic.json
     channels/.venv/bin/python channels/build_stills.py --publish            # also force-push to the `stills` branch
+    channels/.venv/bin/python channels/build_stills.py --all --shard 2/8    # every country, this run's 1/8 slice (CI)
+    channels/.venv/bin/python channels/build_stills.py --publish-only       # publish .stills/ as collected by the shards
 
 Each still is centre-cropped to 16:9 after removing black letterbox/pillarbox bars, scaled to
 480×270 and saved as stills/<channel id>.jpg. The app loads them from
@@ -12,8 +14,10 @@ logo-on-colour tile if a still is missing. The `stills` branch is an orphan bran
 commit, replaced on every publish, so images never pile up in the repo's history.
 """
 import argparse
+import hashlib
 import concurrent.futures as cf
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -74,8 +78,13 @@ def finish(raw, dest):
 
 def publish():
     """Force-push .stills/ as a single-commit orphan branch `stills`."""
+    OUT.mkdir(exist_ok=True)
     repo = HERE.parent
     remote = subprocess.run(["git", "-C", str(repo), "remote", "get-url", "origin"], capture_output=True, text=True).stdout.strip()
+    push_to = remote
+    token, slug = os.environ.get("GITHUB_TOKEN"), os.environ.get("GITHUB_REPOSITORY")
+    if token and slug:  # GitHub Actions: the checkout's sign-in doesn't reach this temporary repo
+        push_to = f"https://x-access-token:{token}@github.com/{slug}"
     with tempfile.TemporaryDirectory() as d:
         # Start from the stills already published, then overlay the new ones: a channel we couldn't
         # reach this time (e.g. Australia-only streams from a US server) keeps its last good still.
@@ -89,7 +98,7 @@ def publish():
         g("init", "-q", "-b", "stills")
         g("add", "-A")
         g("-c", "user.name=Tony stills", "-c", "user.email=stills@users.noreply.github.com", "commit", "-q", "-m", "Live stills")
-        g("push", "-q", "--force", remote, "stills")
+        g("push", "-q", "--force", push_to, "stills")
     print("Published to the stills branch")
 
 
@@ -98,12 +107,23 @@ def main():
     ap.add_argument("--files", nargs="*", default=DEFAULT)
     ap.add_argument("--publish", action="store_true")
     ap.add_argument("--workers", type=int, default=10)
+    ap.add_argument("--all", action="store_true", help="every country and row file in dist/")
+    ap.add_argument("--shard", default="1/1", help="i/n: only the i-th of n slices (for parallel CI jobs)")
+    ap.add_argument("--publish-only", action="store_true")
     args = ap.parse_args()
+    if args.publish_only:
+        publish()
+        return
+    files = args.files
+    if args.all:
+        files = sorted(str(p.relative_to(DIST)) for p in list((DIST / "countries").glob("*.json")) + list((DIST / "rows").glob("*.json")))
     chans = {}
-    for f in args.files:
+    for f in files:
         for c in json.loads((DIST / f).read_text())["channels"]:
             if c.get("media") in ("video", None) and c.get("status") in ("ok", "untested", "geoblocked"):
                 chans[c["id"]] = c
+    i, n = (int(x) for x in args.shard.split("/"))
+    chans = {k: v for k, v in chans.items() if int(hashlib.md5(k.encode()).hexdigest(), 16) % n == i - 1}
     OUT.mkdir(exist_ok=True)
     ff = ffmpeg()
     ok = 0
