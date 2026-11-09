@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -56,9 +57,11 @@ import app.tony.player.LivePreview
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.request.transformations
 
 /** v8 page background: navy-slate gradient. */
-fun Modifier.pageBg() = this.background(Brush.verticalGradient(listOf(T.BgTop, T.Bg)))
+/** The window already paints the navy gradient (res/drawable/window_bg.xml); screens add no extra layer. */
+fun Modifier.pageBg() = this
 
 @Composable
 fun HomeScreen(s: AppState) {
@@ -69,18 +72,20 @@ fun HomeScreen(s: AppState) {
     val watchFocus = remember { FocusRequester() }
     if (featured != null) FocusOnStart(watchFocus)
 
-    LazyColumn(Modifier.fillMaxSize().pageBg(), contentPadding = PaddingValues(bottom = 48.dp)) {
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    var heroFocused by remember { mutableStateOf(true) }
+    LazyColumn(Modifier.fillMaxSize().pageBg(), state = listState, contentPadding = PaddingValues(bottom = 110.dp)) {
         item("hero") {
-            Box(Modifier.fillMaxWidth().height(540.dp)) {
-                HeroBackdrop(featured, height = 540.dp)
+            Box(Modifier.fillMaxWidth().height(540.dp).onFocusChanged { heroFocused = it.hasFocus }) {
+                HeroBackdrop(featured, height = 540.dp, live = heroFocused)
                 TopBar(Tab.Home, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
-                if (featured != null) HeroInfo(s, featured, Modifier.padding(start = T.Margin, top = 118.dp), watchFocus,
+                if (featured != null) HeroInfo(s, featured, Modifier.padding(start = T.Margin, top = 132.dp), watchFocus,
                     onWatch = { s.go(Screen.Watch(featured, favs.ifEmpty { s.allChannels() })) })
-                if (favs.size > 1) PageDots(favs.size.coerceAtMost(8), favs.indexOfFirst { it.id == featured?.id }.coerceAtLeast(0), Modifier.align(Alignment.TopCenter).padding(top = 352.dp))
+                if (favs.size > 1) PageDots(favs.size.coerceAtMost(8), favs.indexOfFirst { it.id == featured?.id }.coerceAtLeast(0), Modifier.align(Alignment.TopCenter).padding(top = 370.dp))
                 Column(Modifier.align(Alignment.BottomStart).padding(bottom = 18.dp)) {
                     RowHeader("Favourites")
                     if (favs.isEmpty()) EmptyCard("Hold OK on any channel to add it here")
-                    else LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+                    else LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
                         items(favs, key = { it.id }) { c ->
                             ChannelTile(c, wide = true, sub = c.country, onClick = { s.go(Screen.Details(c)) },
                                 onLongClick = { s.toggleFavourite(c) }, onFocus = { featuredId = c.id })
@@ -95,7 +100,7 @@ fun HomeScreen(s: AppState) {
         }
         item("cats") { CategoryRow(s) }
         if (s.saved.recent.isNotEmpty()) item("recent") { ChannelRowView(s, ChannelRow("recent", "Recent", null, s.saved.recent, 0), wide = true) }
-        s.countryRows.forEach { r -> item("c:" + r.key) { ChannelRowView(s, r, showCountry = false) } }
+        s.countryRows.forEach { r -> item("c:" + r.key) { ChannelRowView(s, r.copy(channels = r.channels.take(15)), seeAll = { s.go(Screen.Channels(r.title)) }) } }
         s.extraRows.filter { it.key != "movies" }.forEach { r -> item("x:" + r.key) { ChannelRowView(s, r, showCountry = true) } }
         if (s.offline && s.countryRows.isEmpty()) item("offline") { OfflineNotice(s) }
     }
@@ -113,7 +118,7 @@ fun PageDots(n: Int, current: Int, modifier: Modifier = Modifier) {
 fun PosterRow(s: AppState, title: String, list: List<Channel>) {
     Column(Modifier.padding(top = T.RowGap)) {
         RowHeader(title)
-        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
             itemsIndexed(list, key = { _, c -> "top" + c.id }) { i, c ->
                 PosterTile(c, i + 1, onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
             }
@@ -129,7 +134,7 @@ private val CATEGORIES = listOf("News" to Color(0xFF2B3A67), "Movies" to Color(0
 fun CategoryRow(s: AppState) {
     Column(Modifier.padding(top = T.RowGap)) {
         RowHeader("Browse")
-        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
             items(CATEGORIES, key = { it.first }) { (name, tint) ->
                 TonyCard(127.dp, 62.dp, 11.dp, onClick = { s.go(Screen.Category(name)) }) { _ ->
                     Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(tint, T.Card))), contentAlignment = Alignment.Center) {
@@ -146,29 +151,30 @@ fun CategoryRow(s: AppState) {
  * top and taller than the screen so the channel's ticker (bottom of the frame) falls off-screen.
  */
 @Composable
-fun BoxScope.HeroBackdrop(c: Channel?, height: Dp, sound: Boolean = true) {
+fun BoxScope.HeroBackdrop(c: Channel?, height: Dp, sound: Boolean = true, live: Boolean = true) {
     val ctx = LocalContext.current
     Box(Modifier.fillMaxWidth().height(height).clipToBounds()) {
         AnimatedContent(c?.id, transitionSpec = { fadeIn(tween(500)) togetherWith fadeOut(tween(400)) }, label = "still") { id ->
             Box(Modifier.fillMaxSize()) {
                 if (c != null && id == c.id) {
-                    Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(T.Bg, parseColor(c.tileColor, T.Card)))), contentAlignment = Alignment.CenterEnd) {
+                    var ok by remember(c.id) { mutableStateOf(false) }
+                    if (!ok) Box(Modifier.fillMaxSize().background(parseColor(c.tileColor, T.Card)), contentAlignment = Alignment.CenterEnd) {
                         Box(Modifier.padding(end = 150.dp)) { LogoBadge(c, BadgeHero) }
                     }
-                    AsyncImage(ImageRequest.Builder(ctx).data(Repository.stillUrl(c)).crossfade(400).build(), null,
-                        contentScale = ContentScale.Crop, alignment = Alignment.TopCenter,
-                        modifier = Modifier.fillMaxWidth().wrapContentHeight(Alignment.Top, unbounded = true).height(height * 1.18f))
+                    AsyncImage(ImageRequest.Builder(ctx).data(Repository.stillUrl(c)).size(960, 540).transformations(HeroArt(960, 540)).crossfade(400).build(), null,
+                        onSuccess = { ok = true }, contentScale = ContentScale.FillBounds, modifier = Modifier.fillMaxSize())
                 }
             }
         }
-        LivePreview(c, Modifier.fillMaxWidth().wrapContentHeight(Alignment.Top, unbounded = true).height(height * 1.18f), sound = sound)
-        Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
-            0f to T.Ink.copy(alpha = 0.95f), 0.30f to T.Ink.copy(alpha = 0.78f), 0.58f to T.Ink.copy(alpha = 0.25f), 0.76f to Color.Transparent)))
-        Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(height * 0.55f).background(Brush.verticalGradient(
-            0f to Color.Transparent, 0.45f to T.Bg.copy(alpha = 0.86f), 0.8f to T.BgTop)))
-        Box(Modifier.fillMaxWidth().height(120.dp).background(Brush.verticalGradient(listOf(T.Ink.copy(alpha = 0.9f), T.Ink.copy(alpha = 0.45f), Color.Transparent))))
-        Box(Modifier.align(Alignment.TopEnd).size(330.dp, 150.dp).background(Brush.radialGradient(listOf(T.Ink.copy(alpha = 0.85f), Color.Transparent),
-            center = Offset(560f, 30f), radius = 520f)))
+        LivePreview(c.takeIf { live }, Modifier.fillMaxWidth().wrapContentHeight(Alignment.Top, unbounded = true).height(height * 1.18f), sound = sound)
+        // Fade layers are only needed over moving video (the still has them baked in)
+        val p = app.tony.player.LocalPlayers.current.preview
+        val videoOn = live && p.state == app.tony.player.StreamState.Playing && !p.isRadio
+        if (videoOn) {
+            Box(Modifier.fillMaxWidth(0.8f).fillMaxSize().background(Brush.horizontalGradient(*easedFade(T.Ink, 0.95f, 0f))))
+            Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(height * 0.6f).background(Brush.verticalGradient(*easedFade(T.BgTop, 0f, 1f, 0f, 0.85f))))
+            Box(Modifier.fillMaxWidth().height(130.dp).background(Brush.verticalGradient(listOf(T.Ink.copy(alpha = 0.9f), T.Ink.copy(alpha = 0.45f), Color.Transparent))))
+        }
     }
 }
 
@@ -192,7 +198,6 @@ fun HeroInfo(s: AppState, c: Channel, modifier: Modifier, watchFocus: FocusReque
             TonyButton(watchLabel, onWatch, Modifier.focusRequester(watchFocus), icon = Icons.Play, primary = true)
             val fav = s.isFavourite(c)
             RoundButton(if (fav) Icons.Heart else Icons.HeartOutline, if (fav) "Favourited" else "Add to Favourites", { s.toggleFavourite(c) }, tint = if (fav) T.Accent else null)
-            if (showInfo) RoundButton(Icons.Info, "About this channel", { s.go(Screen.Details(c)) })
         }
     }
 }
@@ -217,17 +222,27 @@ fun describe(c: Channel): String = when {
     else -> "Live TV from ${c.country ?: "around the world"}."
 }
 
-fun Tab.toScreen(): Screen = when (this) { Tab.Home -> Screen.Home; Tab.Movies -> Screen.Movies; Tab.Favourites -> Screen.Favourites; Tab.Search -> Screen.Search }
+fun Tab.toScreen(): Screen = when (this) { Tab.Home -> Screen.Home; Tab.Channels -> Screen.Channels(); Tab.Movies -> Screen.Movies; Tab.Favourites -> Screen.Favourites; Tab.Search -> Screen.Search }
 
 @Composable
-fun ChannelRowView(s: AppState, r: ChannelRow, showCount: Boolean = true, showCountry: Boolean = false, wide: Boolean = false) {
+fun ChannelRowView(s: AppState, r: ChannelRow, showCount: Boolean = true, showCountry: Boolean = false, wide: Boolean = false, seeAll: (() -> Unit)? = null) {
     if (r.channels.isEmpty()) return
     Column(Modifier.padding(top = T.RowGap)) {
         RowHeader(r.title)
-        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(13.dp)) {
+        LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
             items(r.channels, key = { r.key + it.id }) { c ->
                 ChannelTile(c, wide = wide, favourite = s.isFavourite(c), sub = if (showCountry) c.country else null,
                     onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
+            }
+            if (seeAll != null) item("seeall" + r.key) {
+                TonyCard(CardStdW, CardStdH, 10.dp, onClick = seeAll) { _ ->
+                    Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.08f)), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("See all", style = ts(14.sp, 800, Color.White))
+                            Text("${r.total} channels", style = ts(8.5.sp, 600, Color.White.copy(alpha = 0.6f)))
+                        }
+                    }
+                }
             }
         }
     }
@@ -239,19 +254,25 @@ fun CategoryScreen(s: AppState, name: String) {
     val list = s.category(name)
     val first = remember { FocusRequester() }
     if (list.isNotEmpty()) FocusOnStart(first)
+    Column(Modifier.fillMaxSize().pageBg()) {
+    TopBar(null, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
     androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
-        androidx.compose.foundation.lazy.grid.GridCells.Fixed(4), Modifier.fillMaxSize().pageBg(),
-        contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 34.dp, bottom = 40.dp),
-        horizontalArrangement = Arrangement.spacedBy(15.dp), verticalArrangement = Arrangement.spacedBy(15.dp),
+        androidx.compose.foundation.lazy.grid.GridCells.Fixed(4), Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 18.dp, bottom = 110.dp),
+        horizontalArrangement = Arrangement.spacedBy(15.dp), verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(4) }) {
-            Text(name, style = ts(30.sp, 850, Color.White, (-0.8).sp), modifier = Modifier.padding(bottom = 10.dp))
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 8.dp)) {
+                Text(name, style = ts(30.sp, 850, Color.White, (-0.8).sp))
+                Text("Browse  ·  Back to return", style = ts(10.sp, 600, Color.White.copy(alpha = 0.5f)), modifier = Modifier.padding(bottom = 6.dp))
+            }
         }
         items(list.size) { i ->
             val c = list[i]
             ChannelTile(c, wide = true, sub = c.country, favourite = s.isFavourite(c), modifier = if (i == 0) Modifier.focusRequester(first) else Modifier,
                 onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
         }
+    }
     }
 }
 

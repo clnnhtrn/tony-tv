@@ -25,6 +25,7 @@ sealed interface Screen {
     data object Home : Screen
     data object Movies : Screen
     data class Category(val name: String) : Screen
+    data class Channels(val country: String? = null) : Screen
     data object Favourites : Screen
     data object Search : Screen
     data object Settings : Screen

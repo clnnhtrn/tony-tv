@@ -322,6 +322,15 @@ prices).
    Back through `dispatchKeyEvent` (Compose on TV eats the first Back); give every screen a start focus via
    `FocusOnStart`; scroll with `MinimalScroll` (default TV pivot hid the header); stills URL carries a
    3-hour time slot (fresh frames, avoids CDN-cached 404s).
+   **Performance on the Chromecast (9 Nov 2026, measured with gfxinfo + perfetto):** frames went from 97 ms → 34 ms median
+   (98% → 18% janky). Rules: the window paints the page gradient (res/drawable/window_bg.xml) and screens add NO
+   full-screen backgrounds; card/hero fades are baked into the bitmaps (ui/Fades.kt: CardArt, HeroArt); fade layers
+   over video only while video plays; hero video only while focus is in the hero; one semantics node per card
+   (clearAndSetSemantics: the TV runs an accessibility service); no shadows on small elements; `tools/tv.sh install`
+   force-compiles (sideloaded apps otherwise run unoptimised for ~a day). Measure after UI changes:
+   `adb shell dumpsys gfxinfo app.tony.tv reset`, use the remote, then `dumpsys gfxinfo app.tony.tv`.
+   **Rows:** selected card snaps to the 52 dp margin line; gap 38 dp so the previous card shows a sliver; focus grows
+   rightwards (transformOrigin left). **Channels tab:** country pills + 5-column grid (Home rows show 15 + "See all").
    **Classic films (Internet Archive) were built then removed at the owner's request** (didn't want old
    black-and-white films). For films: the Movies row (live movie channels) + Tubi/Pluto TV apps on the stick.
 5. Install & test on owner's Chromecast with Google TV for ~a week; fix issues.

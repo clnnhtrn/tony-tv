@@ -104,7 +104,7 @@ private fun CountriesSection(s: AppState, onChange: () -> Unit) {
             }
         }
     }
-    Row(Modifier.padding(top = 12.dp)) { TonyButton("Change countries", onChange, primary = true, icon = Icons.Chevron) }
+    Row(Modifier.padding(top = 12.dp)) { TonyButton("Change countries", onChange, primary = true) }
 }
 
 /** Channels: a grid of tiles. OK hides or shows a channel; hidden ones fade out with a "Hidden" tag. */
@@ -153,7 +153,7 @@ private fun AboutSection() {
     Card {
         Wordmark(26f)
         Text("Version ${BuildConfig.VERSION_NAME}", style = ts(11.sp, 600, T.Text2))
-        Text("Free TV from Lebanon, Australia and around the world.", style = ts(11.sp, 400, T.Text2))
+        Text("Free live TV from around the world.", style = ts(11.sp, 400, T.Text2))
     }
     Card {
         Text("Where the channels come from", style = ts(12.sp, 700, Color.White))

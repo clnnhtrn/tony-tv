@@ -42,7 +42,7 @@ fun FavouritesScreen(s: AppState) {
     val firstTile = remember { FocusRequester() }
     LaunchedEffect(favs.isNotEmpty(), menuFor) { if (favs.isNotEmpty() && menuFor == null) runCatching { firstTile.requestFocus() } }
 
-    Box(Modifier.fillMaxSize().background(T.Bg)) {
+    Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             TopBar(Tab.Favourites, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
             Row(Modifier.padding(start = T.Margin, top = 22.dp, bottom = 14.dp), verticalAlignment = Alignment.Bottom) {

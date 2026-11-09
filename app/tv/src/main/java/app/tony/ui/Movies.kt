@@ -59,7 +59,7 @@ fun MoviesScreen(s: AppState) {
     val watch = remember { FocusRequester() }
     if (featured != null) FocusOnStart(watch)
 
-    LazyColumn(Modifier.fillMaxSize().background(T.Bg), contentPadding = PaddingValues(bottom = 48.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 48.dp)) {
         item("hero") {
             Box(Modifier.fillMaxWidth().height(540.dp)) {
                 HeroBackdrop(featured, height = 540.dp)
@@ -76,7 +76,7 @@ fun MoviesScreen(s: AppState) {
                 }
                 Column(Modifier.align(Alignment.BottomStart).padding(bottom = 20.dp)) {
                     RowHeader("On now", all.size, "Movie channels playing films right now")
-                    LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.Gap)) {
+                    LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
                         items(all.take(20), key = { "on" + it.id }) { c ->
                             ChannelTile(c, wide = true, sub = c.country, onClick = { s.go(Screen.Details(c)) },
                                 onLongClick = { s.toggleFavourite(c) }, onFocus = { featuredId = c.id })
@@ -90,7 +90,7 @@ fun MoviesScreen(s: AppState) {
         item("apps") {
             Column(Modifier.padding(top = T.RowGap)) {
                 RowHeader("More free films", subtitle = "Pick any film you like in these free apps (they have ads)")
-                LazyRow(contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.Gap)) {
+                LazyRow(contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
                     items(FILM_APPS, key = { it.pkg }) { app -> FilmAppCard(app, installed(ctx, app.pkg)) { openApp(ctx, app.pkg) } }
                 }
             }

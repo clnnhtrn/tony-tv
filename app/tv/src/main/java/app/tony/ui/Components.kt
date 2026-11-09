@@ -30,6 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
@@ -60,6 +63,7 @@ import app.tony.data.Repository
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.request.transformations
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -170,34 +174,36 @@ fun TonyCard(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
     onFocus: () -> Unit = {},
+    label: String? = null,
     content: @Composable BoxScope.(focused: Boolean) -> Unit,
 ) {
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
-    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) 1.07f else 1f,
-        androidx.compose.animation.core.spring(dampingRatio = 0.75f, stiffness = 420f), label = "lift")
+    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) 1.12f else 1f,
+        androidx.compose.animation.core.spring(dampingRatio = 0.8f, stiffness = 500f), label = "lift")
     val lift by androidx.compose.animation.core.animateFloatAsState(if (focused) 1f else 0f, androidx.compose.animation.core.tween(220), label = "shadow")
     val shape = RoundedCornerShape(radius)
     Surface(
         onClick = onClick,
         onLongClick = onLongClick,
         modifier = modifier.size(width, height)
+            .then(if (label != null) Modifier.clearAndSetSemantics { contentDescription = label } else Modifier)
             .graphicsLayer {
                 scaleX = scale; scaleY = scale
-                shadowElevation = (6.dp.toPx() + 18.dp.toPx() * lift)
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0.5f)   // grow rightwards: never past the margin line
+                shadowElevation = 20.dp.toPx() * lift
                 this.shape = shape; clip = false
                 ambientShadowColor = Color.Black; spotShadowColor = Color.Black
             }
             .onFocusChanged { if (it.isFocused) onFocus() },
         shape = ClickableSurfaceDefaults.shape(shape),
-        colors = ClickableSurfaceDefaults.colors(containerColor = T.Card, focusedContainerColor = T.Card, pressedContainerColor = T.Card),
+        colors = ClickableSurfaceDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent, pressedContainerColor = Color.Transparent),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f, pressedScale = 0.97f),
-        border = ClickableSurfaceDefaults.border(),
+        border = ClickableSurfaceDefaults.border(focusedBorder = Border(BorderStroke(1.5.dp, Color.White.copy(alpha = 0.9f)))),
         glow = ClickableSurfaceDefaults.glow(),
         interactionSource = src,
     ) {
         content(focused)
-        Box(Modifier.fillMaxSize().graphicsLayer { alpha = (1f - lift) * 0.18f }.background(Color.Black))
     }
 }
 
@@ -220,7 +226,7 @@ fun ChannelTile(
 ) {
     val w = if (wide) CardWideW else CardStdW
     val h = if (wide) CardWideH else CardStdH
-    TonyCard(w, h, if (wide) 11.dp else 10.dp, onClick, modifier, onLongClick = onLongClick, onFocus = onFocus) { focused ->
+    TonyCard(w, h, if (wide) 11.dp else 10.dp, onClick, modifier, onLongClick = onLongClick, onFocus = onFocus, label = c.title) { focused ->
         KeyArt(c, h, focused)
         LogoMark(c, Modifier.align(Alignment.TopEnd).padding(if (wide) 7.dp else 6.dp), if (wide) 19.dp else 16.dp)
         Column(Modifier.align(Alignment.BottomStart).padding(start = if (wide) 11.dp else 9.dp, end = 8.dp, bottom = if (wide) 9.dp else 7.dp),
@@ -242,8 +248,8 @@ fun ChannelTile(
 /** Tall numbered poster (Apple TV "Top 10" style). */
 @Composable
 fun PosterTile(c: Channel, rank: Int, onClick: () -> Unit, modifier: Modifier = Modifier, onLongClick: (() -> Unit)? = null) {
-    TonyCard(PosterW, PosterH, 11.dp, onClick, modifier, onLongClick = onLongClick) { focused ->
-        KeyArt(c, PosterH, focused)
+    TonyCard(PosterW, PosterH, 11.dp, onClick, modifier, onLongClick = onLongClick, label = "$rank, ${c.title}") { focused ->
+        KeyArt(c, PosterH, focused, PosterW)
         Text("$rank", style = ts(46.sp, 900, Color.White.copy(alpha = 0.93f), (-1.5).sp), modifier = Modifier.padding(start = 11.dp, top = 2.dp))
         Column(Modifier.align(Alignment.BottomCenter).padding(start = 8.dp, end = 8.dp, bottom = 13.dp), horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -259,7 +265,7 @@ fun PosterTile(c: Channel, rank: Int, onClick: () -> Unit, modifier: Modifier = 
 fun LogoMark(c: Channel, modifier: Modifier = Modifier, size: Dp = 19.dp) {
     val url = Repository.logoUrl(c) ?: return
     val bg = when (c.logoBadge) { "dark" -> Color(0xFF0B0C10); "fill" -> parseColor(c.logoBadgeColor, Color.White); else -> Color.White }
-    Box(modifier.size(size).graphicsLayer { shadowElevation = 4.dp.toPx(); shape = CircleShape; clip = true }.background(bg), contentAlignment = Alignment.Center) {
+    Box(modifier.size(size).clip(CircleShape).background(bg), contentAlignment = Alignment.Center) {
         AsyncImage(ImageRequest.Builder(LocalContext.current).data(url).crossfade(true).build(), c.name, contentScale = ContentScale.Fit,
             modifier = Modifier.size(size * 0.68f, size * 0.48f))
     }
@@ -271,22 +277,25 @@ fun LogoMark(c: Channel, modifier: Modifier = Modifier, size: Dp = 19.dp) {
  * fallback with the logo when there's no frame.
  */
 @Composable
-fun BoxScope.KeyArt(c: Channel, h: Dp, focused: Boolean) {
+fun BoxScope.KeyArt(c: Channel, h: Dp, focused: Boolean, w: Dp = h * 16f / 9f) {
     var stillOk by remember(c.id) { mutableStateOf(false) }
-    Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(parseColor(c.tileColor, T.Card), T.Card))), contentAlignment = Alignment.Center) {
-        if (!stillOk) LogoBadge(c, BadgeWide, Modifier.padding(bottom = h * 0.25f))
+    val d = androidx.compose.ui.platform.LocalDensity.current
+    val pw = with(d) { w.roundToPx() }; val ph = with(d) { h.roundToPx() }
+    if (!stillOk) Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(parseColor(c.tileColor, T.Card), T.Card))), contentAlignment = Alignment.Center) {
+        LogoBadge(c, BadgeWide, Modifier.padding(bottom = h * 0.25f))
     }
     if (!c.isYouTube && !c.isRadio) AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current).data(Repository.stillUrl(c)).crossfade(true).build(),
+        // crop + fade baked into the bitmap once (see Fades.kt): no overlay layers to draw every frame
+        model = ImageRequest.Builder(LocalContext.current).data(Repository.stillUrl(c)).size(pw, ph)
+            .transformations(CardArt(pw, ph)).crossfade(180).build(),
         contentDescription = null,
-        contentScale = ContentScale.Crop,
-        alignment = Alignment.TopCenter,
+        contentScale = ContentScale.FillBounds,
         onSuccess = { stillOk = true },
         onError = { stillOk = false },
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(Alignment.Top, unbounded = true).height(h * 1.28f).align(Alignment.TopCenter),
+        modifier = Modifier.fillMaxSize(),
     )
-    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(
-        0f to Color.Black.copy(alpha = 0.25f), 0.28f to Color.Transparent, 0.56f to T.Ink.copy(alpha = 0.72f), 1f to T.Ink.copy(alpha = 0.97f))))
+    if (!stillOk) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(0.5f).background(Brush.verticalGradient(
+        0f to Color.Transparent, 1f to T.Ink.copy(alpha = 0.85f))))
 }
 
 @Composable
@@ -342,19 +351,19 @@ fun RowHeader(title: String, count: Int? = null, subtitle: String? = null, modif
 fun Clock() {
     var now by remember { mutableStateOf(Date()) }
     LaunchedEffect(Unit) { while (true) { now = Date(); delay(15_000) } }
-    Text(SimpleDateFormat("h:mm", Locale.getDefault()).format(now), style = ts(12.sp, 600, Color.White.copy(alpha = 0.9f)))
+    Text(SimpleDateFormat("h:mm", Locale.getDefault()).format(now), style = ts(17.sp, 650, Color.White.copy(alpha = 0.95f), (-0.2).sp))
 }
 
-enum class Tab(val label: String) { Home("Home"), Movies("Movies"), Favourites("Favourites"), Search("Search") }
+enum class Tab(val label: String) { Home("Home"), Channels("Channels"), Movies("Movies"), Favourites("Favourites"), Search("Search") }
 
 /** v8 top bar: wordmark left, search icon + plain text tabs centred, clock + round settings right. */
 @Composable
 fun TopBar(selected: Tab?, onTab: (Tab) -> Unit, onSettings: () -> Unit, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().padding(start = T.Margin, end = T.Margin, top = 22.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier.fillMaxWidth().padding(start = T.Margin, end = T.Margin, top = 34.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.width(150.dp)) { Wordmark(19f) }
-        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
             NavPill(null, selected == Tab.Search, Icons.Search) { onTab(Tab.Search) }
-            listOf(Tab.Home, Tab.Movies, Tab.Favourites).forEach { t -> NavPill(t.label, t == selected) { onTab(t) } }
+            listOf(Tab.Home, Tab.Channels, Tab.Movies, Tab.Favourites).forEach { t -> NavPill(t.label, t == selected) { onTab(t) } }
         }
         Row(Modifier.width(150.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
             Clock()
@@ -375,7 +384,7 @@ private fun NavPill(text: String?, selected: Boolean, icon: ImageVector? = null,
             containerColor = if (selected) Color.White.copy(alpha = 0.18f) else if (round) Color.White.copy(alpha = 0.12f) else Color.Transparent,
             focusedContainerColor = Color.White,
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.08f),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.04f),
         interactionSource = src,
     ) {
         Box(Modifier.padding(horizontal = if (text == null) 6.dp else 12.dp, vertical = if (text == null) 6.dp else 5.dp), contentAlignment = Alignment.Center) {
@@ -411,14 +420,24 @@ fun ToastHost(text: String?, modifier: Modifier = Modifier) {
 @Composable
 fun EmptyCard(text: String, wide: Boolean = true) {
     Box(
-        Modifier.padding(start = T.Margin).size(if (wide) 330.dp else 260.dp, 44.dp)
-            .clip(RoundedCornerShape(T.RadiusWide)).border(0.5.dp, T.HairlineStrong, RoundedCornerShape(T.RadiusWide))
-            .background(Color.White.copy(alpha = 0.03f)),
+        Modifier.padding(start = T.Margin).size(CardWideW, CardWideH).clip(RoundedCornerShape(11.dp))
+            .background(Brush.linearGradient(listOf(Color.White.copy(alpha = 0.09f), Color.White.copy(alpha = 0.03f)))),
         contentAlignment = Alignment.Center,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Icon(Icons.HeartOutline, null, tint = T.Muted, modifier = Modifier.size(11.dp))
-            Text(text, style = ts(10.sp, 500, T.Text3))
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(7.dp), modifier = Modifier.padding(horizontal = 18.dp)) {
+            Box(Modifier.size(26.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
+                Icon(Icons.HeartOutline, null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(12.dp))
+            }
+            Text(text, style = ts(10.5.sp, 600, Color.White.copy(alpha = 0.75f)), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         }
     }
 }
+
+
+/** Smooth (eased) fade: many stops so the TV shows no visible "line" where a gradient changes speed. */
+fun easedFade(color: Color, from: Float, to: Float, start: Float = 0f, end: Float = 1f, steps: Int = 14): Array<Pair<Float, Color>> =
+    Array(steps + 1) { i ->
+        val t = i / steps.toFloat()
+        val e = t * t * (3 - 2 * t)   // smoothstep
+        (start + (end - start) * t) to color.copy(alpha = from + (to - from) * e)
+    }

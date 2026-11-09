@@ -39,7 +39,8 @@ object T {
 
     val Margin = 52.dp          // 104 px
     val Top = 24.dp             // 48 px
-    val Gap = 14.dp             // 28 px tile gap
+    val Gap = 14.dp             // 28 px tile gap (grids)
+    val RowGapX = 38.dp         // gap between cards in a row: previous card shows a 14 dp sliver at the margin
     val RowGap = 24.dp
     val WideW = 200.dp; val WideH = 112.5.dp     // 400×225 px
     val StdW = 125.dp; val StdH = 70.dp          // 250×140 px

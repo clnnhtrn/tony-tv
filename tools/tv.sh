@@ -15,7 +15,7 @@ case "$1" in
           case "$k" in up) c=19;; down) c=20;; left) c=21;; right) c=22;; ok) c=23;; back) c=4;; home) c=3;; menu) c=82;;
             longok) a shell input keyevent --longpress 23; sleep 0.6; continue;; wait) sleep 1; continue;; *) c="$k";; esac
           a shell input keyevent "$c"; sleep 0.45; done ;;
-  install) a install -r "$2" ;;
+  install) a install -r "$2" && a shell cmd package compile -m speed -f app.tony.tv >/dev/null && echo "Compiled for speed" ;;   # sideloaded apps otherwise run unoptimised for ~a day
   start) a shell am start -n app.tony.tv/app.tony.MainActivity >/dev/null ;;
   stop) a shell am force-stop app.tony.tv ;;
   clear) a shell pm clear app.tony.tv ;;

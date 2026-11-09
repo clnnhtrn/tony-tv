@@ -52,7 +52,7 @@ fun DetailsScreen(s: AppState, c: Channel) {
         }
         if (more.isNotEmpty()) Column(Modifier.align(Alignment.BottomStart).padding(bottom = 20.dp)) {
             RowHeader("More from ${c.country ?: "here"}")
-            LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+            LazyRow(Modifier.focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
                 items(more, key = { it.id }) { m ->
                     ChannelTile(m, wide = true, favourite = s.isFavourite(m), onClick = { s.replaceTop(Screen.Details(m)) }, onLongClick = { s.toggleFavourite(m) })
                 }

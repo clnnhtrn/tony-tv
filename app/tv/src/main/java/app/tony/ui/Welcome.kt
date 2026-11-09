@@ -48,6 +48,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import kotlinx.coroutines.launch
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -124,10 +126,10 @@ private fun Intro(onNext: () -> Unit) {
         AmbientBackground()
         Column(Modifier.align(Alignment.CenterStart).padding(start = 90.dp).width(520.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Wordmark(30f)
-            Text("Live TV from home,\nright here.", style = ts(44.sp, 800, Color.White, (-1.4).sp, lineHeight = 48.sp))
+            Text("Free live TV\nfrom around the world.", style = ts(44.sp, 800, Color.White, (-1.4).sp, lineHeight = 48.sp))
             Text("Lebanon, Australia and the world. Free, with nothing to sign up for.",
                 style = ts(13.sp, 400, T.Text2, lineHeight = 19.sp))
-            Row(Modifier.padding(top = 14.dp)) { TonyButton("Get started", onNext, Modifier.focusRequester(go), icon = Icons.Chevron, primary = true) }
+            Row(Modifier.padding(top = 14.dp)) { TonyButton("Get started", onNext, Modifier.focusRequester(go), primary = true) }
         }
     }
 }
@@ -136,14 +138,18 @@ private fun Intro(onNext: () -> Unit) {
 private fun Countries(s: AppState, chosen: MutableList<String>, fromSettings: Boolean, onDone: () -> Unit) {
     val all = s.countryEntries()
     val suggested = listOf("Lebanon", "Australia")
-    val top = all.filter { it.name in suggested }.sortedBy { suggested.indexOf(it.name) }
-    val rest = all.filter { it.name !in suggested }.sortedBy { it.name }
+    // From Settings, the countries already chosen come first under "Selected"; first run shows "Suggested for you".
+    val topNames = remember { if (fromSettings) all.filter { it.file in chosen }.map { it.name } else suggested }
+    val top = all.filter { it.name in topNames }.sortedBy { topNames.indexOf(it.name) }
+    val rest = all.filter { it.name !in topNames }.sortedBy { it.name }
+    val grid = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     val firstFocus = remember { FocusRequester() }
     if (top.isNotEmpty()) FocusOnStart(firstFocus)
 
-    Box(Modifier.fillMaxSize().background(T.Bg)) {
+    Box(Modifier.fillMaxSize()) {
         LazyVerticalGrid(
-            GridCells.Fixed(5),
+            GridCells.Fixed(5), state = grid,
             contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 36.dp, bottom = 40.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -154,14 +160,15 @@ private fun Countries(s: AppState, chosen: MutableList<String>, fromSettings: Bo
                         Text(if (fromSettings) "SETTINGS" else "STEP 1 OF 2", style = ts(8.sp, 700, T.Accent, 1.2.sp))
                         Text("Which countries do you want to watch?", style = ts(26.sp, 800, Color.White, (-0.7).sp))
                         Text(if (chosen.isEmpty()) "Pick as many as you like. You can change this any time in Settings."
-                             else "${chosen.size} chosen · press Up for ${if (fromSettings) "Save" else "Continue"}", style = ts(11.sp, 400, T.Text2))
+                             else "${chosen.size} chosen", style = ts(11.sp, 400, T.Text2))
                     }
-                    if (chosen.isNotEmpty()) TonyButton(if (fromSettings) "Save" else "Continue", onDone, primary = true, icon = Icons.Chevron)
+                    if (chosen.isNotEmpty()) TonyButton(if (fromSettings) "Save" else "Continue", onDone,
+                        Modifier.onFocusChanged { if (it.isFocused) scope.launch { grid.animateScrollToItem(0) } }, primary = true)
                 }
             }
             if (s.loading && all.isEmpty()) item(span = { GridItemSpan(5) }) { Text("Loading the channel list…", style = ts(11.sp, 500, T.Muted)) }
             if (s.offline && all.isEmpty()) item(span = { GridItemSpan(5) }) { OfflineNotice(s) }
-            if (top.isNotEmpty()) item(span = { GridItemSpan(5) }) { SectionLabel("Suggested for you") }
+            if (top.isNotEmpty()) item(span = { GridItemSpan(5) }) { SectionLabel(if (fromSettings) "Selected" else "Suggested for you") }
             items(top, key = { "t" + it.file }) { e -> CountryCard(e, e.file in chosen, if (e == top.first()) Modifier.focusRequester(firstFocus) else Modifier) { toggle(chosen, e.file) } }
             if (rest.isNotEmpty()) item(span = { GridItemSpan(5) }) { SectionLabel("All countries") }
             items(rest, key = { it.file }) { e -> CountryCard(e, e.file in chosen) { toggle(chosen, e.file) } }

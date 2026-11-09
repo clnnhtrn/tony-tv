@@ -2,6 +2,7 @@ package app.tony
 
 import android.app.Application
 import android.os.Bundle
+import androidx.compose.animation.togetherWith
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -58,24 +59,29 @@ class MainActivity : ComponentActivity() {
             TonyTheme {
                 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
                 CompositionLocalProvider(LocalPlayers provides p, androidx.compose.foundation.gestures.LocalBringIntoViewSpec provides app.tony.ui.MinimalScroll) {
-                    Box(Modifier.fillMaxSize().background(T.Bg)) {
+                    Box(Modifier.fillMaxSize()) {
                         // Proper loading screen while Tony starts and fetches the list (min ~1.2 s, so it never flashes)
                         var minShown by remember { mutableStateOf(false) }
                         androidx.compose.runtime.LaunchedEffect(Unit) { kotlinx.coroutines.delay(1200); minShown = true }
                         val booting = !state.ready || !minShown || (state.screen != Screen.Welcome && state.loading && state.countryRows.isEmpty() && !state.offline)
                         androidx.compose.animation.AnimatedVisibility(booting, enter = androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(500))) { app.tony.ui.LoadingScreen() }
                         if (state.ready && !booting) {
-                            when (val sc = state.screen) {
+                            androidx.compose.animation.AnimatedContent(state.screen, label = "page", transitionSpec = {
+                                (androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(280, delayMillis = 60)) +
+                                    androidx.compose.animation.scaleIn(androidx.compose.animation.core.tween(320), initialScale = 0.985f)) togetherWith
+                                    androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(160))
+                            }) { sc -> when (sc) {
                                 Screen.Welcome -> WelcomeScreen(state)
                                 Screen.Home -> HomeScreen(state)
                                 Screen.Movies -> app.tony.ui.MoviesScreen(state)
                                 is Screen.Category -> app.tony.ui.CategoryScreen(state, sc.name)
+                                is Screen.Channels -> app.tony.ui.ChannelsScreen(state, sc.country)
                                 Screen.Favourites -> FavouritesScreen(state)
                                 Screen.Search -> SearchScreen(state)
                                 Screen.Settings -> SettingsScreen(state)
                                 is Screen.Details -> DetailsScreen(state, sc.channel)
                                 is Screen.Watch -> WatchScreen(state, sc.channel, sc.list)
-                            }
+                            } }
                         }
                         ToastHost(state.toast)
                     }

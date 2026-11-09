@@ -217,9 +217,9 @@ private fun FailedCard(c: Channel, onRetry: () -> Unit, onNext: () -> Unit, onBa
             Text(if (c.geoblocked) "The station may only allow viewers in ${c.country}." else "The station may be off air. Try again later, or watch another channel.",
                 style = ts(11.sp, 400, T.Text2))
             Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TonyButton("Next channel", onNext, Modifier.focusRequester(focus), icon = Icons.Chevron, primary = true)
+                TonyButton("Next channel", onNext, Modifier.focusRequester(focus), primary = true)
                 TonyButton("Try again", onRetry)
-                TonyButton("Back", onBack, icon = Icons.Back)
+                TonyButton("Back", onBack)
             }
         }
     }
@@ -258,13 +258,13 @@ private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onS
             }
         }
         Row(Modifier.padding(start = T.Margin, end = T.Margin, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
-            Pill("Back to Home", false, Icons.Back, onBack)
+            Pill("Back to Home", false, null, onBack)
             Spacer(Modifier.width(6.dp))
             lists.forEachIndexed { i, (name, _) -> Pill(name, i == pick) { pick = i; focusedIndex = -1 } }
             Spacer(Modifier.weight(1f))
             Pill("Options", false, Icons.Gear, onOptions)
         }
-        LazyRow(Modifier.focusRestorer(), state = rowState, contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.Gap)) {
+        LazyRow(Modifier.focusRestorer(), state = rowState, contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {
             itemsIndexed(chans, key = { _, c -> "strip" + c.id }) { i, c ->
                 ChannelTile(c, wide = false, watching = c.id == current.id, favourite = s.isFavourite(c),
                     modifier = if (c.id == current.id || (i == 0 && chans.none { it.id == current.id })) Modifier.focusRequester(tileFocus) else Modifier,
@@ -344,7 +344,6 @@ fun OptionRow(label: String, value: String, modifier: Modifier = Modifier, enabl
             if (icon != null) Icon(icon, null, modifier = Modifier.size(12.dp))
             Text(label, style = ts(10.5.sp, 600, if (enabled) Color.Unspecified else T.Muted), modifier = Modifier.weight(1f))
             Text(value, style = ts(9.5.sp, 500, if (enabled) Color.Unspecified else T.Muted))
-            if (value.isNotEmpty() && enabled) Icon(Icons.Chevron, null, modifier = Modifier.size(9.dp))
         }
     }
 }

@@ -49,7 +49,7 @@ fun SearchScreen(s: AppState) {
             .sortedBy { if (it.name.lowercase().startsWith(needle)) 0 else 1 }.take(60)
     }
 
-    Column(Modifier.fillMaxSize().background(T.Bg)) {
+    Column(Modifier.fillMaxSize()) {
         TopBar(Tab.Search, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
         Row(Modifier.fillMaxSize().padding(top = 22.dp)) {
             // Left: query + letter grid (6 columns: far fewer presses than one long row)

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The page background is painted once, by the window (not again by every screen): saves a full-screen layer per frame. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:angle="270" android:startColor="#1B1E2B" android:endColor="#13141C" android:type="linear" />
+</shape>

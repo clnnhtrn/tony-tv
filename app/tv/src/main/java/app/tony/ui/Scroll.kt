@@ -11,15 +11,21 @@ import androidx.compose.foundation.gestures.BringIntoViewSpec
 @OptIn(ExperimentalFoundationApi::class)
 object MinimalScroll : BringIntoViewSpec {
     override val scrollAnimationSpec: androidx.compose.animation.core.AnimationSpec<Float> =
-        androidx.compose.animation.core.tween(durationMillis = 360, easing = androidx.compose.animation.core.CubicBezierEasing(0.2f, 0f, 0f, 1f))
-    private const val PAD = 140f  // px of room when we do scroll, so the label under a focused tile stays visible
+        androidx.compose.animation.core.tween(durationMillis = 300, easing = androidx.compose.animation.core.CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f))
     override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+        val horizontal = containerSize > 1500f            // rows span the screen width (1920 px); pages scroll vertically
+        if (horizontal) {
+            val margin = containerSize * 0.0542f            // page margin (104 px at 1080p): every row starts here
+            val d = offset - margin                         // selected card snaps to the margin line, like the first card
+            return if (kotlin.math.abs(d) < 1f) 0f else d
+        }
+        val pad = containerSize * 0.12f
         val end = offset + size
         return when {
-            offset >= 0f && end <= containerSize -> 0f                 // already fully visible: don't move
-            size > containerSize -> offset                              // taller than the screen: align top
-            offset < 0f -> offset - PAD                                 // above: scroll up to it
-            else -> end - containerSize + PAD                           // below: scroll down just enough
+            offset >= 0f && end <= containerSize - pad * 0.4f -> 0f
+            size > containerSize -> offset
+            offset < 0f -> offset - pad
+            else -> end - containerSize + pad
         }
     }
 }

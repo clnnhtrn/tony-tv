@@ -1,0 +1,79 @@
+package app.tony.ui
+
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
+import app.tony.AppState
+import app.tony.Screen
+
+/** All channels of one country at a time: country pills on top, a grid you scroll down. */
+@Composable
+fun ChannelsScreen(s: AppState, start: String?) {
+    val groups = s.countryRows + s.extraRows.filter { it.key != "movies" }
+    var picked by rememberSaveable { mutableStateOf(start ?: groups.firstOrNull()?.title) }
+    val row = groups.firstOrNull { it.title == picked } ?: groups.firstOrNull()
+    val firstPill = remember { FocusRequester() }
+    FocusOnStart(firstPill)
+    val grid = rememberLazyGridState()
+    LaunchedEffect(picked) { grid.scrollToItem(0) }
+    Column(Modifier.fillMaxSize().pageBg()) {
+        TopBar(Tab.Channels, onTab = { s.tab(it.toScreen()) }, onSettings = { s.go(Screen.Settings) })
+        LazyRow(Modifier.padding(top = 18.dp).focusRestorer(), contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(groups, key = { it.key }) { g ->
+                val src = remember { MutableInteractionSource() }
+                val f by src.collectIsFocusedAsState()
+                val sel = g.title == row?.title
+                Surface(
+                    onClick = { picked = g.title },
+                    modifier = (if (g.title == (start ?: groups.first().title)) Modifier.focusRequester(firstPill) else Modifier)
+                        .onFocusChanged { if (it.isFocused) picked = g.title },
+                    shape = ClickableSurfaceDefaults.shape(CircleShape),
+                    colors = ClickableSurfaceDefaults.colors(containerColor = if (sel) Color.White.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.07f), focusedContainerColor = Color.White),
+                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
+                    interactionSource = src,
+                ) {
+                    Text("${g.title}  ${g.channels.size}", style = ts(12.sp, 650, if (f) T.Bg else Color.White),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                }
+            }
+        }
+        if (row != null) LazyVerticalGrid(
+            GridCells.Fixed(5), Modifier.fillMaxSize(), state = grid,
+            contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 22.dp, bottom = 110.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp),
+        ) {
+            items(row.channels, key = { row.key + it.id }) { c ->
+                ChannelTile(c, wide = false, favourite = s.isFavourite(c), onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
+            }
+        }
+    }
+}
