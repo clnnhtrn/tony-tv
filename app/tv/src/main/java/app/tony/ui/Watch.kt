@@ -164,14 +164,13 @@ fun WatchScreen(s: AppState, start: Channel, startList: List<Channel>) {
         AnimatedVisibility(stripOpen, enter = slideInVertically { it / 3 } + fadeIn(), exit = slideOutVertically { it / 3 } + fadeOut(), modifier = Modifier.align(Alignment.BottomStart)) {
             Strip(s, current, list, onSwitch = { c, l -> list = l; tune(c); stripOpen = false }, onBack = { s.back() },
                 controls = {
-                    // Quick controls on the right of the strip (the full Options panel is still on the Right button)
-                    val subsOk = main.hasCaptions
-                    Pill(if (!subsOk) "No subtitles" else if (s.saved.subtitles) "Subtitles on" else "Subtitles off", false, Icons.Captions, enabled = subsOk) {
-                        val on = !s.saved.subtitles; main.setSubtitles(on); s.setSubtitles(on)
+                    // Reminders of what the remote buttons do (labels only, not selectable)
+                    Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        KeyHint("BACK", "Close", Icons.Back)
+                        KeyHint("OK", "Switch")
+                        KeyHint("▲ ▼", "Channel")
+                        KeyHint("▶", "Options")
                     }
-                    Pill(if (fill) "Fill" else "Fit", false, Icons.Picture) { fill = !fill }
-                    Pill(if (main.audioTracks > 1) "Audio (${main.audioTracks})" else "Audio", false, Icons.Audio, enabled = main.audioTracks > 1) { main.nextAudioTrack() }
-                    Pill("Report", false, Icons.Flag) { s.showToast("Thanks. Tony will check ${current.name}"); s.markHere(current, "broken") }
                 })
         }
 
@@ -201,6 +200,18 @@ private fun Hint(key: String, label: String, icon: ImageVector? = null) {
             Text(key, style = ts(7.sp, 800, T.Bg, 0.5.sp))
         }
         Text(label, style = ts(9.5.sp, 600, Color.White))
+    }
+}
+
+/** Compact remote-key legend for the strip: key cap + one word, no box (it's a reminder, not a button). */
+@Composable
+private fun KeyHint(key: String, label: String, icon: ImageVector? = null) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        Row(Modifier.clip(RoundedCornerShape(5.dp)).background(Color.White.copy(alpha = 0.88f)).padding(horizontal = 5.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) Icon(icon, null, tint = T.Bg, modifier = Modifier.size(8.dp))
+            Text(key, style = ts(7.sp, 800, T.Bg, 0.5.sp), maxLines = 1, softWrap = false)
+        }
+        Text(label, style = ts(9.5.sp, 600, Color.White.copy(alpha = 0.8f)), maxLines = 1, softWrap = false)
     }
 }
 
@@ -292,11 +303,13 @@ private fun Strip(s: AppState, current: Channel, currentList: List<Channel>, onS
                 }
             }
         }
-        Row(Modifier.padding(start = T.Margin, end = T.Margin, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
-            Pill("Back to Home", false, null, onClick = onBack)
-            Spacer(Modifier.width(6.dp))
-            lists.forEachIndexed { i, (name, _) -> Pill(name, i == pick) { pick = i; focusedIndex = -1 } }
-            Spacer(Modifier.weight(1f))
+        Row(Modifier.padding(end = T.Margin, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            // tabs scroll sideways if a family has many countries; the key legend stays put on the right
+            LazyRow(Modifier.weight(1f).focusRestorer(), contentPadding = PaddingValues(start = T.Margin, end = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                item("home") { Row { Pill("Back to Home", false, null, onClick = onBack); Spacer(Modifier.width(6.dp)) } }
+                itemsIndexed(lists, key = { _, l -> "tab" + l.first }) { i, (name, _) -> Pill(name, i == pick) { pick = i; focusedIndex = -1 } }
+            }
             controls()
         }
         LazyRow(Modifier.focusRestorer(), state = rowState, contentPadding = PaddingValues(horizontal = T.Margin), horizontalArrangement = Arrangement.spacedBy(T.RowGapX)) {

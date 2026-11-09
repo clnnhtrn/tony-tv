@@ -339,8 +339,8 @@ prices).
    while Tony is open. It beats the server's status for 24 h. Channels that don't play (`isDown`) are labelled "Not working" or
    "Only in <country>", dimmed, put last (Channels tab: own heading), skipped by Up/Down. Rows reorder only on screen changes.
    Server: `--keep-ok-on-refusal` now expires 14 days after a stream last really answered (`lastOk`).
-   **Watching:** Up/Down = next/previous channel number in the channel's own country. OK = strip, with quick controls on the
-   right (Subtitles, Fill/Fit, Audio, Report); Right = full Options. Details row = "More like this" (category, language, country).
+   **Watching:** Up/Down = next/previous channel number in the channel's own country. OK = strip: tabs on the left, a remote-key legend
+   on the right (BACK Close, OK Switch, ▲▼ Channel, ▶ Options; labels only); Right = Options. Details row = "More like this" (category, language, country).
       **Browse pages** belong to Home (Home tab stays selected, back button by the title). **Channels tab** sorted by channel number.
    Cards grow by a fixed ~16 dp (never into the next card); in grids they fill the column and grow from the centre.
       **Classic films (Internet Archive) were built then removed at the owner's request** (didn't want old
