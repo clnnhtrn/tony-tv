@@ -1,0 +1,22 @@
+name: Live stills
+# Grabs a fresh frame from each channel every 3 hours for Tony's tiles (channels/build_stills.py).
+on:
+  schedule: [{ cron: "17 */3 * * *" }]
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency: { group: stills, cancel-in-progress: true }
+jobs:
+  stills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: pip install -q pillow
+      - run: |
+          git config --global user.name "Tony stills"
+          git config --global user.email "stills@users.noreply.github.com"
+          python channels/build_stills.py --workers 12 --publish

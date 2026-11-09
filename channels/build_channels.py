@@ -490,7 +490,11 @@ def write_dist(channels, now):
     for key, title, test in (("arabic", "Arabic", lambda c: "ara" in (c.get("languages") or [])),
                              ("movies", "Movies", lambda c: c.get("category") == "Movies")):
         chs = [c for c in channels if c["status"] == "ok" and c["groupKind"] != "vod" and test(c)]
-        chs.sort(key=lambda c: ("free-tv" not in c.get("sources", []), c["country"], c["number"]))
+        # Family first: Lebanon, then the Levant and Gulf, then Australia / English, then everyone else.
+        pri = ["Lebanon", "Syria", "Jordan", "Palestine", "Egypt", "UAE", "Saudi Arabia", "Qatar", "Kuwait",
+               "Iraq", "Bahrain", "Oman", "Australia", "UK", "USA", "Canada"]
+        rank = lambda c: pri.index(c["country"]) if c["country"] in pri else len(pri)
+        chs.sort(key=lambda c: (rank(c), "free-tv" not in c.get("sources", []), c["country"], c["number"]))
         (dist / "rows" / f"{key}.json").write_text(json.dumps(
             {"row": title, "generated": now, "channels": [{k: c.get(k) for k in APP_FIELDS} for c in chs]},
             ensure_ascii=False, separators=(",", ":")))

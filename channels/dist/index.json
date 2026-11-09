@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated": "2026-11-08T23:46:11+00:00",
+ "generated": "2026-11-09T00:38:54+00:00",
  "countries": [
   {
    "name": "Afghanistan",
@@ -62,7 +62,7 @@
    "kind": "country",
    "flag": "🇦🇷",
    "file": "countries/argentina.json",
-   "channels": 192,
+   "channels": 191,
    "working": 129
   },
   {
@@ -89,7 +89,7 @@
    "kind": "country",
    "flag": "🇦🇺",
    "file": "countries/australia.json",
-   "channels": 57,
+   "channels": 58,
    "working": 45
   },
   {
@@ -503,8 +503,8 @@
    "kind": "country",
    "flag": "🇫🇷",
    "file": "countries/france.json",
-   "channels": 184,
-   "working": 143
+   "channels": 183,
+   "working": 141
   },
   {
    "name": "French Guiana",
@@ -656,7 +656,7 @@
    "kind": "country",
    "flag": "🇭🇺",
    "file": "countries/hungary.json",
-   "channels": 173,
+   "channels": 174,
    "working": 122
   },
   {
@@ -674,7 +674,7 @@
    "kind": "country",
    "flag": "🇮🇳",
    "file": "countries/india.json",
-   "channels": 793,
+   "channels": 790,
    "working": 621
   },
   {
@@ -881,7 +881,7 @@
    "kind": "country",
    "flag": "🇲🇾",
    "file": "countries/malaysia.json",
-   "channels": 22,
+   "channels": 5,
    "working": 3
   },
   {
@@ -1178,7 +1178,7 @@
    "kind": "country",
    "flag": "🇵🇱",
    "file": "countries/poland.json",
-   "channels": 150,
+   "channels": 154,
    "working": 112
   },
   {
@@ -1223,7 +1223,7 @@
    "kind": "country",
    "flag": "🇷🇴",
    "file": "countries/romania.json",
-   "channels": 157,
+   "channels": 158,
    "working": 135
   },
   {
@@ -1232,7 +1232,7 @@
    "kind": "country",
    "flag": "🇷🇺",
    "file": "countries/russia.json",
-   "channels": 468,
+   "channels": 467,
    "working": 324
   },
   {
@@ -1349,7 +1349,7 @@
    "kind": "country",
    "flag": "🇸🇰",
    "file": "countries/slovakia.json",
-   "channels": 61,
+   "channels": 62,
    "working": 45
   },
   {
@@ -1520,7 +1520,7 @@
    "kind": "country",
    "flag": "🇹🇷",
    "file": "countries/turkiye.json",
-   "channels": 196,
+   "channels": 197,
    "working": 111
   },
   {
@@ -1574,7 +1574,7 @@
    "kind": "country",
    "flag": "🇬🇧",
    "file": "countries/united-kingdom.json",
-   "channels": 216,
+   "channels": 217,
    "working": 119
   },
   {

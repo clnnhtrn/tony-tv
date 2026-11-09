@@ -15,3 +15,4 @@ __pycache__/
 .cache/
 tools/.venv/
 tools/canvas-runtime/
+channels/.stills/

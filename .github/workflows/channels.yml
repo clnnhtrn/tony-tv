@@ -1,0 +1,25 @@
+name: Channel list
+# Daily: pick up new channels and fixed links from Free-TV and iptv-org, keep numbers stable,
+# reuse earlier test results and logos, rebuild channels/dist. Full stream tests are run from
+# Australia on the owner's Mac (python channels/build_channels.py), because GitHub's servers are
+# in the US and would wrongly mark Australia-only channels as broken.
+on:
+  schedule: [{ cron: "41 18 * * *" }]   # ~5 am Sydney
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency: { group: channels, cancel-in-progress: false }
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python channels/build_channels.py --no-test --keep-logos
+      - run: |
+          git config user.name "Tony channel list"
+          git config user.email "channels@users.noreply.github.com"
+          git add channels/channels.json channels/dist
+          git diff --cached --quiet || (git commit -q -m "Daily channel list refresh" && git push -q)
