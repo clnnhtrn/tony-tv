@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import app.tony.player.LocalPlayers
 import app.tony.player.Players
@@ -56,11 +59,16 @@ class MainActivity : ComponentActivity() {
                 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
                 CompositionLocalProvider(LocalPlayers provides p, androidx.compose.foundation.gestures.LocalBringIntoViewSpec provides app.tony.ui.MinimalScroll) {
                     Box(Modifier.fillMaxSize().background(T.Bg)) {
-                        if (state.ready) {
-                            BackHandler(enabled = state.stack.size > 1) { state.back() }
+                        // Proper loading screen while Tony starts and fetches the list (min ~1.2 s, so it never flashes)
+                        var minShown by remember { mutableStateOf(false) }
+                        androidx.compose.runtime.LaunchedEffect(Unit) { kotlinx.coroutines.delay(1200); minShown = true }
+                        val booting = !state.ready || !minShown || (state.screen != Screen.Welcome && state.loading && state.countryRows.isEmpty() && !state.offline)
+                        androidx.compose.animation.AnimatedVisibility(booting, enter = androidx.compose.animation.fadeIn(), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(500))) { app.tony.ui.LoadingScreen() }
+                        if (state.ready && !booting) {
                             when (val sc = state.screen) {
                                 Screen.Welcome -> WelcomeScreen(state)
                                 Screen.Home -> HomeScreen(state)
+                                Screen.Movies -> app.tony.ui.MoviesScreen(state)
                                 Screen.Favourites -> FavouritesScreen(state)
                                 Screen.Search -> SearchScreen(state)
                                 Screen.Settings -> SettingsScreen(state)
@@ -82,15 +90,21 @@ class MainActivity : ComponentActivity() {
      */
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
         if (event.keyCode == android.view.KeyEvent.KEYCODE_BACK) {
-            if (event.action == android.view.KeyEvent.ACTION_UP && !event.isCanceled) onBackPressedDispatcher.onBackPressed()
+            if (event.action == android.view.KeyEvent.ACTION_UP && !event.isCanceled && !state.handleBack()) finish()
             return true
         }
         return super.dispatchKeyEvent(event)
     }
 
     // Safety (CLAUDE.md 5a): nothing plays or runs when Tony isn't on screen.
+    override fun onStart() {
+        super.onStart()
+        state.onForeground()
+    }
+
     override fun onStop() {
         super.onStop()
+        state.foreground = false
         players?.main?.stop(); players?.preview?.stop()
     }
 

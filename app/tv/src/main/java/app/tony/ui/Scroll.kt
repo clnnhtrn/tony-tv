@@ -10,6 +10,8 @@ import androidx.compose.foundation.gestures.BringIntoViewSpec
  */
 @OptIn(ExperimentalFoundationApi::class)
 object MinimalScroll : BringIntoViewSpec {
+    override val scrollAnimationSpec: androidx.compose.animation.core.AnimationSpec<Float> =
+        androidx.compose.animation.core.tween(durationMillis = 360, easing = androidx.compose.animation.core.CubicBezierEasing(0.2f, 0f, 0f, 1f))
     private const val PAD = 140f  // px of room when we do scroll, so the label under a focused tile stays visible
     override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
         val end = offset + size
@@ -32,5 +34,17 @@ fun FocusOnStart(requester: androidx.compose.ui.focus.FocusRequester, key: Any? 
             kotlinx.coroutines.delay(wait)
             runCatching { requester.requestFocus() }
         }
+    }
+}
+
+
+/** While [enabled], Back runs [onBack] (e.g. closes this panel) instead of leaving the screen. */
+@androidx.compose.runtime.Composable
+fun BackLayer(s: app.tony.AppState, enabled: Boolean, onBack: () -> Unit) {
+    val latest = androidx.compose.runtime.rememberUpdatedState(onBack)
+    androidx.compose.runtime.DisposableEffect(enabled) {
+        val layer: () -> Unit = { latest.value() }
+        if (enabled) s.backLayers.add(layer)
+        onDispose { s.backLayers.remove(layer) }
     }
 }

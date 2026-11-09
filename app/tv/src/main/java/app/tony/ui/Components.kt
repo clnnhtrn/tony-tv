@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -80,6 +81,10 @@ object Icons {
     val Back = stroke("back", "M15 6l-6 6 6 6", 2f)
     val Captions = stroke("cc", "M3 6.5h18v11H3zM10 10.5a2 2 0 1 0 0 3M17 10.5a2 2 0 1 0 0 3", 1.6f)
     val Warning = stroke("warn", "M12 4l9 16H3zM12 10v4M12 17v.01", 1.8f)
+    val Globe = stroke("globe", "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3z", 1.6f)
+    val Grid = stroke("grid", "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z", 1.6f)
+    val Refresh = stroke("refresh", "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7", 1.8f)
+    val Info = stroke("info", "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v5M12 8v.01", 1.8f)
     val Radio = stroke("radio", "M4 9h16v11H4zM8 9l9-5M8 15h.01M14 13h4M14 16h4", 1.7f)
 }
 
@@ -146,9 +151,17 @@ fun LogoBadge(c: Channel, spec: BadgeSpec, modifier: Modifier = Modifier) {
     }
 }
 
-private val dimFilter = ColorFilter.colorMatrix(ColorMatrix().apply { setToScale(T.Dim, T.Dim, T.Dim, 1f) })
+@Composable
+fun dimFor(focused: Boolean): ColorFilter? {
+    val b by androidx.compose.animation.core.animateFloatAsState(if (focused) 1f else T.Dim, androidx.compose.animation.core.tween(260), label = "dim")
+    return if (b >= 0.999f) null else ColorFilter.colorMatrix(ColorMatrix().apply { setToScale(b, b, b, 1f) })
+}
 
-/** Focusable card with Tony's hairline at rest and lift + crisp white edge on focus. */
+/**
+ * Focusable card. Rest: hairline. Focus: springs up ~8%, soft deep shadow, a light diagonal sheen and
+ * a thin crisp edge (no thick borders: owner, 9 Nov 2026). The spring gives the smooth, slightly
+ * elastic movement you feel on Apple TV when moving along a row.
+ */
 @Composable
 fun TonyCard(
     width: Dp, height: Dp, radius: Dp,
@@ -160,20 +173,37 @@ fun TonyCard(
 ) {
     val src = remember { MutableInteractionSource() }
     val focused by src.collectIsFocusedAsState()
+    val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) 1.08f else 1f,
+        androidx.compose.animation.core.spring(dampingRatio = 0.72f, stiffness = 380f), label = "lift")
+    val lift by androidx.compose.animation.core.animateFloatAsState(if (focused) 1f else 0f,
+        androidx.compose.animation.core.tween(260), label = "shadow")
+    val shape = RoundedCornerShape(radius)
     Surface(
         onClick = onClick,
         onLongClick = onLongClick,
-        modifier = modifier.size(width, height).onFocusChanged { if (it.isFocused) onFocus() },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(radius)),
+        modifier = modifier.size(width, height)
+            .graphicsLayer {
+                scaleX = scale; scaleY = scale
+                shadowElevation = 22.dp.toPx() * lift
+                this.shape = shape; clip = false
+                ambientShadowColor = Color.Black; spotShadowColor = Color.Black
+            }
+            .onFocusChanged { if (it.isFocused) onFocus() },
+        shape = ClickableSurfaceDefaults.shape(shape),
         colors = ClickableSurfaceDefaults.colors(containerColor = T.Panel, focusedContainerColor = T.Panel, pressedContainerColor = T.Panel),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = T.FocusScale),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f, pressedScale = 0.98f),
         border = ClickableSurfaceDefaults.border(
             border = Border(BorderStroke(0.5.dp, T.Hairline)),
-            focusedBorder = Border(BorderStroke(T.FocusEdge, Color.White)),
+            focusedBorder = Border(BorderStroke(1.dp, Color.White.copy(alpha = 0.85f))),
         ),
-        glow = ClickableSurfaceDefaults.glow(focusedGlow = Glow(Color.Black.copy(alpha = 0.6f), 12.dp)),
+        glow = ClickableSurfaceDefaults.glow(),
         interactionSource = src,
-    ) { content(focused) }
+    ) {
+        content(focused)
+        // Specular sheen on focus
+        Box(Modifier.fillMaxSize().graphicsLayer { alpha = lift }.background(
+            Brush.linearGradient(0f to Color.White.copy(alpha = 0.16f), 0.45f to Color.Transparent)))
+    }
 }
 
 /** A channel tile: live still (or brand-colour fallback), logo badge, chips. */
@@ -224,7 +254,7 @@ fun BoxScope.TileArt(c: Channel, wide: Boolean, focused: Boolean) {
         model = ImageRequest.Builder(LocalContext.current).data(Repository.stillUrl(c)).crossfade(true).build(),
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        colorFilter = if (focused) null else dimFilter,
+        colorFilter = dimFor(focused),
         onSuccess = { stillOk = true },
         onError = { stillOk = false },
         modifier = Modifier.fillMaxSize(),
@@ -281,52 +311,48 @@ fun RowHeader(title: String, count: Int? = null, subtitle: String? = null, modif
 fun Clock() {
     var now by remember { mutableStateOf(Date()) }
     LaunchedEffect(Unit) { while (true) { now = Date(); delay(15_000) } }
-    Text(SimpleDateFormat("h:mm", Locale.getDefault()).format(now), style = ts(10.sp, 500, T.Text2, 0.1.sp))
+    Text(SimpleDateFormat("h:mm", Locale.getDefault()).format(now), style = ts(14.sp, 600, T.Text, 0.1.sp))
 }
 
-enum class Tab { Home, Favourites, Search }
+enum class Tab(val label: String) { Home("Home"), Movies("Movies"), Favourites("Favourites"), Search("Search") }
 
 @Composable
 fun TopBar(selected: Tab?, onTab: (Tab) -> Unit, onSettings: () -> Unit, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().padding(start = T.Margin, end = T.Margin, top = T.Top), verticalAlignment = Alignment.CenterVertically) {
-        Wordmark()
-        Spacer(Modifier.width(24.dp))
+    Row(modifier.fillMaxWidth().padding(start = T.Margin, end = T.Margin, top = 34.dp), verticalAlignment = Alignment.CenterVertically) {
+        Wordmark(22f)
+        Spacer(Modifier.width(26.dp))
         Row(
-            Modifier.clip(CircleShape).background(Color.White.copy(alpha = 0.04f)).border(0.5.dp, T.Hairline, CircleShape).padding(2.dp),
+            Modifier.clip(CircleShape).background(Color.Black.copy(alpha = 0.28f)).border(0.5.dp, Color.White.copy(alpha = 0.12f), CircleShape).padding(3.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            Tab.entries.forEach { t ->
-                val src = remember { MutableInteractionSource() }
-                val f by src.collectIsFocusedAsState()
-                Surface(
-                    onClick = { onTab(t) },
-                    shape = ClickableSurfaceDefaults.shape(CircleShape),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = if (t == selected) Color.White.copy(alpha = 0.13f) else Color.Transparent,
-                        focusedContainerColor = Color.White,
-                    ),
-                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.04f),
-                    interactionSource = src,
-                ) {
-                    Text(t.name, style = ts(9.5.sp, if (t == selected || f) 600 else 500, if (f) T.Bg else if (t == selected) Color.White else T.Text3),
-                        modifier = Modifier.padding(horizontal = 11.dp, vertical = 4.5.dp))
-                }
-            }
+            Tab.entries.forEach { t -> NavPill(t.label, t == selected) { onTab(t) } }
         }
         Spacer(Modifier.weight(1f))
         Clock()
-        Spacer(Modifier.width(14.dp))
-        val src = remember { MutableInteractionSource() }
-        val f by src.collectIsFocusedAsState()
-        Surface(
-            onClick = onSettings,
-            modifier = Modifier.size(23.dp),
-            shape = ClickableSurfaceDefaults.shape(CircleShape),
-            colors = ClickableSurfaceDefaults.colors(containerColor = Color.White.copy(alpha = 0.04f), focusedContainerColor = Color.White),
-            border = ClickableSurfaceDefaults.border(border = Border(BorderStroke(0.5.dp, Color.White.copy(0.12f)))),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1.08f),
-            interactionSource = src,
-        ) { Icon(Icons.Gear, "Settings", tint = if (f) T.Bg else T.Text2, modifier = Modifier.size(11.dp).align(Alignment.Center)) }
+        Spacer(Modifier.width(16.dp))
+        NavPill("Settings", false, icon = Icons.Gear, outlined = true, onClick = onSettings)
+    }
+}
+
+@Composable
+private fun NavPill(text: String, selected: Boolean, icon: ImageVector? = null, outlined: Boolean = false, onClick: () -> Unit) {
+    val src = remember { MutableInteractionSource() }
+    val f by src.collectIsFocusedAsState()
+    Surface(
+        onClick = onClick,
+        shape = ClickableSurfaceDefaults.shape(CircleShape),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = if (selected) Color.White.copy(alpha = 0.16f) else if (outlined) Color.Black.copy(alpha = 0.28f) else Color.Transparent,
+            focusedContainerColor = Color.White,
+        ),
+        border = ClickableSurfaceDefaults.border(border = if (outlined) Border(BorderStroke(0.5.dp, Color.White.copy(alpha = 0.12f))) else Border.None),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
+        interactionSource = src,
+    ) {
+        Row(Modifier.padding(horizontal = 14.dp, vertical = 6.5.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (icon != null) Icon(icon, null, tint = if (f) T.Bg else T.Text2, modifier = Modifier.size(12.dp))
+            Text(text, style = ts(11.5.sp, if (selected || f) 650 else 500, if (f) T.Bg else if (selected) Color.White else T.Text2))
+        }
     }
 }
 

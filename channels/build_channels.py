@@ -235,6 +235,7 @@ def main():
     ap.add_argument("--free-tv-only", action="store_true")
     ap.add_argument("--workers", type=int, default=32)
     ap.add_argument("--out", help="write here instead of channels/channels.json (testing)")
+    ap.add_argument("--keep-ok-on-refusal", action="store_true", help="don't downgrade previously-ok streams refused by a far-away checker")
     ap.add_argument("--keep-logos", action="store_true", help="reuse logos from the previous run (no logo processing)")
     args = ap.parse_args()
     global OUT
@@ -363,6 +364,11 @@ def main():
                         print(f"  {done}/{len(batch)}", file=sys.stderr)
 
         run(to_test, args.workers)
+        if args.keep_ok_on_refusal:   # checks run from GitHub's US servers
+            prev_ok = {st["url"] for c in old for st in c.get("streams", []) if st.get("status") == "ok"}
+            for st in to_test:
+                if st["url"] in prev_ok and st["status"] == "geoblocked":
+                    st.update(status="ok", detail="ok from Australia; refused from checker")
         retry = [s for s in to_test if s["status"] != "ok" and s["detail"] in TRANSIENT]
         if retry:
             print(f"Retrying {len(retry)} temporary failures…", file=sys.stderr)

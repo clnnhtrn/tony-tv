@@ -38,7 +38,7 @@ import app.tony.data.Channel
 fun FavouritesScreen(s: AppState) {
     val favs = s.saved.favourites
     var menuFor by remember { mutableStateOf<Channel?>(null) }
-    BackHandler(enabled = menuFor != null) { menuFor = null }
+    BackLayer(s, menuFor != null) { menuFor = null }
     val firstTile = remember { FocusRequester() }
     LaunchedEffect(favs.isNotEmpty(), menuFor) { if (favs.isNotEmpty() && menuFor == null) runCatching { firstTile.requestFocus() } }
 

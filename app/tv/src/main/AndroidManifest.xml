@@ -9,6 +9,14 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <queries>
+        <!-- Free film apps the Movies tab can open (Tubi, Pluto TV, Plex), and the Play Store to install them. -->
+        <package android:name="com.tubitv" />
+        <package android:name="tv.pluto.android" />
+        <package android:name="com.plexapp.android" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="market" />
+        </intent>
         <!-- Only to open YouTube-only channels in the YouTube app when the user asks. -->
         <intent>
             <action android:name="android.intent.action.VIEW" />

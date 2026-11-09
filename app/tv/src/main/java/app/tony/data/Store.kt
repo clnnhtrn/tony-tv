@@ -20,7 +20,9 @@ data class Saved(
     val favourites: List<Channel> = emptyList(),
     val recent: List<Channel> = emptyList(),
     val hidden: Set<String> = emptySet(),
-    val subtitles: Boolean = false,
+    val subtitles: Boolean = true,       // automatic: on whenever a channel has them
+    val captionSize: Int = 1,
+    val captionStyle: Int = 0,
 )
 
 class Store(private val context: Context) {
@@ -35,6 +37,8 @@ class Store(private val context: Context) {
         val recent = stringPreferencesKey("recent")
         val hidden = stringPreferencesKey("hidden")
         val subtitles = booleanPreferencesKey("subtitles")
+        val captionSize = androidx.datastore.preferences.core.intPreferencesKey("captionSize")
+        val captionStyle = androidx.datastore.preferences.core.intPreferencesKey("captionStyle")
     }
 
     private fun <T> decode(s: String?, d: kotlinx.serialization.DeserializationStrategy<List<T>>): List<T> =
@@ -47,7 +51,9 @@ class Store(private val context: Context) {
             favourites = decode(p[K.favourites], chList),
             recent = decode(p[K.recent], chList),
             hidden = decode(p[K.hidden], strList).toSet(),
-            subtitles = p[K.subtitles] ?: false,
+            subtitles = p[K.subtitles] ?: true,
+            captionSize = p[K.captionSize] ?: 1,
+            captionStyle = p[K.captionStyle] ?: 0,
         )
     }
 
@@ -65,4 +71,5 @@ class Store(private val context: Context) {
 
     suspend fun setHidden(ids: Set<String>) = context.ds.edit { it[K.hidden] = json.encodeToString(strList, ids.toList()) }
     suspend fun setSubtitles(on: Boolean) = context.ds.edit { it[K.subtitles] = on }
+    suspend fun setCaptionLook(size: Int, style: Int) = context.ds.edit { it[K.captionSize] = size; it[K.captionStyle] = style }
 }

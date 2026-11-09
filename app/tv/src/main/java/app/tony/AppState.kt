@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 sealed interface Screen {
     data object Welcome : Screen
     data object Home : Screen
+    data object Movies : Screen
     data object Favourites : Screen
     data object Search : Screen
     data object Settings : Screen
@@ -60,6 +61,15 @@ class AppState(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Open panels (options, channel strip, menus) register here; Back closes the newest first. */
+    val backLayers = mutableStateListOf<() -> Unit>()
+
+    /** One rule for the Back button: close the top panel, else go back a screen. False = leave Tony. */
+    fun handleBack(): Boolean {
+        backLayers.lastOrNull()?.let { it(); return true }
+        return back()
+    }
+
     fun go(s: Screen) { if (stack.lastOrNull() != s) stack.add(s) }
     fun replaceTop(s: Screen) { if (stack.isNotEmpty()) stack[stack.lastIndex] = s else stack.add(s) }
     fun tab(s: Screen) { stack.clear(); stack.add(Screen.Home); if (s != Screen.Home) stack.add(s) }
@@ -67,6 +77,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     fun back(): Boolean { if (stack.size <= 1) return false; stack.removeAt(stack.lastIndex); return true }
 
     fun reload() = viewModelScope.launch {
+        lastLoad = System.currentTimeMillis()
         loading = true
         val idx = repo.index()
         offline = idx.isFailure
@@ -123,6 +134,18 @@ class AppState(app: Application) : AndroidViewModel(app) {
         store.setHidden(if (hide) saved.hidden + id else saved.hidden - id); loadRows()
     }
     fun setSubtitles(on: Boolean) = viewModelScope.launch { store.setSubtitles(on) }
+    fun setCaptionLook(size: Int, style: Int) = viewModelScope.launch { store.setCaptionLook(size, style) }
+
+    /** The list refreshes by itself: on open, then every 30 minutes while Tony is on screen (never in the background). */
+    var foreground = false
+    private var lastLoad = 0L
+    fun onForeground() {
+        foreground = true
+        if (System.currentTimeMillis() - lastLoad > 30 * 60_000L && index != null) reload()
+    }
+    init {
+        viewModelScope.launch { while (true) { delay(30 * 60_000L); if (foreground) reload() } }
+    }
 
     fun showToast(text: String) {
         toastJob?.cancel()

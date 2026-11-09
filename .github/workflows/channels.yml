@@ -1,10 +1,9 @@
 name: Channel list
-# Daily: pick up new channels and fixed links from Free-TV and iptv-org, keep numbers stable,
-# reuse earlier test results and logos, rebuild channels/dist. Full stream tests are run from
-# Australia on the owner's Mac (python channels/build_channels.py), because GitHub's servers are
-# in the US and would wrongly mark Australia-only channels as broken.
+# Every 6 hours: pick up new channels and fixed links from Free-TV and iptv-org, test every stream,
+# keep numbers stable, rebuild channels/dist. GitHub's servers are in the US, so a stream that worked
+# before and is now refused (403/451) keeps its "ok" status (--keep-ok-on-refusal).
 on:
-  schedule: [{ cron: "41 18 * * *" }]   # ~5 am Sydney
+  schedule: [{ cron: "41 */6 * * *" }]   # every 6 hours
   workflow_dispatch: {}
 permissions:
   contents: write
@@ -12,12 +11,12 @@ concurrency: { group: channels, cancel-in-progress: false }
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: python channels/build_channels.py --no-test --keep-logos
+      - run: python channels/build_channels.py --keep-logos --keep-ok-on-refusal --workers 48
       - run: |
           git config user.name "Tony channel list"
           git config user.email "channels@users.noreply.github.com"

@@ -47,6 +47,9 @@ class Stream(context: Context, val preview: Boolean) {
         }
 
     var state by mutableStateOf(StreamState.Idle); private set
+    /** Subtitle look (applied by VideoSurface): 0 small, 1 medium, 2 large; style 0 classic box, 1 yellow, 2 outline. */
+    var captionSize by mutableStateOf(1)
+    var captionStyle by mutableStateOf(0)
     var hasCaptions by mutableStateOf(false); private set
     var audioTracks by mutableStateOf(0); private set
     var isRadio by mutableStateOf(false); private set
@@ -107,6 +110,12 @@ class Stream(context: Context, val preview: Boolean) {
         player.prepare()
         player.play()
         main.postDelayed(stall, stallMs)
+    }
+
+    /** Fade the sound in (previews start silent, then rise, so nothing blares). */
+    fun fadeVolumeTo(target: Float, ms: Long = 900) {
+        val start = player.volume; val steps = 12
+        for (i in 1..steps) main.postDelayed({ player.volume = start + (target - start) * i / steps }, ms * i / steps)
     }
 
     fun setSubtitles(on: Boolean) {
