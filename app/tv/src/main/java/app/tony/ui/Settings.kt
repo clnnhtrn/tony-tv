@@ -49,7 +49,7 @@ fun SettingsScreen(s: AppState) {
     var sec by rememberSaveable { mutableStateOf(Section.Countries) }
     var editingCountries by remember { mutableStateOf(false) }
     val first = remember { FocusRequester() }
-    LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
+    FocusOnStart(first)
     if (editingCountries) { WelcomeScreen(s, fromSettings = true); androidx.activity.compose.BackHandler { editingCountries = false }; return }
 
     Row(Modifier.fillMaxSize().background(T.Bg)) {

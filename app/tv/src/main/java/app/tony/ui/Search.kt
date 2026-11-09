@@ -42,7 +42,7 @@ import app.tony.Screen
 fun SearchScreen(s: AppState) {
     var q by rememberSaveable { mutableStateOf("") }
     val firstKey = remember { FocusRequester() }
-    LaunchedEffect(Unit) { runCatching { firstKey.requestFocus() } }
+    FocusOnStart(firstKey)
     val needle = q.trim().lowercase()
     val channels = remember(needle, s.countryRows, s.extraRows) {
         if (needle.isEmpty()) emptyList() else s.allChannels().filter { it.name.lowercase().contains(needle) }

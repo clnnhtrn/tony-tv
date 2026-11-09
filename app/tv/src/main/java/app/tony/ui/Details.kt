@@ -48,7 +48,7 @@ import coil3.request.crossfade
 fun DetailsScreen(s: AppState, c: Channel) {
     val ctx = LocalContext.current
     val watchFocus = remember { FocusRequester() }
-    LaunchedEffect(c.id) { runCatching { watchFocus.requestFocus() } }
+    FocusOnStart(watchFocus, c.id)
     val more = (s.countryRows.firstOrNull { r -> r.channels.any { it.id == c.id } }?.channels
         ?: s.allChannels().filter { it.country == c.country }).filter { it.id != c.id }.take(30)
     val list = (listOf(c) + more)

@@ -53,7 +53,7 @@ fun WelcomeScreen(s: AppState, fromSettings: Boolean = false) {
     val top = all.filter { it.name in suggested }.sortedBy { suggested.indexOf(it.name) }
     val rest = all.filter { it.name !in suggested }.sortedBy { it.name }
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(top.isNotEmpty()) { runCatching { firstFocus.requestFocus() } }
+    if (top.isNotEmpty()) FocusOnStart(firstFocus)
 
     Box(Modifier.fillMaxSize().background(T.Bg)) {
         LazyVerticalGrid(

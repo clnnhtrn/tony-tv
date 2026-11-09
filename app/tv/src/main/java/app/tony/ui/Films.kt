@@ -20,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -46,10 +45,11 @@ import coil3.request.crossfade
 fun FilmDetailsScreen(s: AppState, f: Film, row: List<Film>) {
     val ctx = LocalContext.current
     val play = remember { FocusRequester() }
-    LaunchedEffect(f.id) { runCatching { play.requestFocus() } }
+    FocusOnStart(play, f.id)
     val req = ImageRequest.Builder(ctx).data(f.poster).crossfade(true).build()
     Box(Modifier.fillMaxSize().background(T.Bg)) {
-        AsyncImage(req, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().blur(40.dp), alpha = 0.35f)
+        // Soft backdrop: tiny decode stretched full-screen (cheap; no GPU blur)
+        AsyncImage(ImageRequest.Builder(ctx).data(f.poster).size(32).build(), null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(), alpha = 0.30f)
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(0f to T.Bg, 0.45f to T.Bg.copy(alpha = 0.85f), 1f to T.Bg.copy(alpha = 0.4f))))
         Box(Modifier.align(Alignment.TopEnd).padding(top = T.Top, end = T.Margin).size(380.dp, 214.dp).clip(RoundedCornerShape(10.dp))
             .background(Color.Black).border(0.5.dp, T.Hairline, RoundedCornerShape(10.dp))) {

@@ -127,10 +127,15 @@ def title_of(d):
     return first(d.get("title"))
 
 
+JUNK = re.compile(r"[^.!?]*\b(imdb|wikipedia|click here|more information|this file|download|uploaded|digitized|archive\.org|courtesy of|ripped|mpeg|avi\b)[^.!?]*[.!?]?", re.I)
+
+
 def clean_desc(s):
-    s = " ".join(as_list(s)) if isinstance(s, list) else (s or "")
+    s = " ".join(str(x) for x in as_list(s)) if isinstance(s, list) else (s or "")
     s = re.sub(r"<[^>]+>", " ", s)
     s = re.sub(r"\s+", " ", s).strip()
+    s = JUNK.sub("", s).strip()           # drop web leftovers ("see its IMDb page", "click here"…)
+    s = re.sub(r"\s+([.,])", r"\1", s)
     if len(s) > 220:
         s = s[:217].rsplit(" ", 1)[0] + "…"
     return s

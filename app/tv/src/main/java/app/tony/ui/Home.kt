@@ -28,7 +28,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.FocusRequester
@@ -61,7 +60,7 @@ fun HomeScreen(s: AppState) {
     var featuredId by rememberSaveable { mutableStateOf<String?>(null) }
     val featured: Channel? = favs.firstOrNull { it.id == featuredId } ?: favs.firstOrNull() ?: firstChannel
     val watchFocus = remember { FocusRequester() }
-    LaunchedEffect(featured != null) { if (featured != null) runCatching { watchFocus.requestFocus() } }
+    if (featured != null) FocusOnStart(watchFocus)
 
     LazyColumn(Modifier.fillMaxSize().background(T.Bg), contentPadding = PaddingValues(bottom = 40.dp)) {
         item("hero") { Hero(s, featured, favs, watchFocus) }
@@ -198,8 +197,11 @@ fun FilmTile(f: Film, modifier: Modifier = Modifier, onClick: () -> Unit) {
 /** Archive posters are small: show them sharp in the middle over a soft, dark blur of themselves. */
 @Composable
 fun androidx.compose.foundation.layout.BoxScope.PosterArt(f: Film, focused: Boolean) {
-    val req = ImageRequest.Builder(LocalContext.current).data(f.poster).crossfade(true).build()
-    AsyncImage(req, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().blur(16.dp), colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.Black.copy(alpha = 0.45f), androidx.compose.ui.graphics.BlendMode.Darken))
+    val ctx = LocalContext.current
+    val req = ImageRequest.Builder(ctx).data(f.poster).crossfade(true).build()
+    // Cheap "blur": the same poster decoded at 24 px and stretched (a real blur stalls the Chromecast's GPU)
+    AsyncImage(ImageRequest.Builder(ctx).data(f.poster).size(24).build(), null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),
+        filterQuality = androidx.compose.ui.graphics.FilterQuality.Low, alpha = 0.55f)
     AsyncImage(req, f.title, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(vertical = 4.dp),
         colorFilter = if (focused) null else androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix().apply { setToScale(T.Dim, T.Dim, T.Dim, 1f) }))
 }
