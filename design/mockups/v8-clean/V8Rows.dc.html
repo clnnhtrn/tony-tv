@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tony v8 — Rows</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#12131A}
+</style>
+</helmet>
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: linear-gradient(180deg, #1B1E2B 0%, #13141C 100%); font-family: Inter, system-ui, sans-serif; color: #FFFFFF">
+
+  <section style="position: absolute; left: 104px; top: 56px; width: 1816px">
+    <div style="display: flex; gap: 24px">
+      <sc-for list="{{cats}}" as="k" hint-placeholder-count="6">
+        <div style="{{k.style}}"><span style="{{k.text}}">{{k.label}}</span></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="position: absolute; left: 104px; top: 236px; width: 1816px">
+    <h2 style="margin: 0 0 20px; font-size: 28px; font-weight: 700; color: rgba(255,255,255,0.92)">Top in Lebanon</h2>
+    <div style="display: flex; gap: 30px; align-items: flex-start">
+      <sc-for list="{{top}}" as="c" hint-placeholder-count="6">
+        <div style="{{c.card}}">
+          <img src="{{c.still}}" alt="" style="position: absolute; left: 0; top: 0; width: 100%; height: 128%; object-fit: cover; object-position: center top">
+          <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 26%, rgba(10,11,16,0.75) 58%, #0E0F15 92%)"></div>
+          <span style="position: absolute; left: 22px; top: 8px; font-size: 92px; font-weight: 900; letter-spacing: -3px; color: rgba(255,255,255,0.92); text-shadow: 0 4px 20px rgba(0,0,0,0.5)">{{c.rank}}</span>
+          <div style="position: absolute; left: 16px; right: 16px; bottom: 26px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+            <span style="font-size: 32px; font-weight: 850; letter-spacing: -1px; line-height: 1.02">{{c.name}}</span>
+            <span style="font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.75)">{{c.cat}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="position: absolute; left: 104px; top: 760px; width: 1816px">
+    <h2 style="margin: 0 0 20px; font-size: 28px; font-weight: 700; color: rgba(255,255,255,0.92)">Films on now</h2>
+    <div style="display: flex; gap: 30px">
+      <sc-for list="{{films}}" as="c" hint-placeholder-count="5">
+        <div style="position: relative; flex: 0 0 420px; height: 236px; border-radius: 22px; overflow: hidden; background: #1E2130">
+          <img src="{{c.still}}" alt="" style="position: absolute; left: 0; top: 0; width: 100%; height: 128%; object-fit: cover; object-position: center top">
+          <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 28%, rgba(10,11,16,0.7) 55%, rgba(14,15,21,0.97) 100%)"></div>
+          <div style="position: absolute; left: 24px; bottom: 20px; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 34px; font-weight: 850; letter-spacing: -1px; line-height: 1">{{c.name}}</span>
+            <span style="font-size: 17px; font-weight: 600; color: rgba(255,255,255,0.8)">{{c.sub}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+const B = "/_blob/";
+const CATS = [
+  ["News", "#2B3A67"], ["Movies", "#5A2340"], ["Arabic", "#2F4D3A"], ["Kids", "#6A4A1C"], ["Music", "#3E2A66"], ["Sport", "#1F4E5A"]
+];
+const TOP = [
+  ["MTV Lebanon", "General", "6fbead2f1c968b4fceaae54671f5c5df"],
+  ["LBCI", "General", "29be0d734aec41b4ec6f202cdc87ec1e"],
+  ["Al Jadeed", "General", "a43cdbe74aac16f075b0680eb579ece7"],
+  ["Tele Liban", "General", "3f7dbbdd97969cbcc6e257e38d943f2b"],
+  ["OTV", "General", "bba1af7919c3ee4b4a1d8f14a420659b"],
+  ["Al Mayadeen", "News", "e10010d3ba813d044f42ed031c14062e"]
+];
+const FILMS = [
+  ["Mix Hollywood", "Egypt", "c766fb4bc06f881376bcad32f65f6837"],
+  ["MBC+ Drama", "Saudi Arabia", "d7e3346cfd1b5e43129e6c7f60c933dd"],
+  ["Aflam", "Saudi Arabia", "aacbfcc2b12e65d9321659497ef9cbd8"],
+  ["World Movies", "Australia", "99e5ef3cbe79f7656090224c1df6f1ee"],
+  ["Movies Action", "Saudi Arabia", "45041a34e666d78d8806612790b7c533"]
+];
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      cats: CATS.map((k, i) => ({
+        label: k[0].toUpperCase(),
+        style: "flex: 0 0 255px; height: 124px; border-radius: 22px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, " + k[1] + " 0%, #1C1F2C 100%);" +
+          (i === 0 ? " transform: scale(1.06); box-shadow: 0 18px 40px rgba(0,0,0,0.55), 0 0 0 3px rgba(255,255,255,0.9)" : " box-shadow: 0 8px 24px rgba(0,0,0,0.3)"),
+        text: "font-size: 34px; font-weight: 900; letter-spacing: 1.5px; color: rgba(255,255,255,0.95)"
+      })),
+      top: TOP.map((c, i) => ({
+        rank: String(i + 1), name: c[0], cat: c[1], still: B + c[2],
+        card: "position: relative; flex: 0 0 262px; height: 392px; border-radius: 22px; overflow: hidden; background: #1E2130; box-shadow: 0 10px 30px rgba(0,0,0,0.35)"
+      })),
+      films: FILMS.map((c) => ({ name: c[0], sub: "Film on now · " + c[1], still: B + c[2] }))
+    };
+  }
+}
+</script>
+</body>
+</html>
