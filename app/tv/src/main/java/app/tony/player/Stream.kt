@@ -56,7 +56,7 @@ class Stream(context: Context, val preview: Boolean) {
     private var urls: List<String> = emptyList()
     private var headers: Map<String, String> = emptyMap()
     private var attempt = 0
-    private var key: String? = null
+    var key: String? = null; private set
     private val stallMs = if (preview) 12_000L else 15_000L
     private val stall = Runnable { if (state == StreamState.Loading) next() }
 

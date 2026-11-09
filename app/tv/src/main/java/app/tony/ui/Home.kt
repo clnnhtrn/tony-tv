@@ -171,11 +171,15 @@ fun BoxScope.HeroBackdrop(c: Channel?, height: Dp, sound: Boolean = true, live: 
             Box(Modifier.fillMaxSize()) {
                 if (c != null && id == c.id) {
                     var ok by remember(c.id) { mutableStateOf(false) }
+                    var serverFailed by remember(c.id) { mutableStateOf(false) }
+                    val localVersion = app.tony.player.LocalStills.versions[c.id]
                     if (!ok) Box(Modifier.fillMaxSize().background(parseColor(c.tileColor, T.Card)), contentAlignment = Alignment.CenterEnd) {
                         Box(Modifier.padding(end = 150.dp)) { LogoBadge(c, BadgeHero) }
                     }
-                    AsyncImage(ImageRequest.Builder(ctx).data(Repository.stillUrl(c)).size(960, 540).transformations(HeroArt(960, 540)).crossfade(400).build(), null,
-                        onSuccess = { ok = true }, contentScale = ContentScale.FillBounds, modifier = Modifier.fillMaxSize())
+                    AsyncImage(ImageRequest.Builder(ctx).data(app.tony.player.LocalStills.model(c, serverFailed))
+                        .apply { if (serverFailed) memoryCacheKey("local-${c.id}-$localVersion-hero") }
+                        .size(960, 540).transformations(HeroArt(960, 540)).crossfade(400).build(), null,
+                        onSuccess = { ok = true }, onError = { serverFailed = true }, contentScale = ContentScale.FillBounds, modifier = Modifier.fillMaxSize())
                 }
             }
         }
@@ -275,9 +279,13 @@ fun CategoryScreen(s: AppState, name: String) {
         horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(4) }) {
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 8.dp)) {
-                Text(name, style = ts(30.sp, 850, Color.White, (-0.8).sp))
-                Text("Browse  ·  Back to return", style = ts(10.sp, 600, Color.White.copy(alpha = 0.5f)), modifier = Modifier.padding(bottom = 6.dp))
+            // Opened from Home's Browse row: a clear way back, so it reads as a page inside Home
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(bottom = 8.dp)) {
+                RoundButton(Icons.Back, "Back to Home", onClick = { if (!s.handleBack()) s.tab(Screen.Home) })
+                Column {
+                    Text("Home", style = ts(10.sp, 650, Color.White.copy(alpha = 0.5f)))
+                    Text(name, style = ts(30.sp, 850, Color.White, (-0.8).sp))
+                }
             }
         }
         items(list.size) { i ->

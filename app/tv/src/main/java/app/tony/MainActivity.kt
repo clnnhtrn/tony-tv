@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        app.tony.player.LocalStills.init(this)
         setContent {
             val p = remember { players ?: Players(Stream(this, preview = false), Stream(this, preview = true)).also { players = it } }
             TonyTheme {

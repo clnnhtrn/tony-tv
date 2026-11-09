@@ -72,8 +72,9 @@ fun ChannelsScreen(s: AppState, start: String?) {
             contentPadding = PaddingValues(start = T.Margin, end = T.Margin, top = 22.dp, bottom = 110.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            items(row.channels, key = { row.key + it.id }) { c ->
-                ChannelTile(c, wide = false, favourite = s.isFavourite(c), onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
+            // In channel-number order, like a TV guide; the number shows after "Live ·"
+            items(row.channels.sortedBy { if (it.number > 0) it.number else Int.MAX_VALUE }, key = { row.key + it.id }) { c ->
+                ChannelTile(c, wide = false, favourite = s.isFavourite(c), sub = if (c.number > 0) "Channel ${c.number}" else null, onClick = { s.go(Screen.Details(c)) }, onLongClick = { s.toggleFavourite(c) })
             }
         } }
     }

@@ -289,6 +289,9 @@ fun LogoMark(c: Channel, modifier: Modifier = Modifier, size: Dp = 19.dp) {
 @Composable
 fun BoxScope.KeyArt(c: Channel, h: Dp, focused: Boolean, w: Dp = h * 16f / 9f) {
     var stillOk by remember(c.id) { mutableStateOf(false) }
+    // No server picture (blocked outside its country, or unreadable there)? Use the one this TV took itself.
+    var serverFailed by remember(c.id) { mutableStateOf(false) }
+    val localVersion = app.tony.player.LocalStills.versions[c.id]
     val d = androidx.compose.ui.platform.LocalDensity.current
     val pw = with(d) { w.roundToPx() }; val ph = with(d) { h.roundToPx() }
     if (!stillOk) Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(parseColor(c.tileColor, T.Card), T.Card))), contentAlignment = Alignment.Center) {
@@ -296,12 +299,13 @@ fun BoxScope.KeyArt(c: Channel, h: Dp, focused: Boolean, w: Dp = h * 16f / 9f) {
     }
     if (!c.isYouTube && !c.isRadio) AsyncImage(
         // crop + fade baked into the bitmap once (see Fades.kt): no overlay layers to draw every frame
-        model = ImageRequest.Builder(LocalContext.current).data(Repository.stillUrl(c)).size(pw, ph)
-            .transformations(CardArt(pw, ph)).crossfade(180).build(),
+        model = ImageRequest.Builder(LocalContext.current).data(app.tony.player.LocalStills.model(c, serverFailed))
+            .apply { if (serverFailed) memoryCacheKey("local-${c.id}-$localVersion-$pw") }
+            .size(pw, ph).transformations(CardArt(pw, ph)).crossfade(180).build(),
         contentDescription = null,
         contentScale = ContentScale.FillBounds,
         onSuccess = { stillOk = true },
-        onError = { stillOk = false },
+        onError = { stillOk = false; serverFailed = true },
         modifier = Modifier.fillMaxSize(),
     )
     if (!stillOk) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(0.5f).background(Brush.verticalGradient(
@@ -458,7 +462,8 @@ fun easedFade(color: Color, from: Float, to: Float, start: Float = 0f, end: Floa
 /** Which tab a page belongs to (null = page without the top bar). */
 fun tabFor(sc: app.tony.Screen): Tab? = when (sc) {
     app.tony.Screen.Home -> Tab.Home
-    is app.tony.Screen.Channels, is app.tony.Screen.Category -> Tab.Channels
+    is app.tony.Screen.Channels -> Tab.Channels
+    is app.tony.Screen.Category -> Tab.Home   // a Browse page opens inside Home
     app.tony.Screen.Movies -> Tab.Movies
     app.tony.Screen.Favourites -> Tab.Favourites
     app.tony.Screen.Search -> Tab.Search
@@ -477,7 +482,7 @@ fun FixedTopBar(s: app.tony.AppState, tab: Tab, page: androidx.compose.ui.focus.
     val a by androidx.compose.animation.core.animateFloatAsState(if (shown) 1f else 0f, androidx.compose.animation.core.tween(if (shown) 220 else 160), label = "bar")
     Box(Modifier.fillMaxWidth().height(110.dp).onFocusChanged { barFocused = it.hasFocus }.graphicsLayer { alpha = a }
         .background(Brush.verticalGradient(listOf(T.Ink.copy(alpha = 0.92f), T.Ink.copy(alpha = 0.6f), Color.Transparent)))) {
-        TopBar(tab, onTab = { t -> if (tabFor(s.screen) != t) s.tab(when (t) {
+        TopBar(tab, onTab = { t -> if (tabFor(s.screen) != t || s.screen is app.tony.Screen.Category) s.tab(when (t) {
             Tab.Home -> app.tony.Screen.Home; Tab.Channels -> app.tony.Screen.Channels(); Tab.Movies -> app.tony.Screen.Movies
             Tab.Favourites -> app.tony.Screen.Favourites; Tab.Search -> app.tony.Screen.Search }) }, onSettings = { s.go(app.tony.Screen.Settings) }, down = page)
     }

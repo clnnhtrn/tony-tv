@@ -27,6 +27,7 @@ val LocalPlayers = compositionLocalOf<Players> { error("Players not provided") }
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoSurface(stream: Stream, modifier: Modifier = Modifier, fill: Boolean = true, controls: Boolean = false, fullScreen: Boolean = !stream.preview) {
+    val view = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<PlayerView?>(null) }
     AndroidView(
         modifier = modifier.clipToBounds(),   // "fill" scales the picture past its frame; keep it inside
         factory = { ctx ->
@@ -37,15 +38,24 @@ fun VideoSurface(stream: Stream, modifier: Modifier = Modifier, fill: Boolean = 
                 resizeMode = if (fill) AspectRatioFrameLayout.RESIZE_MODE_ZOOM else AspectRatioFrameLayout.RESIZE_MODE_FIT
                 player = stream.player
                 if (!controls) { isFocusable = false; isFocusableInTouchMode = false; descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS }
-            }
+            }.also { view.value = it }
         },
         update = { v ->
             v.player = stream.player
             v.resizeMode = if (fill) AspectRatioFrameLayout.RESIZE_MODE_ZOOM else AspectRatioFrameLayout.RESIZE_MODE_FIT
             styleSubtitles(v, stream.captionSize, stream.captionStyle)
         },
-        onRelease = { v -> v.player = null },
+        onRelease = { v -> v.player = null; view.value = null },
     )
+    // Previews: once pictures have played a few seconds, keep one frame as this channel's card picture (see LocalStills)
+    val k = stream.key
+    if (stream.preview && k != null && k.startsWith("preview:") && stream.state == StreamState.Playing && !stream.isRadio) {
+        LaunchedEffect(k) {
+            delay(3000)
+            val tv = view.value?.videoSurfaceView as? android.view.TextureView ?: return@LaunchedEffect
+            if (stream.key == k && stream.state == StreamState.Playing) LocalStills.capture(k.removePrefix("preview:"), tv)
+        }
+    }
 }
 
 /** Tony's subtitle look: Inter, softly rounded dark box (classic), yellow, or outlined text. */

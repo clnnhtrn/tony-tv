@@ -331,7 +331,13 @@ prices).
    `adb shell dumpsys gfxinfo app.tony.tv reset`, use the remote, then `dumpsys gfxinfo app.tony.tv`.
    **Rows:** selected card snaps to the 52 dp margin line; gap 38 dp so the previous card shows a sliver; focus grows
    rightwards (transformOrigin left). **Channels tab:** country pills + 5-column grid (Home rows show 15 + "See all").
-   **Classic films (Internet Archive) were built then removed at the owner's request** (didn't want old
+   **Live stills (9 Nov 2026):** `stills.yml` grabs every working channel in every country hourly (8 parallel slices, ~7,000 of
+   ~8,500 get a picture; pushes with the job's GITHUB_TOKEN). Stations that block viewers outside their country (most of Vietnam)
+   or use HLS fMP4 that ffmpeg can't read get no server still, so the TV keeps its own: `player/LocalStills.kt` saves one frame
+   from a preview (TextureView) after 3 s of pictures (app cache, max 300, refreshed after 30 min); cards and hero fall back to it.
+   **Browse pages** belong to Home (Home tab stays selected, back button by the title). **Channels tab** sorted by channel number.
+   Cards grow by a fixed ~16 dp (never into the next card); in grids they fill the column and grow from the centre.
+      **Classic films (Internet Archive) were built then removed at the owner's request** (didn't want old
    black-and-white films). For films: the Movies row (live movie channels) + Tubi/Pluto TV apps on the stick.
 5. Install & test on owner's Chromecast with Google TV for ~a week; fix issues.
 6. Deploy to family: Google TV stick on the Samsung, move Tony to front of "Your apps", enable CEC,
