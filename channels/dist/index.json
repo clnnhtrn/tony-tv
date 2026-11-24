@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated": "2026-11-24T10:22:48+00:00",
+ "generated": "2026-11-24T22:44:14+00:00",
  "countries": [
   {
    "name": "Afghanistan",
@@ -18,7 +18,7 @@
    "flag": "🇦🇱",
    "file": "countries/albania.json",
    "channels": 27,
-   "working": 11
+   "working": 12
   },
   {
    "name": "Algeria",
@@ -63,7 +63,7 @@
    "flag": "🇦🇷",
    "file": "countries/argentina.json",
    "channels": 196,
-   "working": 133
+   "working": 139
   },
   {
    "name": "Armenia",
@@ -90,7 +90,7 @@
    "flag": "🇦🇺",
    "file": "countries/australia.json",
    "channels": 59,
-   "working": 26
+   "working": 25
   },
   {
    "name": "Austria",
@@ -99,7 +99,7 @@
    "flag": "🇦🇹",
    "file": "countries/austria.json",
    "channels": 34,
-   "working": 26
+   "working": 25
   },
   {
    "name": "Azerbaijan",
@@ -108,7 +108,7 @@
    "flag": "🇦🇿",
    "file": "countries/azerbaijan.json",
    "channels": 13,
-   "working": 5
+   "working": 6
   },
   {
    "name": "Bahamas",
@@ -135,7 +135,7 @@
    "flag": "🇧🇩",
    "file": "countries/bangladesh.json",
    "channels": 27,
-   "working": 12
+   "working": 14
   },
   {
    "name": "Barbados",
@@ -162,7 +162,7 @@
    "flag": "🇧🇪",
    "file": "countries/belgium.json",
    "channels": 45,
-   "working": 18
+   "working": 17
   },
   {
    "name": "Belize",
@@ -180,7 +180,7 @@
    "flag": "🇧🇯",
    "file": "countries/benin.json",
    "channels": 11,
-   "working": 8
+   "working": 7
   },
   {
    "name": "Bolivia",
@@ -189,7 +189,7 @@
    "flag": "🇧🇴",
    "file": "countries/bolivia.json",
    "channels": 80,
-   "working": 31
+   "working": 53
   },
   {
    "name": "Bonaire",
@@ -198,7 +198,7 @@
    "flag": "🇧🇶",
    "file": "countries/bonaire.json",
    "channels": 6,
-   "working": 3
+   "working": 4
   },
   {
    "name": "Bosnia and Herzegovina",
@@ -207,7 +207,7 @@
    "flag": "🇧🇦",
    "file": "countries/bosnia-and-herzegovina.json",
    "channels": 23,
-   "working": 8
+   "working": 9
   },
   {
    "name": "Brazil",
@@ -279,7 +279,7 @@
    "flag": "🇨🇲",
    "file": "countries/cameroon.json",
    "channels": 18,
-   "working": 7
+   "working": 9
   },
   {
    "name": "Canada",
@@ -315,7 +315,7 @@
    "flag": "🇨🇱",
    "file": "countries/chile.json",
    "channels": 204,
-   "working": 168
+   "working": 174
   },
   {
    "name": "China",
@@ -324,7 +324,7 @@
    "flag": "🇨🇳",
    "file": "countries/china.json",
    "channels": 164,
-   "working": 75
+   "working": 76
   },
   {
    "name": "Colombia",
@@ -360,7 +360,7 @@
    "flag": "🇨🇺",
    "file": "countries/cuba.json",
    "channels": 4,
-   "working": 3
+   "working": 4
   },
   {
    "name": "Curacao",
@@ -378,7 +378,7 @@
    "flag": "🇨🇾",
    "file": "countries/cyprus.json",
    "channels": 19,
-   "working": 9
+   "working": 10
   },
   {
    "name": "Czech Republic",
@@ -414,7 +414,7 @@
    "flag": "🇩🇴",
    "file": "countries/dominican-republic.json",
    "channels": 244,
-   "working": 204
+   "working": 213
   },
   {
    "name": "Ecuador",
@@ -423,7 +423,7 @@
    "flag": "🇪🇨",
    "file": "countries/ecuador.json",
    "channels": 81,
-   "working": 47
+   "working": 49
   },
   {
    "name": "Egypt",
@@ -441,7 +441,7 @@
    "flag": "🇸🇻",
    "file": "countries/el-salvador.json",
    "channels": 38,
-   "working": 13
+   "working": 17
   },
   {
    "name": "Equatorial Guinea",
@@ -468,7 +468,7 @@
    "flag": "🇪🇪",
    "file": "countries/estonia.json",
    "channels": 22,
-   "working": 17
+   "working": 16
   },
   {
    "name": "Ethiopia",
@@ -495,7 +495,7 @@
    "flag": "🇫🇮",
    "file": "countries/finland.json",
    "channels": 33,
-   "working": 20
+   "working": 21
   },
   {
    "name": "France",
@@ -504,7 +504,7 @@
    "flag": "🇫🇷",
    "file": "countries/france.json",
    "channels": 209,
-   "working": 158
+   "working": 157
   },
   {
    "name": "French Guiana",
@@ -540,7 +540,7 @@
    "flag": "🇬🇪",
    "file": "countries/georgia.json",
    "channels": 16,
-   "working": 10
+   "working": 12
   },
   {
    "name": "Germany",
@@ -549,7 +549,7 @@
    "flag": "🇩🇪",
    "file": "countries/germany.json",
    "channels": 387,
-   "working": 319
+   "working": 316
   },
   {
    "name": "Ghana",
@@ -567,7 +567,7 @@
    "flag": "🇬🇷",
    "file": "countries/greece.json",
    "channels": 88,
-   "working": 65
+   "working": 66
   },
   {
    "name": "Greenland",
@@ -621,7 +621,7 @@
    "flag": "🇬🇾",
    "file": "countries/guyana.json",
    "channels": 4,
-   "working": 2
+   "working": 3
   },
   {
    "name": "Haiti",
@@ -630,7 +630,7 @@
    "flag": "🇭🇹",
    "file": "countries/haiti.json",
    "channels": 13,
-   "working": 7
+   "working": 5
   },
   {
    "name": "Honduras",
@@ -657,7 +657,7 @@
    "flag": "🇭🇺",
    "file": "countries/hungary.json",
    "channels": 174,
-   "working": 122
+   "working": 125
   },
   {
    "name": "Iceland",
@@ -675,7 +675,7 @@
    "flag": "🇮🇳",
    "file": "countries/india.json",
    "channels": 764,
-   "working": 664
+   "working": 677
   },
   {
    "name": "Indonesia",
@@ -684,7 +684,7 @@
    "flag": "🇮🇩",
    "file": "countries/indonesia.json",
    "channels": 135,
-   "working": 67
+   "working": 63
   },
   {
    "name": "Iran",
@@ -720,7 +720,7 @@
    "flag": "🇮🇱",
    "file": "countries/israel.json",
    "channels": 49,
-   "working": 46
+   "working": 48
   },
   {
    "name": "Italy",
@@ -729,7 +729,7 @@
    "flag": "🇮🇹",
    "file": "countries/italy.json",
    "channels": 530,
-   "working": 360
+   "working": 356
   },
   {
    "name": "Ivory Coast",
@@ -738,7 +738,7 @@
    "flag": "🇨🇮",
    "file": "countries/ivory-coast.json",
    "channels": 18,
-   "working": 8
+   "working": 9
   },
   {
    "name": "Jamaica",
@@ -765,7 +765,7 @@
    "flag": "🇯🇴",
    "file": "countries/jordan.json",
    "channels": 19,
-   "working": 16
+   "working": 15
   },
   {
    "name": "Kazakhstan",
@@ -792,7 +792,7 @@
    "flag": "🇽🇰",
    "file": "countries/kosovo.json",
    "channels": 11,
-   "working": 7
+   "working": 6
   },
   {
    "name": "Kuwait",
@@ -891,7 +891,7 @@
    "flag": "🇲🇻",
    "file": "countries/maldives.json",
    "channels": 10,
-   "working": 3
+   "working": 4
   },
   {
    "name": "Mali",
@@ -936,7 +936,7 @@
    "flag": "🇲🇽",
    "file": "countries/mexico.json",
    "channels": 184,
-   "working": 103
+   "working": 109
   },
   {
    "name": "Moldova",
@@ -945,7 +945,7 @@
    "flag": "🇲🇩",
    "file": "countries/moldova.json",
    "channels": 19,
-   "working": 15
+   "working": 16
   },
   {
    "name": "Monaco",
@@ -963,7 +963,7 @@
    "flag": "🇲🇳",
    "file": "countries/mongolia.json",
    "channels": 45,
-   "working": 43
+   "working": 42
   },
   {
    "name": "Montenegro",
@@ -981,7 +981,7 @@
    "flag": "🇲🇦",
    "file": "countries/morocco.json",
    "channels": 9,
-   "working": 8
+   "working": 9
   },
   {
    "name": "Mozambique",
@@ -990,7 +990,7 @@
    "flag": "🇲🇿",
    "file": "countries/mozambique.json",
    "channels": 7,
-   "working": 2
+   "working": 1
   },
   {
    "name": "Myanmar",
@@ -999,7 +999,7 @@
    "flag": "🇲🇲",
    "file": "countries/myanmar.json",
    "channels": 19,
-   "working": 7
+   "working": 6
   },
   {
    "name": "Namibia",
@@ -1026,7 +1026,7 @@
    "flag": "🇳🇱",
    "file": "countries/netherlands.json",
    "channels": 179,
-   "working": 114
+   "working": 113
   },
   {
    "name": "New Caledonia",
@@ -1071,7 +1071,7 @@
    "flag": "🇳🇬",
    "file": "countries/nigeria.json",
    "channels": 56,
-   "working": 30
+   "working": 28
   },
   {
    "name": "North Korea",
@@ -1116,7 +1116,7 @@
    "flag": "🇵🇰",
    "file": "countries/pakistan.json",
    "channels": 92,
-   "working": 24
+   "working": 29
   },
   {
    "name": "Palestine",
@@ -1125,7 +1125,7 @@
    "flag": "🇵🇸",
    "file": "countries/palestine.json",
    "channels": 21,
-   "working": 17
+   "working": 16
   },
   {
    "name": "Panama",
@@ -1134,7 +1134,7 @@
    "flag": "🇵🇦",
    "file": "countries/panama.json",
    "channels": 24,
-   "working": 13
+   "working": 15
   },
   {
    "name": "Papua New Guinea",
@@ -1152,7 +1152,7 @@
    "flag": "🇵🇾",
    "file": "countries/paraguay.json",
    "channels": 70,
-   "working": 59
+   "working": 53
   },
   {
    "name": "Peru",
@@ -1161,7 +1161,7 @@
    "flag": "🇵🇪",
    "file": "countries/peru.json",
    "channels": 183,
-   "working": 128
+   "working": 135
   },
   {
    "name": "Philippines",
@@ -1170,7 +1170,7 @@
    "flag": "🇵🇭",
    "file": "countries/philippines.json",
    "channels": 11,
-   "working": 11
+   "working": 10
   },
   {
    "name": "Poland",
@@ -1188,7 +1188,7 @@
    "flag": "🇵🇹",
    "file": "countries/portugal.json",
    "channels": 53,
-   "working": 35
+   "working": 34
   },
   {
    "name": "Puerto Rico",
@@ -1197,7 +1197,7 @@
    "flag": "🇵🇷",
    "file": "countries/puerto-rico.json",
    "channels": 26,
-   "working": 22
+   "working": 25
   },
   {
    "name": "Qatar",
@@ -1224,7 +1224,7 @@
    "flag": "🇷🇴",
    "file": "countries/romania.json",
    "channels": 177,
-   "working": 155
+   "working": 153
   },
   {
    "name": "Russia",
@@ -1233,7 +1233,7 @@
    "flag": "🇷🇺",
    "file": "countries/russia.json",
    "channels": 479,
-   "working": 359
+   "working": 352
   },
   {
    "name": "Rwanda",
@@ -1296,7 +1296,7 @@
    "flag": "🇸🇦",
    "file": "countries/saudi-arabia.json",
    "channels": 56,
-   "working": 46
+   "working": 47
   },
   {
    "name": "Senegal",
@@ -1314,7 +1314,7 @@
    "flag": "🇷🇸",
    "file": "countries/serbia.json",
    "channels": 34,
-   "working": 27
+   "working": 28
   },
   {
    "name": "Sierra Leone",
@@ -1386,7 +1386,7 @@
    "flag": "🇰🇷",
    "file": "countries/south-korea.json",
    "channels": 80,
-   "working": 53
+   "working": 52
   },
   {
    "name": "Spain",
@@ -1395,7 +1395,7 @@
    "flag": "🇪🇸",
    "file": "countries/spain.json",
    "channels": 244,
-   "working": 161
+   "working": 156
   },
   {
    "name": "Sri Lanka",
@@ -1404,7 +1404,7 @@
    "flag": "🇱🇰",
    "file": "countries/sri-lanka.json",
    "channels": 17,
-   "working": 7
+   "working": 6
   },
   {
    "name": "Sudan",
@@ -1431,7 +1431,7 @@
    "flag": "🇸🇪",
    "file": "countries/sweden.json",
    "channels": 160,
-   "working": 146
+   "working": 145
   },
   {
    "name": "Switzerland",
@@ -1476,7 +1476,7 @@
    "flag": "🇹🇿",
    "file": "countries/tanzania.json",
    "channels": 7,
-   "working": 4
+   "working": 5
   },
   {
    "name": "Thailand",
@@ -1494,7 +1494,7 @@
    "flag": "🇹🇬",
    "file": "countries/togo.json",
    "channels": 11,
-   "working": 7
+   "working": 6
   },
   {
    "name": "Trinidad and Tobago",
@@ -1503,7 +1503,7 @@
    "flag": "🇹🇹",
    "file": "countries/trinidad-and-tobago.json",
    "channels": 13,
-   "working": 7
+   "working": 6
   },
   {
    "name": "Tunisia",
@@ -1521,7 +1521,7 @@
    "flag": "🇹🇷",
    "file": "countries/turkiye.json",
    "channels": 199,
-   "working": 119
+   "working": 118
   },
   {
    "name": "Turkmenistan",
@@ -1548,7 +1548,7 @@
    "flag": "🇦🇪",
    "file": "countries/uae.json",
    "channels": 59,
-   "working": 38
+   "working": 39
   },
   {
    "name": "Uganda",
@@ -1557,7 +1557,7 @@
    "flag": "🇺🇬",
    "file": "countries/uganda.json",
    "channels": 23,
-   "working": 11
+   "working": 13
   },
   {
    "name": "Ukraine",
@@ -1566,7 +1566,7 @@
    "flag": "🇺🇦",
    "file": "countries/ukraine.json",
    "channels": 194,
-   "working": 154
+   "working": 152
   },
   {
    "name": "United Kingdom",
@@ -1575,7 +1575,7 @@
    "flag": "🇬🇧",
    "file": "countries/united-kingdom.json",
    "channels": 220,
-   "working": 128
+   "working": 130
   },
   {
    "name": "Uruguay",
@@ -1584,7 +1584,7 @@
    "flag": "🇺🇾",
    "file": "countries/uruguay.json",
    "channels": 9,
-   "working": 6
+   "working": 7
   },
   {
    "name": "USA",
@@ -1593,7 +1593,7 @@
    "flag": "🇺🇸",
    "file": "countries/usa.json",
    "channels": 1633,
-   "working": 1416
+   "working": 1414
   },
   {
    "name": "Uzbekistan",
@@ -1620,7 +1620,7 @@
    "flag": "🇻🇪",
    "file": "countries/venezuela.json",
    "channels": 77,
-   "working": 51
+   "working": 48
   },
   {
    "name": "Vietnam",
@@ -1629,7 +1629,7 @@
    "flag": "🇻🇳",
    "file": "countries/vietnam.json",
    "channels": 87,
-   "working": 65
+   "working": 76
   },
   {
    "name": "Western Sahara",
@@ -1647,7 +1647,7 @@
    "flag": "🇾🇪",
    "file": "countries/yemen.json",
    "channels": 4,
-   "working": 3
+   "working": 4
   },
   {
    "name": "Zimbabwe",
@@ -1691,13 +1691,13 @@
    "key": "arabic",
    "title": "Arabic",
    "file": "rows/arabic.json",
-   "channels": 284
+   "channels": 282
   },
   {
    "key": "movies",
    "title": "Movies",
    "file": "rows/movies.json",
-   "channels": 501
+   "channels": 503
   }
  ]
 }
